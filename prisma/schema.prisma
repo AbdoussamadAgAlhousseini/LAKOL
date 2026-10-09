@@ -141,6 +141,7 @@ model School {
   preRegistrations    PreRegistration[]
   timetableExceptions TimetableException[]
   appraisals          Appraisal[]
+  cashClosings        CashClosing[]
 }
 
 model Subscription {
@@ -1142,6 +1143,9 @@ model Invoice {
   total          Int
   amountPaid     Int                 @default(0)
   status         InvoiceStatus       @default(UNPAID)
+  // Échéance d'une grille de frais (« <feeScheduleId>:<n° d'échéance> ») : évite les doublons à la génération.
+  sourceKey      String?
+  lastReminderAt DateTime?
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
   deletedAt      DateTime?
@@ -1149,6 +1153,7 @@ model Invoice {
   allocations    PaymentAllocation[]
 
   @@unique([schoolId, number])
+  @@unique([studentId, sourceKey])
   @@index([schoolId, studentId, status])
   @@index([schoolId, dueDate])
 }
@@ -1592,4 +1597,21 @@ model Appraisal {
 
   @@unique([termId, studentId, subjectId])
   @@index([schoolId, termId])
+}
+
+// Clôture de la caisse du jour : espèces attendues (encaissements - dépenses
+// en espèces) comparées au comptage réel.
+model CashClosing {
+  id           String   @id @default(cuid())
+  schoolId     String
+  school       School   @relation(fields: [schoolId], references: [id])
+  date         DateTime @db.Date
+  expectedCash Int
+  countedCash  Int
+  difference   Int
+  note         String?
+  closedById   String
+  createdAt    DateTime @default(now())
+
+  @@unique([schoolId, date])
 }

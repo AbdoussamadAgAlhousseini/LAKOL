@@ -32,6 +32,10 @@ worker.on("ready", () => logger.info({ queue: QUEUE_NAME }, "worker prêt"));
 queue
   .upsertJobScheduler("homework-reminders", { pattern: "0 * * * *" }, { name: "homework.reminders", data: {} })
   .catch((error) => logger.error({ error: String(error) }, "planification des rappels impossible"));
+// Relances des impayés : chaque jour à 9 h (au plus une par semaine et par élève).
+queue
+  .upsertJobScheduler("finance-reminders", { pattern: "0 9 * * *" }, { name: "finance.reminders", data: {} })
+  .catch((error) => logger.error({ error: String(error) }, "planification des relances impossible"));
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.on(signal, async () => {

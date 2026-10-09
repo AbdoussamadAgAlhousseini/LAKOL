@@ -862,7 +862,7 @@ async function seedEtoiles(planId: string) {
     [lv9.id]: 50000,
     [lv11.id]: 65000,
   };
-  await prisma.feeSchedule.create({
+  const inscriptionSchedule = await prisma.feeSchedule.create({
     data: {
       schoolId,
       feeTypeId: feeInscription.id,
@@ -872,22 +872,25 @@ async function seedEtoiles(planId: string) {
       installments: [{ label: "Inscription", dueDate: "2025-10-01" }],
     },
   });
+  const tuitionSchedules: Record<string, string> = {};
   for (const [levelId, amount] of Object.entries(tuitionByLevel)) {
-    await prisma.feeSchedule.create({
-      data: {
-        schoolId,
-        feeTypeId: feeTuition.id,
-        academicYearId: year.id,
-        levelId,
-        amount,
-        frequency: "TERMLY",
-        installments: [
-          { label: "1er trimestre", dueDate: "2025-10-15" },
-          { label: "2e trimestre", dueDate: "2026-01-15" },
-          { label: "3e trimestre", dueDate: "2026-04-15" },
-        ],
-      },
-    });
+    tuitionSchedules[levelId] = (
+      await prisma.feeSchedule.create({
+        data: {
+          schoolId,
+          feeTypeId: feeTuition.id,
+          academicYearId: year.id,
+          levelId,
+          amount,
+          frequency: "TERMLY",
+          installments: [
+            { label: "1er trimestre", dueDate: "2025-10-15" },
+            { label: "2e trimestre", dueDate: "2026-01-15" },
+            { label: "3e trimestre", dueDate: "2026-04-15" },
+          ],
+        },
+      })
+    ).id;
   }
   // Réduction fratrie pour le 2e enfant du parent de démonstration
   const sibling = await prisma.discount.create({
@@ -912,11 +915,13 @@ async function seedEtoiles(planId: string) {
       {
         label: "Inscription 2025-2026",
         due: "2025-10-01",
+        sourceKey: `${inscriptionSchedule.id}:0`,
         lines: [{ label: "Frais d'inscription", amount: 25000, feeTypeId: feeInscription.id }],
       },
       ...["1er trimestre", "2e trimestre", "3e trimestre"].map((t, i) => ({
         label: `Scolarité — ${t}`,
         due: ["2025-10-15", "2026-01-15", "2026-04-15"][i],
+        sourceKey: `${tuitionSchedules[level.id]}:${i}`,
         lines: [
           { label: `Scolarité ${t}`, amount: tuition, feeTypeId: feeTuition.id },
           ...(discount ? [{ label: sibling.label, amount: -discount, discountId: sibling.id }] : []),
@@ -936,6 +941,7 @@ async function seedEtoiles(planId: string) {
           academicYearId: year.id,
           number: `FAC-2025-${String(invoiceSeq).padStart(5, "0")}`,
           label: inv.label,
+          sourceKey: inv.sourceKey,
           issueDate: d("2025-09-25"),
           dueDate: d(inv.due),
           total,

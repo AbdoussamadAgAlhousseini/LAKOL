@@ -1,6 +1,7 @@
 import { prisma } from "@/server/db/client";
 import { forSchool } from "@/server/db/tenant";
 import { notifyGuardians, notifyUser } from "@/server/services/notify";
+import { sendPaymentReminders } from "@/server/services/finance/reminders";
 
 const DAY = 86_400_000;
 
@@ -76,4 +77,14 @@ export async function sendHomeworkReminders(now = new Date()) {
     });
   }
   return { homeworks: homeworks.length, sent };
+}
+
+/** Relance hebdomadaire des impayés échus, pour toutes les écoles actives. */
+export async function sendAllPaymentReminders() {
+  const schools = await prisma.school.findMany({ where: { isActive: true, deletedAt: null } });
+  let reminded = 0;
+  for (const school of schools) {
+    reminded += (await sendPaymentReminders({ db: forSchool(school.id), school })).reminded;
+  }
+  return { reminded };
 }

@@ -1,4 +1,4 @@
-import type { NotificationChannel, School, User } from "@prisma/client";
+import type { NotificationChannel, Prisma, School, User } from "@prisma/client";
 import type { TenantDb } from "@/server/db/tenant";
 import { enqueue } from "@/server/jobs/queue";
 
@@ -65,9 +65,11 @@ export async function notifyGuardians(
   studentId: string,
   message: OutgoingMessage,
   channels: ExternalChannel[] = ["WHATSAPP", "EMAIL"],
+  /** Filtre supplémentaire sur les tuteurs (ex. { canViewFinance: true }). */
+  filter: Prisma.StudentGuardianWhereInput = {},
 ) {
   const links = await ctx.db.studentGuardian.findMany({
-    where: { studentId, receivesNotifications: true, guardian: { deletedAt: null, userId: { not: null } } },
+    where: { ...filter, studentId, receivesNotifications: true, guardian: { deletedAt: null, userId: { not: null } } },
     include: { guardian: { include: { user: true } } },
   });
   let count = 0;
