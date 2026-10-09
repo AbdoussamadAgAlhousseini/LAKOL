@@ -21,6 +21,16 @@ const eslintConfig = [
     ],
   },
   {
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["warn", { ignoreRestSiblings: true, varsIgnorePattern: "^_" }],
+    },
+  },
+  {
+    // Gabarits PDF : <Image> de @react-pdf n'est pas une balise <img> HTML.
+    files: ["src/server/pdf/**"],
+    rules: { "jsx-a11y/alt-text": "off" },
+  },
+  {
     // Isolation multi-tenant : le client Prisma brut (sans filtre d'école) n'est
     // autorisé que dans les couches qui en ont besoin. Le reste passe par
     // `ctx.db` (forSchool).

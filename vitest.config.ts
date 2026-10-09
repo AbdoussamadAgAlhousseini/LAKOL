@@ -4,6 +4,8 @@ import "dotenv/config";
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
+  // JSX des gabarits PDF (@react-pdf) : transformation automatique, comme Next.js.
+  esbuild: { jsx: "automatic" },
   test: {
     // Les tests d'intégration partagent la même base : exécution séquentielle.
     fileParallelism: false,

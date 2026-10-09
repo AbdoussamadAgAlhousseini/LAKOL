@@ -140,6 +140,7 @@ model School {
   counters            Counter[]
   preRegistrations    PreRegistration[]
   timetableExceptions TimetableException[]
+  appraisals          Appraisal[]
 }
 
 model Subscription {
@@ -1030,6 +1031,7 @@ model ClassCouncilDecision {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 
+  @@unique([studentId, termId])
   @@index([schoolId, classId])
 }
 
@@ -1572,4 +1574,22 @@ model TimetableException {
 
   @@unique([slotId, date])
   @@index([schoolId, date])
+}
+
+// Appréciation d'une période : par matière (professeur) ou générale
+// (professeur principal, subjectId vide).
+model Appraisal {
+  id        String   @id @default(cuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  termId    String
+  studentId String
+  subjectId String   @default("") // "" = appréciation générale
+  comment   String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([termId, studentId, subjectId])
+  @@index([schoolId, termId])
 }
