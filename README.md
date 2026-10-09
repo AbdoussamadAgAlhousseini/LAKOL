@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LAKOL
 
-## Getting Started
+Plateforme SaaS de gestion scolaire multi-écoles, pensée pour l'Afrique de l'Ouest francophone (Mali en priorité).
+Direction, secrétariat, professeurs, parents et élèves travaillent dans un seul outil, chacun dans son espace.
 
-First, run the development server:
+> État : **phase 1 (fondations)** terminée. Voir `TODO.md` pour la suite et `CLAUDE.md` pour le cahier des charges.
+
+## Prérequis
+
+- Node.js 22 et pnpm 10 (`corepack enable`)
+- Docker (pour PostgreSQL, Redis, MinIO, Mailpit), ou un PostgreSQL 16 local
+
+## Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env
+docker compose up -d          # PostgreSQL, Redis, MinIO, Mailpit
+pnpm install                  # génère aussi le client Prisma
+pnpm db:migrate               # applique les migrations
+pnpm db:seed                  # données de démonstration (réinitialise la base)
+pnpm dev                      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Comptes de démonstration
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Les deux écoles de démonstration sont `les-etoiles` (Bamako, 30 élèves) et `le-savoir` (Sikasso, petite école servant aux tests d'isolation).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Rôle                                                       | Identifiant                                             | Mot de passe  |
+| ---------------------------------------------------------- | ------------------------------------------------------- | ------------- |
+| Super admin plateforme                                     | `admin@lakol.test`                                      | `Admin2025!`  |
+| Directeur                                                  | `directeur@les-etoiles.lakol.test` ou `70 00 00 10`     | `Lakol2025!`  |
+| Secrétariat                                                | `secretariat@les-etoiles.lakol.test`                    | `Lakol2025!`  |
+| Censeur                                                    | `censeur@les-etoiles.lakol.test`                        | `Lakol2025!`  |
+| Comptable                                                  | `comptable@les-etoiles.lakol.test`                      | `Lakol2025!`  |
+| Professeur de maths (principal de 7e A)                    | `prof.maths@les-etoiles.lakol.test` ou `70 00 00 20`    | `Lakol2025!`  |
+| Professeure de français (principale de 5e A **et** parent) | `prof.francais@les-etoiles.lakol.test` ou `70 00 00 21` | `Lakol2025!`  |
+| Parent de deux enfants (7e A et 9e A)                      | `70 00 00 01` ou `parent@lakol.test`                    | `Parent2025!` |
+| Élève (Aminata Traoré, 7e A)                               | `eto-25-0029@eleves.lakol.test`                         | `Eleve2025!`  |
+| Directeur de l'école B                                     | `directeur@le-savoir.lakol.test`                        | `Lakol2025!`  |
 
-## Learn More
+Les numéros sont saisis au format local malien (8 chiffres) ou international (`+223…`).
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Commande                                                 | Rôle                                                                |
+| -------------------------------------------------------- | ------------------------------------------------------------------- |
+| `pnpm dev` / `pnpm build` / `pnpm start`                 | Développement, build et serveur de production                       |
+| `pnpm lint` / `pnpm typecheck` / `pnpm format`           | ESLint, TypeScript strict, Prettier                                 |
+| `pnpm test:unit`                                         | Tests unitaires (sans base)                                         |
+| `pnpm test:integration`                                  | Tests d'intégration (base migrée et seedée requise)                 |
+| `pnpm test:e2e`                                          | Parcours Playwright (lance `pnpm start` : faire `pnpm build` avant) |
+| `pnpm db:migrate` / `db:deploy` / `db:seed` / `db:reset` | Base de données                                                     |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Variables d'environnement
 
-## Deploy on Vercel
+Voir `.env.example`. En développement, WhatsApp et email sont simulés : les messages (dont les codes de vérification) s'affichent dans les logs du serveur.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Variable            | Description                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------ |
+| `DATABASE_URL`      | Connexion PostgreSQL                                                                 |
+| `REDIS_URL`         | File de tâches (à partir de la phase 3)                                              |
+| `APP_URL`           | URL publique, pour les liens envoyés                                                 |
+| `WHATSAPP_PROVIDER` | `mock` (défaut) ou `meta` (avec `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`) |
+| `EMAIL_PROVIDER`    | `mock` (défaut) ou `resend` (avec `RESEND_API_KEY`, `EMAIL_FROM`)                    |
+| `S3_*`              | Stockage de fichiers compatible S3 (MinIO en local, Cloudflare R2 en production)     |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Déploiement
+
+- **Docker** : `docker compose --profile app up -d --build` construit l'image (sortie _standalone_ de Next.js). Les migrations s'appliquent au démarrage.
+- **Vercel / Railway** : base PostgreSQL managée, `pnpm db:deploy` au déploiement, variables de `.env.example`.
+
+## Sauvegardes
+
+- **Base** : `pg_dump` quotidien compressé, copié hors du serveur (bucket S3 avec versionnement), conservé 30 jours, plus un mensuel conservé 12 mois. Les bases managées (Railway, Neon, Supabase) ajoutent la restauration à un instant donné.
+- **Fichiers** : versionnement activé sur le bucket S3.
+- **Restauration testée** chaque trimestre sur une base vierge (`pg_restore`, puis `pnpm test:integration`).
+
+## Documentation
+
+- `ARCHITECTURE.md` : organisation du code, multi-tenant, RBAC, authentification
+- `DECISIONS.md` : choix techniques et leurs raisons
+- `TODO.md` : phases restantes et améliorations prévues

@@ -1,0 +1,62 @@
+# Décisions techniques
+
+Format : contexte, décision, conséquences.
+
+## 001 — Stack
+
+Stack recommandée retenue : Next.js 15 (App Router), TypeScript strict, Tailwind CSS 4, Prisma 6, PostgreSQL 16, Zod, Vitest, Playwright.
+Prisma 6 plutôt que 7 : la v7 change la configuration (fichier `prisma.config.ts`, adapters obligatoires) sans bénéfice pour nous aujourd'hui.
+
+## 002 — Authentification maison plutôt qu'Auth.js ou Lucia
+
+Lucia est abandonné depuis 2025. Le mode « identifiants » d'Auth.js se prête mal aux sessions en base, à la connexion par téléphone et aux codes WhatsApp.
+Décision : sessions en base (jeton haché en SHA-256, cookie httpOnly), mots de passe argon2id (`@node-rs/argon2`, binaire précompilé, aucune compilation native).
+Conséquence : environ 200 lignes maîtrisées et testées, sans dépendance à un framework d'auth.
+
+## 003 — Multi-tenant : base partagée + extension Prisma
+
+Une base par école multiplierait le coût et compliquerait les migrations.
+Décision : colonne `schoolId` et extension Prisma `forSchool()` qui filtre toutes les opérations, plus une règle ESLint qui interdit le client brut.
+Conséquences :
+
+- les écritures imbriquées ne sont pas réécrites (règle documentée) ;
+- le Row-Level Security PostgreSQL est prévu en défense supplémentaire (TODO).
+
+## 004 — Utilisateurs globaux, rôles par école
+
+`User` n'a pas de `schoolId`, et l'appartenance passe par `UserRole`.
+Cela permet un parent dans plusieurs écoles et des rôles multiples (professeur et parent). La table `Membership` envisagée dans le plan a été fusionnée dans `UserRole`, qui porte `schoolId`.
+
+## 005 — Permissions `:own` et espace actif
+
+Les permissions vont par paires : `grade.read` (toute l'école) et `grade.read:own` (son périmètre). Seules les permissions du rôle actif s'appliquent.
+On obtient ainsi un modèle simple, testable sans base, et un moindre privilège quand un utilisateur cumule des rôles.
+
+## 006 — École résolue par le chemin
+
+`/{langue}/{slug}/…` fonctionne partout sans DNS joker, en local comme en production. Le sous-domaine sera réécrit vers ce chemin par le middleware (phase 7, avec l'onboarding).
+
+## 007 — Composants shadcn/ui écrits à la main
+
+Le registre shadcn (ui.shadcn.com) était inaccessible depuis l'environnement de développement.
+Les composants de base (Button, Input, Label, Card, Badge, Alert) ont été écrits au format shadcn, avec les mêmes API et jetons de couleur. Les suivants pourront être ajoutés via `pnpm dlx shadcn add` quand le registre est accessible.
+
+## 008 — Interface légère pour mobiles d'entrée de gamme
+
+- Le menu mobile utilise `<details>`, sans JavaScript.
+- Pas de police web : polices système.
+- Le sélecteur de langue est un `<select>` natif.
+- Les cibles tactiles font 48 px.
+- Les tuiles du tableau de bord parent ont des codes couleur (vert / orange / rouge) et des icônes, pour limiter le texte.
+
+## 009 — Montants et notes en entiers
+
+L'argent est stocké en entiers (unités mineures). Les notes sont en centièmes, avec le barème (`outOf`) sur l'évaluation, ce qui donne des moyennes et des rangs déterministes, sans flottants.
+
+## 010 — Seed déterministe
+
+Le seed vide la base puis la remplit avec un générateur pseudo-aléatoire à graine fixe. Les tests d'intégration et e2e s'appuient sur ces données.
+
+## 011 — Tâches de fond reportées à la phase 3
+
+En phase 1, le seul envoi est le code de réinitialisation, fait de façon synchrone. BullMQ + Redis arrivent avec les notifications d'absence (phase 3) et seront généralisés en phase 6.
