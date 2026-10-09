@@ -96,6 +96,13 @@ tests/unit, integration, e2e
 - **Devoirs** : publication par le professeur affecté, pièces jointes (`Document` « Homework »), rendu en ligne (« HomeworkSubmission »), correction notée en centièmes ; vue famille par enfant ; charge de travail sur 14 jours.
 - **Justificatifs** : le parent dépose un motif et une pièce ; la vie scolaire valide (statut EXCUSED, audité).
 
+## Évaluations et bulletins (phase 4)
+
+- **Calculs** (`src/lib/grading.ts`, fonctions pures testées) : note ramenée au barème de l'école, moyenne de matière pondérée par le poids des évaluations (absences ignorées), moyenne générale coefficientée (coefficients du niveau et de la série ; 1 par défaut), rangs avec ex æquo, moyenne de classe, plus forte et plus faible, distinction proposée (16 / 14 / 12 sur 20).
+- **Cycle de vie** : le professeur affecté crée l'évaluation et saisit (grille ou import Excel « matricule ; note ») → la direction valide classe × période (`Assessment.isLocked`) → toute modification ultérieure exige `grade.unlock` et est tracée → appréciations (matière : professeur ; générale : professeur principal) et conseil de classe → édition des PDF (`@react-pdf/renderer`, côté serveur, stockés comme `Document` « ReportCard ») → publication et notification des parents.
+- **Accès aux bulletins** : personnel de la classe ; famille seulement si publié, si le tuteur peut voir les notes (`StudentGuardian.canViewGrades`) et si l'école ne bloque pas pour impayé échu (`School.blockReportIfUnpaid`).
+- **Carte scolaire** : PDF format carte bancaire avec photo et QR code (`/api/schools/{école}/students/{id}/card`).
+
 ## Services externes
 
 Interfaces dans `src/server/adapters/` :

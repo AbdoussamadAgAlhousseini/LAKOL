@@ -13,13 +13,17 @@
 
 ## Améliorations prévues
 
+- [ ] Bulletin annuel (moyenne annuelle, décision de fin d'année) et bilan des trois périodes.
+- [ ] Impression groupée des bulletins d'une classe (un seul PDF) et des cartes scolaires.
+- [ ] Graphique de progression de l'enfant d'une période à l'autre (espace parent, phase 8).
+- [ ] Page publique de vérification d'un bulletin ou d'une carte via le QR code.
+
 - [ ] Fuseau horaire par école (`School.timezone`) pour les pays hors UTC.
 - [ ] Messages vocaux du professeur sur un devoir (pièce jointe audio).
 - [ ] Statistiques d'assiduité par période (trimestre) et par classe, avec export.
 - [ ] Regroupement quotidien des notifications WhatsApp par parent (limiter le volume).
 - [ ] Interface de consultation des notifications in-app (phase 6).
 
-- [ ] Carte scolaire PDF avec QR code (avec la génération PDF de la phase 4).
 - [ ] Compression des photos et logos à l'envoi (aujourd'hui : 5 Mo max, formats contrôlés).
 - [ ] Notifier le parent par WhatsApp quand sa pré-inscription est refusée.
 - [ ] Réinscription en masse d'une classe vers l'année suivante (aujourd'hui : élève par élève).

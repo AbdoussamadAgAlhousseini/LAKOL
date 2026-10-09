@@ -100,3 +100,19 @@ Les dates et heures (emploi du temps, date limite des devoirs) sont stockées et
 ## 021 — Emploi du temps : le professeur suit l'affectation
 
 Un créneau se crée par classe et matière ; le professeur est celui affecté à cette matière dans la classe. On évite ainsi les incohérences entre emploi du temps et affectations, et les conflits professeur sont détectés automatiquement.
+
+## 022 — Bulletins PDF générés côté serveur avec @react-pdf/renderer
+
+Pas de navigateur sans tête à installer (léger sur un VPS) ; gabarit en composants React, polices standard (accents français couverts). Les PDF sont stockés : un bulletin publié ne change plus, même si les données évoluent ; une réédition crée un nouveau document (l'ancien est archivé).
+
+## 023 — Validation des notes par classe et par période
+
+La direction valide d'un geste toutes les évaluations d'une classe pour une période. C'est ce verrou qui autorise l'édition des bulletins ; il protège les notes contre les modifications tardives (tracées si la direction déverrouille).
+
+## 024 — Moyennes recalculées à la demande
+
+Les moyennes et rangs ne sont pas stockés pendant la saisie (pas de désynchronisation possible) : ils sont recalculés à l'affichage, puis figés dans `ReportCard` à l'édition du bulletin.
+
+## 025 — Appréciation générale : `subjectId` vide
+
+Une seule table `Appraisal` ; la valeur « » (chaîne vide) désigne l'appréciation générale, ce qui permet une contrainte d'unicité simple (les NULL ne sont pas uniques en PostgreSQL).
