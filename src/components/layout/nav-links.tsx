@@ -5,6 +5,7 @@ import {
   CalendarClock,
   CalendarDays,
   ClipboardCheck,
+  CreditCard,
   FileText,
   GraduationCap,
   History,
@@ -44,6 +45,7 @@ const ICONS: Record<string, LucideIcon> = {
   resources: Library,
   audit: History,
   settings: Settings,
+  subscription: CreditCard,
 };
 
 export function NavLinks({ items }: { items: { href: string; label: string; icon: string }[] }) {

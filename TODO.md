@@ -8,10 +8,17 @@
 - [x] **Phase 4 : Évaluations** — saisie des notes, moyennes et rangs, verrouillage, conseil de classe, bulletins PDF
 - [x] **Phase 5 : Finances** — grilles de frais, échéanciers, réductions, paiements à l'école, reçus PDF, annulation, relances, dépenses, caisse et clôture, paie, tableaux de bord, espace parent
 - [x] **Phase 6 : Communication** — messagerie (texte et vocal, modération), annonces et circulaires avec accusé de lecture, notifications in-app/WhatsApp/email avec heures calmes, suivi des envois (webhook), temps réel (SSE), rendez-vous parents-professeurs
-- [ ] **Phase 7 : SaaS** — super admin complet, abonnements, modules activables, onboarding, sous-domaines
+- [x] **Phase 7 : SaaS** — espace super admin, formules et conditions particulières, modules activables, limites (élèves, WhatsApp), cycle d'abonnement (essai, renouvellement, impayé, lecture seule), factures LAKOL en PDF, inscription en ligne, assistant de démarrage (modèle malien), sous-domaines
 - [ ] **Phase 8 : Finitions** — PWA et hors ligne, tableaux de bord avancés, modules optionnels, performances
 
 ## Améliorations prévues
+
+- [ ] Paiement en ligne des factures LAKOL (mobile money) et relances automatiques par WhatsApp avant échéance.
+- [ ] Rôles et modules de la cantine, du transport, de la bibliothèque et de l'infirmerie (modules prévus, interfaces en phase 8).
+- [ ] Domaine personnalisé par école (URL sans chemin) et cookies par domaine.
+- [ ] Facturation au prorata en cours d'année (aujourd'hui : facture annuelle, effectif saisi à la main si besoin).
+- [ ] Export comptable des factures de la plateforme et statistiques de revenus par mois.
+- [ ] Ajout d'une deuxième école à un compte existant depuis l'inscription en ligne (aujourd'hui : par le super admin).
 
 - [ ] Modèles de messages WhatsApp approuvés par Meta (obligatoires hors fenêtre de 24 h) : aujourd'hui, envoi de texte libre.
 - [ ] Conversations de groupe (ex. professeur ↔ deux parents d'un même élève) et pièces jointes autres qu'audio dans la messagerie.
@@ -44,7 +51,6 @@
 - [ ] **Paiement mobile** (Orange Money, Moov Money, Wave) : implémenter un `PaymentProvider`. Le modèle `Payment` a déjà `provider` / `providerRef`, et `PaymentMethod.MOBILE_MONEY` est réservé.
 - [ ] Row-Level Security PostgreSQL en défense supplémentaire de l'extension `forSchool()`.
 - [ ] Connexion par code WhatsApp sans mot de passe (`VerificationPurpose.LOGIN` déjà prévu).
-- [ ] Sous-domaines `ecole-x.domaine` réécrits vers `/{langue}/ecole-x` dans le middleware.
 - [ ] Langue bambara (`src/messages/bm.json`).
 - [ ] Filtrage automatique des lignes `deletedAt` dans l'extension Prisma (aujourd'hui explicite dans les requêtes).
 - [ ] Limitation des tentatives via Redis plutôt qu'en base, quand Redis sera en place.

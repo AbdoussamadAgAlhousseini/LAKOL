@@ -45,7 +45,7 @@ export function formDataToObject(form: FormData): Record<string, unknown> {
   return out;
 }
 
-function fieldErrors(issues: z.ZodIssue[]): Record<string, string> {
+export function fieldErrors(issues: z.ZodIssue[]): Record<string, string> {
   const fields: Record<string, string> = {};
   for (const issue of issues) {
     const key = issue.path.join(".") || "_";

@@ -140,3 +140,29 @@ export async function finishOnboarding(ctx: ServiceContext) {
   if (!canAll(ctx.scope, "school.settings.manage")) throw new ForbiddenError();
   await ctx.db.school.update({ where: { id: ctx.school.id }, data: { onboardingDoneAt: new Date() } });
 }
+
+/** Étape 1 : coordonnées de l'école (en-tête des bulletins, reçus, messages). */
+export async function updateSchoolBasics(
+  ctx: ServiceContext,
+  input: { name: string; city: string; phone: string; address?: string | null; email?: string | null },
+) {
+  if (!canAll(ctx.scope, "school.settings.manage")) throw new ForbiddenError();
+  const before = { name: ctx.school.name, city: ctx.school.city, phone: ctx.school.phone };
+  await ctx.db.school.update({
+    where: { id: ctx.school.id },
+    data: {
+      name: input.name,
+      city: input.city,
+      phone: input.phone,
+      address: input.address ?? null,
+      email: input.email ?? null,
+    },
+  });
+  await audit(ctx.db, actor(ctx), {
+    action: "school.settings",
+    entityType: "School",
+    entityId: ctx.school.id,
+    before,
+    after: input,
+  });
+}

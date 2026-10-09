@@ -124,6 +124,18 @@ tests/unit, integration, e2e
 - **Temps réel** : flux SSE `/api/schools/{école}/events` (compteurs de notifications et de messages non lus toutes les 5 s, reconnexion automatique après 5 min).
 - **Rendez-vous** : le professeur publie des séries de créneaux (`MeetingSlot`, chevauchements refusés) ; le parent réserve un créneau d'un professeur de son enfant (mise à jour atomique : un créneau ne se réserve qu'une fois) ; chaque partie est prévenue des réservations et annulations.
 
+## Plateforme SaaS (phase 7)
+
+- **Formules** (`Plan`) : prix par élève et par an, élèves maximum, quota WhatsApp mensuel, modules inclus. Le super admin peut fixer des conditions particulières par école (`Subscription.maxStudents`, `pricePerStudent`, `whatsappQuota`).
+- **Modules activables** : actifs = modules de la formule (sauf désactivés par l'école) + modules offerts par la plateforme (`ModuleActivation.grantedByPlatform`). Au chargement du contexte, les permissions des modules inactifs sont retirées (`permissionsForModules`) : menus, pages, actions et services sont coupés au même endroit, sans contrôle dispersé.
+- **Limites** : inscription refusée au-delà des élèves autorisés (création, import tout-ou-rien, pré-inscription, réinscription) ; au-delà du quota WhatsApp du mois, l'envoi passe par email ou reste in-app (les messages urgents passent toujours).
+- **Cycle de vie** (tâche `subscriptions.check`, chaque nuit) : essai → rappel à J-7 → formule gratuite à la fin (données conservées) ; formule payante → facture de renouvellement 30 jours avant l'échéance → impayé avec 15 jours de grâce → suspension en lecture seule. Le règlement d'une facture réactive l'abonnement pour la période facturée. Chaque transition prévient la direction (une seule fois, `lastNoticeKey`).
+- **Factures de la plateforme** (`PlatformInvoice`) : numérotation LAK-AAAA-NNNNN sans trou (verrou de transaction), élèves inscrits × prix, PDF (`/api/platform-invoices/{id}`, super admin ou direction de l'école), paiement enregistré par le super admin.
+- **Espace super admin** (`/admin`) : tableau de bord (écoles, élèves, revenu annuel, encaissements, impayés, essais qui finissent), écoles (création, formule, conditions, essai, suspension, modules, factures, historique audité), formules, factures.
+- **Création d'école** (`platform/onboarding.ts`) : en ligne (`/creer-mon-ecole`, essai Standard de 30 jours, limité par adresse IP) ou par le super admin (accès du directeur envoyés par WhatsApp). Rôles système, site principal et abonnement créés d'un coup.
+- **Assistant de démarrage** (`/[école]/onboarding`) : coordonnées, année scolaire, structure du système malien en un clic (`lib/school-templates.ts` : cycles, niveaux, séries, matières, coefficients, une classe par niveau), import des élèves, professeurs. L'état est déduit des données ; la direction peut l'ignorer.
+- **Sous-domaines** : avec `ROOT_DOMAIN`, `ecole-x.domaine` redirige vers `/fr/ecole-x/dashboard` (middleware) ; les URL avec le chemin de l'école restent valables partout.
+
 ## Services externes
 
 Interfaces dans `src/server/adapters/` :

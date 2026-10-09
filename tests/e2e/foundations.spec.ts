@@ -48,8 +48,11 @@ test("un utilisateur de l'école A n'accède pas à l'école B", async ({ page }
 test("le super admin voit toutes les écoles", async ({ page }) => {
   await login(page, "admin@lakol.test", PASSWORDS.admin);
   await page.getByRole("link", { name: /Administration de la plateforme/ }).click();
-  await expect(page.getByRole("cell", { name: /Complexe Scolaire Les Étoiles/ })).toBeVisible();
-  await expect(page.getByRole("cell", { name: /École Le Savoir/ })).toBeVisible();
+  await expect(page.getByTestId("platform-stats")).toBeVisible();
+  await page.getByRole("link", { name: "Écoles" }).click();
+  const rows = page.getByTestId("school-row");
+  await expect(rows.filter({ hasText: "Complexe Scolaire Les Étoiles" })).toBeVisible();
+  await expect(rows.filter({ hasText: "École Le Savoir" })).toBeVisible();
 });
 
 test("une page protégée redirige vers la connexion", async ({ page }) => {

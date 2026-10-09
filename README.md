@@ -47,6 +47,10 @@ Les nouveaux comptes (parents, personnel, élèves) reçoivent un mot de passe p
 
 Formulaire public de pré-inscription : http://localhost:3000/fr/inscription/les-etoiles
 
+Créer une nouvelle école (essai gratuit de 30 jours, assistant de démarrage) : http://localhost:3000/fr/creer-mon-ecole
+
+Espace super admin (écoles, formules, factures) : http://localhost:3000/fr/admin. `les-etoiles` est en formule Premium, `le-savoir` en Standard.
+
 ## Scripts
 
 | Commande                                                 | Rôle                                                                 |
@@ -59,6 +63,7 @@ Formulaire public de pré-inscription : http://localhost:3000/fr/inscription/les
 | `pnpm db:migrate` / `db:deploy` / `db:seed` / `db:reset` | Base de données                                                      |
 | `pnpm db:sync-permissions`                               | Après une mise à jour : ajoute les nouvelles permissions aux rôles   |
 | `pnpm worker` / `pnpm jobs:flush`                        | Worker de la file de tâches / envoi des messages différés en attente |
+| `pnpm jobs:subscriptions`                                | Cycle des abonnements (essais, renouvellements, impayés) à la main   |
 
 ## Variables d'environnement
 
@@ -70,6 +75,7 @@ Voir `.env.example`. En développement, WhatsApp et email sont simulés : les me
 | `REDIS_URL`                                     | File de tâches (à partir de la phase 3)                                                  |
 | `APP_URL`                                       | URL publique, pour les liens envoyés                                                     |
 | `WHATSAPP_PROVIDER`                             | `mock` (défaut) ou `meta` (avec `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`)     |
+| `ROOT_DOMAIN`                                   | Domaine principal (ex. `lakol.ml`) : `ecole-x.lakol.ml` mène à l'espace de l'école       |
 | `WHATSAPP_VERIFY_TOKEN` / `WHATSAPP_APP_SECRET` | Webhook des statuts (`/api/webhooks/whatsapp`) : jeton de vérification et signature Meta |
 | `EMAIL_PROVIDER`                                | `mock` (défaut) ou `resend` (avec `RESEND_API_KEY`, `EMAIL_FROM`)                        |
 | `S3_*`                                          | Stockage de fichiers compatible S3 (MinIO en local, Cloudflare R2 en production)         |

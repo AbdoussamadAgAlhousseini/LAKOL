@@ -1,70 +1,86 @@
 import type { Metadata } from "next";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { redirect } from "@/i18n/navigation";
-import { getCurrentSession } from "@/server/auth/session";
-import { listSchoolsForPlatform } from "@/server/platform/schools";
-import { Badge } from "@/components/ui/badge";
+import { getTranslations } from "next-intl/server";
+import { AlertTriangle } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { platformOverview } from "@/server/platform/admin";
+import { formatMoney } from "@/lib/money";
+import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Forbidden } from "@/components/layout/forbidden";
-import { LogoutButton } from "@/components/layout/logout-button";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("admin");
-  return { title: t("title") };
+  return { title: (await getTranslations("admin"))("title") };
 }
 
-// Espace super admin (complété en phase 7 : abonnements, modules, onboarding).
-export default async function AdminPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function AdminDashboard({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  setRequestLocale(locale);
-  const current = await getCurrentSession();
-  if (!current) return redirect({ href: "/login", locale });
-  if (!current.user.isPlatformAdmin) return <Forbidden />;
-
-  const t = await getTranslations("admin");
-  const schools = await listSchoolsForPlatform();
+  const [t, o] = await Promise.all([getTranslations("admin"), platformOverview()]);
+  const money = (v: number) => formatMoney(v, "XOF", locale);
+  const date = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" });
+  const stats = [
+    { label: t("stats.schools"), value: String(o.schools) },
+    { label: t("stats.students"), value: o.students.toLocaleString(locale) },
+    { label: t("stats.annualRevenue"), value: money(o.annualRevenue) },
+    { label: t("stats.collected"), value: money(o.collectedThisYear) },
+    { label: t("stats.outstanding"), value: money(o.outstanding) },
+    { label: t("stats.whatsapp"), value: o.whatsappThisMonth.toLocaleString(locale) },
+  ];
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <LogoutButton locale={locale} />
+    <div className="flex flex-col gap-6">
+      <PageHeader title={t("dashboardTitle")} />
+      <dl className="grid grid-cols-2 gap-3 lg:grid-cols-3" data-testid="platform-stats">
+        {stats.map((s) => (
+          <Card key={s.label} className="p-4">
+            <dt className="text-muted-foreground text-xs">{s.label}</dt>
+            <dd className="mt-1 text-xl font-bold tabular-nums">{s.value}</dd>
+          </Card>
+        ))}
+      </dl>
+      {o.overdue > 0 && (
+        <Link
+          href="/admin/invoices?status=ISSUED"
+          className="border-destructive/40 bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm font-medium"
+        >
+          <AlertTriangle className="size-4" aria-hidden /> {t("overdue", { amount: money(o.overdue) })}
+        </Link>
+      )}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("byStatus")}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2 text-sm">
+            {(["TRIAL", "ACTIVE", "PAST_DUE", "SUSPENDED", "CANCELLED"] as const).map((s) => (
+              <Link
+                key={s}
+                href={`/admin/schools?status=${s}`}
+                className="hover:bg-accent flex justify-between rounded-md px-2 py-1.5"
+              >
+                <span>{t(`statuses.${s}`)}</span>
+                <span className="font-semibold tabular-nums">{o.byStatus[s] ?? 0}</span>
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("trialsEnding")}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2 text-sm">
+            {o.trialsEndingSoon.length === 0 && <p className="text-muted-foreground">{t("noTrialEnding")}</p>}
+            {o.trialsEndingSoon.map((s) => (
+              <Link
+                key={s.id}
+                href={`/admin/schools/${s.id}`}
+                className="hover:bg-accent flex justify-between rounded-md px-2 py-1.5"
+              >
+                <span className="font-medium">{s.name}</span>
+                <span className="text-muted-foreground">{date.format(s.trialEndsAt)}</span>
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("schools")}</CardTitle>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-muted-foreground text-left">
-              <tr>
-                <th className="py-2 pr-4 font-medium">{t("schools")}</th>
-                <th className="py-2 pr-4 font-medium">{t("plan")}</th>
-                <th className="py-2 pr-4 font-medium">{t("status")}</th>
-                <th className="py-2 text-right font-medium">{t("students")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {schools.map((s) => (
-                <tr key={s.id} className="border-t">
-                  <td className="py-3 pr-4">
-                    <span className="font-medium">{s.name}</span>
-                    <span className="text-muted-foreground block text-xs">
-                      {s.slug}
-                      {s.city ? ` · ${s.city}` : ""}
-                    </span>
-                  </td>
-                  <td className="py-3 pr-4">{s.plan}</td>
-                  <td className="py-3 pr-4">
-                    {s.status && <Badge variant={s.status === "ACTIVE" ? "success" : "warning"}>{s.status}</Badge>}
-                  </td>
-                  <td className="py-3 text-right tabular-nums">{s.students}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
-    </main>
+    </div>
   );
 }

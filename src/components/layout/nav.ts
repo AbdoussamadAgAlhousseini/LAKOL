@@ -36,6 +36,7 @@ export const NAV_ITEMS: NavItem[] = [
   { key: "resources", segment: "resources", anyOf: ["resource.read"], phase: 8 },
   { key: "audit", segment: "audit", anyOf: ["audit.read"], phase: 2 },
   { key: "settings", segment: "settings", anyOf: ["school.settings.manage"], phase: 2 },
+  { key: "subscription", segment: "subscription", anyOf: ["school.settings.manage"], phase: 7 },
 ];
 
 export function visibleNav(scope: AccessScope): NavItem[] {

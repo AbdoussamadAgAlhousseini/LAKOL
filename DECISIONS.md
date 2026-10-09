@@ -156,3 +156,27 @@ Les envois WhatsApp/email non urgents sont différés hors de la plage 20 h – 
 ## 035 — Rendez-vous par créneaux publiés
 
 Plutôt qu'un agenda partagé, le professeur publie des séries de créneaux et le parent en réserve un. La réservation est une mise à jour conditionnelle (`status = OPEN`) : deux parents ne peuvent pas obtenir le même créneau.
+
+## 036 — Modules coupés par les permissions
+
+Désactiver un module retire ses permissions du périmètre de l'utilisateur au chargement du contexte. Navigation, pages, actions et services s'appuient déjà sur les permissions : un seul point de contrôle, impossible d'oublier une route. Les données du module sont conservées et réapparaissent à la réactivation.
+
+## 037 — Fin d'essai : formule gratuite plutôt que suspension
+
+Une école qui ne paie pas à la fin de l'essai garde l'accès à ses données et aux modules de la formule gratuite. On ne bloque pas une école au milieu d'un trimestre pour une décision commerciale ; seule une formule payante non réglée mène à la lecture seule, après 15 jours de grâce.
+
+## 038 — Facturation annuelle au nombre d'élèves, paiement enregistré à la main
+
+Comme pour les familles, les écoles paient par virement, chèque ou mobile money hors ligne : le super admin enregistre le règlement. La facture annuelle (élèves inscrits × prix) correspond au fonctionnement budgétaire des écoles ; un paiement en ligne pourra se brancher plus tard sur le même modèle.
+
+## 039 — Quota WhatsApp : bascule vers l'email, jamais de blocage
+
+Quand le quota mensuel est atteint, les messages partent par email (ou restent dans l'application) au lieu d'être refusés ; les messages urgents (absence, accès au compte, suspension) passent toujours. Les parents ne perdent pas d'information importante à cause d'une limite commerciale.
+
+## 040 — Inscription en ligne des écoles
+
+Une école peut créer son espace seule (essai de 30 jours, formule Standard) : c'est le moyen le plus simple d'acquérir des écoles. Limité à 3 créations par adresse IP et par jour ; un numéro déjà utilisé est refusé (l'ajout d'une école à un compte existant passe par la plateforme).
+
+## 041 — Sous-domaines par redirection
+
+Le sous-domaine `ecole-x.domaine` redirige vers l'espace de l'école, dont les URL gardent le chemin de l'école. Toutes les URL existantes restent valables, sans réécriture complexe ni cookies par domaine ; un vrai domaine par école (URL sans chemin) reste possible plus tard.

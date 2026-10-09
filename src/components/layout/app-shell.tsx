@@ -2,6 +2,8 @@ import type { CSSProperties, ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { ArrowLeftRight, Menu } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { canAll } from "@/server/rbac/policies";
+import { cn } from "@/lib/utils";
 import type { SchoolContext } from "@/server/context";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -77,9 +79,38 @@ export async function AppShell({ ctx, locale, children }: { ctx: SchoolContext; 
             {t("readOnly")}
           </Alert>
         )}
+        <SubscriptionBanner ctx={ctx} locale={locale} />
         <main className="mx-auto w-full max-w-6xl flex-1 p-4 md:p-6">{children}</main>
       </div>
     </div>
+  );
+}
+
+/** Essai ou impayé : visible uniquement par la direction (droit sur les paramètres). */
+async function SubscriptionBanner({ ctx, locale }: { ctx: SchoolContext; locale: string }) {
+  const sub = ctx.subscription;
+  if (!sub || !canAll(ctx.scope, "school.settings.manage")) return null;
+  const t = await getTranslations("subscription");
+  const date = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" });
+  let message: string | null = null;
+  if (sub.status === "TRIAL" && sub.trialEndsAt) {
+    const days = Math.max(0, Math.ceil((sub.trialEndsAt.getTime() - Date.now()) / 86_400_000));
+    message = t("bannerTrial", { days, date: date.format(sub.trialEndsAt) });
+  } else if (sub.status === "PAST_DUE" && sub.graceEndsAt) {
+    message = t("bannerPastDue", { date: date.format(sub.graceEndsAt) });
+  }
+  if (!message) return null;
+  return (
+    <Link
+      href={`/${ctx.school.slug}/subscription`}
+      className={cn(
+        "block border-b px-4 py-2 text-sm font-medium",
+        sub.status === "PAST_DUE" ? "bg-warning/20 text-warning-foreground" : "bg-primary/10 text-primary",
+      )}
+      data-testid="subscription-banner"
+    >
+      {message}
+    </Link>
   );
 }
 

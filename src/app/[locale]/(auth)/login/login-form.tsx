@@ -46,6 +46,12 @@ export function LoginForm({ locale, justReset }: { locale: string; justReset: bo
           <Link href="/forgot-password" className="text-primary text-center text-sm underline-offset-4 hover:underline">
             {t("forgot")}
           </Link>
+          <Link
+            href="/creer-mon-ecole"
+            className="text-muted-foreground text-center text-sm underline-offset-4 hover:underline"
+          >
+            {t("newSchool")}
+          </Link>
         </form>
       </CardContent>
     </Card>

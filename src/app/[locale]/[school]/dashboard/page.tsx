@@ -1,13 +1,24 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-import { BookOpen, CalendarX, ClipboardCheck, GraduationCap, NotebookPen, Shapes, Users, Wallet } from "lucide-react";
+import {
+  BookOpen,
+  CalendarX,
+  ClipboardCheck,
+  GraduationCap,
+  NotebookPen,
+  Rocket,
+  Shapes,
+  Users,
+  Wallet,
+} from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { myTodaySlots } from "@/server/services/attendance";
 import { dayStart, formatTime, isoDate } from "@/lib/time";
 import { loadSchoolPage } from "@/server/page-context";
 import { getSchoolOverview, getStudentCards, getTeacherClasses } from "@/server/services/dashboard";
 import type { SchoolContext } from "@/server/context";
-import { can } from "@/server/rbac/policies";
+import { can, canAll } from "@/server/rbac/policies";
+import { onboardingState } from "@/server/services/onboarding";
 import { formatMoney } from "@/lib/money";
 import { formatScore } from "@/lib/grades";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +33,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-bold">{t("hello", { name: ctx.user.firstName })}</h1>
+      <OnboardingPrompt ctx={ctx} />
       {ctx.activeRole === "PARENT" || ctx.activeRole === "STUDENT" ? (
         <StudentCards ctx={ctx} locale={locale} />
       ) : ctx.activeRole === "TEACHER" || ctx.activeRole === "HEAD_TEACHER" ? (
@@ -30,6 +42,29 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
         <SchoolOverview ctx={ctx} locale={locale} />
       )}
     </div>
+  );
+}
+
+/** Rappel de l'assistant de démarrage pour la direction d'une nouvelle école. */
+async function OnboardingPrompt({ ctx }: { ctx: SchoolContext }) {
+  if (ctx.school.onboardingDoneAt || !canAll(ctx.scope, "school.settings.manage")) return null;
+  const state = await onboardingState(ctx);
+  if (state.finished) return null;
+  const t = await getTranslations("onboarding");
+  return (
+    <Link
+      href={`/${ctx.school.slug}/onboarding`}
+      className="border-primary bg-primary/5 hover:bg-primary/10 flex items-center gap-4 rounded-lg border p-4"
+      data-testid="onboarding-prompt"
+    >
+      <Rocket className="text-primary size-8 shrink-0" aria-hidden />
+      <span className="flex-1">
+        <span className="block font-semibold">{t("promptTitle")}</span>
+        <span className="text-muted-foreground text-sm">
+          {t("progress", { done: state.completed, total: state.total })}
+        </span>
+      </span>
+    </Link>
   );
 }
 
