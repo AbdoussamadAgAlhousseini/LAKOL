@@ -13,14 +13,41 @@ export interface OutgoingMessage {
   title: string;
   body: string;
   link?: string;
+  /** Objet concerné (annonce, conversation…) : regroupement et statistiques. */
+  ref?: { type: string; id: string };
+  /** Envoyé même pendant les heures calmes (absence, cours annulé). */
+  urgent?: boolean;
 }
 
 type ExternalChannel = Exclude<NotificationChannel, "IN_APP">;
 
+/** Heure locale de l'école (0-23). */
+function localHour(school: Pick<School, "timezone">, at: Date) {
+  const h = new Intl.DateTimeFormat("en-GB", { hour: "numeric", hourCycle: "h23", timeZone: school.timezone }).format(
+    at,
+  );
+  return Number(h);
+}
+
+/**
+ * Délai avant la fin des heures calmes (0 si l'on est dans la journée).
+ * Ex. calme de 20 h à 7 h : à 22 h 30 -> envoi à 7 h.
+ */
+export function quietDelayMs(school: Pick<School, "timezone" | "quietHoursStart" | "quietHoursEnd">, at = new Date()) {
+  const { quietHoursStart: start, quietHoursEnd: end } = school;
+  if (start === end) return 0;
+  const h = localHour(school, at);
+  const quiet = start > end ? h >= start || h < end : h >= start && h < end;
+  if (!quiet) return 0;
+  const hoursToWait = (end - h + 24) % 24;
+  return hoursToWait * 3_600_000 - at.getUTCMinutes() * 60_000 - at.getUTCSeconds() * 1000;
+}
+
 /**
  * Notifie un utilisateur : notification in-app immédiate, puis envoi externe
- * (WhatsApp en priorité, email sinon) mis en file et tracé dans
- * NotificationDelivery. `channels: []` = in-app seulement.
+ * (WhatsApp en priorité, email sinon) mis en file, différé pendant les heures
+ * calmes de l'école, et tracé dans NotificationDelivery. `channels: []` =
+ * in-app seulement.
  */
 export async function notifyUser(
   ctx: NotifyContext,
@@ -37,6 +64,8 @@ export async function notifyUser(
       title: message.title,
       body: message.body,
       link: message.link,
+      refType: message.ref?.type,
+      refId: message.ref?.id,
     },
   });
   const channel: ExternalChannel | null =
@@ -47,15 +76,17 @@ export async function notifyUser(
         : null;
   if (!channel) return { notificationId: notification.id, channel: null };
 
+  const delayMs = message.urgent ? 0 : quietDelayMs(ctx.school);
   const delivery = await ctx.db.notificationDelivery.create({
     data: {
       schoolId,
       notificationId: notification.id,
       channel,
       recipient: channel === "WHATSAPP" ? user.phone! : user.email!,
+      scheduledFor: delayMs ? new Date(Date.now() + delayMs) : null,
     },
   });
-  await enqueue("delivery.send", { deliveryId: delivery.id });
+  await enqueue("delivery.send", { deliveryId: delivery.id }, { delayMs });
   return { notificationId: notification.id, channel };
 }
 

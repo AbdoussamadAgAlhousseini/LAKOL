@@ -4,6 +4,7 @@ import { prisma } from "@/server/db/client";
 import { getSchoolContext, type SchoolContext } from "@/server/context";
 import { canAll, canOnStudent } from "@/server/rbac/policies";
 import { getStorage } from "@/server/adapters/storage";
+import { canReadMessageAttachment } from "@/server/services/messaging";
 import { canReadReportCard } from "@/server/services/report-cards";
 
 /** Classe actuelle des élèves du périmètre (parent, élève). */
@@ -44,6 +45,8 @@ async function canRead(ctx: SchoolContext, doc: Document): Promise<boolean> {
     }
     case "ReportCard":
       return canReadReportCard(ctx, doc.entityId);
+    case "Message":
+      return canReadMessageAttachment(ctx, doc.entityId);
     default:
       return false;
   }

@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "School" ADD COLUMN     "quietHoursEnd" INTEGER NOT NULL DEFAULT 7,
+ADD COLUMN     "quietHoursStart" INTEGER NOT NULL DEFAULT 20;
+

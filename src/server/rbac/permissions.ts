@@ -61,6 +61,9 @@ export const PERMISSIONS = {
 
   // Communication
   "message.send": { module: "messaging", description: "Messagerie interne" },
+  "message.moderate": { module: "messaging", description: "Modérer les messages signalés" },
+  "meeting.manage:own": { module: "messaging", description: "Proposer des créneaux de rendez-vous" },
+  "meeting.book:own": { module: "messaging", description: "Réserver un rendez-vous avec un professeur" },
   "announcement.publish": { module: "messaging", description: "Publier des annonces" },
 
   // Ressources et modules optionnels
@@ -89,7 +92,7 @@ export const SYSTEM_ROLES = [
 export type SystemRole = (typeof SYSTEM_ROLES)[number];
 
 const ALL = Object.keys(PERMISSIONS) as Permission[];
-const SELF_ONLY = new Set<Permission>(["homework.submit:own", "attendance.justify:own"]);
+const SELF_ONLY = new Set<Permission>(["homework.submit:own", "attendance.justify:own", "meeting.book:own"]);
 
 const TEACHER: Permission[] = [
   "student.read:own",
@@ -104,6 +107,7 @@ const TEACHER: Permission[] = [
   "message.send",
   "resource.read",
   "resource.write",
+  "meeting.manage:own",
 ];
 
 export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
@@ -126,6 +130,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     "attendance.read",
     "grade.read",
     "message.send",
+    "message.moderate",
     "announcement.publish",
     "resource.read",
   ],
@@ -165,6 +170,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     "grade.read:own",
     "finance.read:own",
     "message.send",
+    "meeting.book:own",
   ],
   STUDENT: [
     "student.read:own",

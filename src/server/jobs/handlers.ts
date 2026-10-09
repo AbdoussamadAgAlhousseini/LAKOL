@@ -7,6 +7,7 @@ export interface JobData {
   "delivery.send": { deliveryId: string };
   "homework.reminders": Record<string, never>;
   "finance.reminders": Record<string, never>;
+  "deliveries.flush": Record<string, never>;
 }
 export type JobName = keyof JobData;
 
@@ -19,6 +20,8 @@ export async function runJob<N extends JobName>(name: N, data: JobData[N], opts:
       return sendHomeworkReminders();
     case "finance.reminders":
       return sendAllPaymentReminders();
+    case "deliveries.flush":
+      return flushDeliveries();
     default:
       throw new Error(`Tâche inconnue : ${String(name)}`);
   }
@@ -56,4 +59,34 @@ export async function sendDelivery(deliveryId: string, final: boolean) {
     });
     throw error;
   }
+}
+
+/**
+ * Filet de sécurité : envoie les messages en attente dont l'heure est venue
+ * (envois différés sans Redis, tâches perdues). Un message déjà envoyé n'est
+ * jamais renvoyé (contrôle du statut dans sendDelivery).
+ */
+export async function flushDeliveries(now = new Date()) {
+  const due = await prisma.notificationDelivery.findMany({
+    where: {
+      status: "QUEUED",
+      OR: [
+        { scheduledFor: { lte: now } },
+        { scheduledFor: null, createdAt: { lte: new Date(now.getTime() - 5 * 60_000) } },
+      ],
+    },
+    select: { id: true },
+    take: 500,
+    orderBy: { createdAt: "asc" },
+  });
+  let sent = 0;
+  for (const { id } of due) {
+    try {
+      await sendDelivery(id, true);
+      sent += 1;
+    } catch {
+      // l'échec est tracé sur la ligne (FAILED)
+    }
+  }
+  return { due: due.length, sent };
 }

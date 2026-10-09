@@ -79,6 +79,9 @@ model School {
   secondaryColor         String        @default("#F59E0B")
   reportCardHeader       String?
   blockReportIfUnpaid    Boolean       @default(false)
+  // Heures calmes : pas de WhatsApp / email entre ces heures (heure locale), envoi différé
+  quietHoursStart        Int           @default(20)
+  quietHoursEnd          Int           @default(7)
   disableYoungStudentAcc Boolean       @default(true) // pas de compte élève en maternelle / début fondamental
   isActive               Boolean       @default(true)
   createdAt              DateTime      @default(now())
@@ -142,6 +145,7 @@ model School {
   timetableExceptions TimetableException[]
   appraisals          Appraisal[]
   cashClosings        CashClosing[]
+  meetingSlots        MeetingSlot[]
 }
 
 model Subscription {
@@ -1331,10 +1335,17 @@ model Message {
   sender         User         @relation(fields: [senderId], references: [id])
   body           String?
   audioUrl       String? // message vocal
+  // Modération : signalement par un participant, masquage par l'école
+  reportedAt     DateTime?
+  reportedById   String?
+  reportReason   String?
+  hiddenAt       DateTime?
+  hiddenById     String?
   createdAt      DateTime     @default(now())
   deletedAt      DateTime?
 
   @@index([schoolId, conversationId, createdAt])
+  @@index([schoolId, reportedAt])
 }
 
 enum AudienceKind {
@@ -1347,20 +1358,21 @@ enum AudienceKind {
 }
 
 model Announcement {
-  id          String                @id @default(cuid())
-  schoolId    String
-  school      School                @relation(fields: [schoolId], references: [id])
-  authorId    String
-  title       String
-  body        String
-  audience    AudienceKind
-  targetIds   String[] // niveaux, classes ou utilisateurs selon `audience`
-  requiresAck Boolean               @default(false) // circulaire avec accusé de lecture
-  channels    NotificationChannel[]
-  publishedAt DateTime?
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
-  acks        AnnouncementAck[]
+  id             String                @id @default(cuid())
+  schoolId       String
+  school         School                @relation(fields: [schoolId], references: [id])
+  authorId       String
+  title          String
+  body           String
+  audience       AudienceKind
+  targetIds      String[] // niveaux, classes ou utilisateurs selon `audience`
+  requiresAck    Boolean               @default(false) // circulaire avec accusé de lecture
+  channels       NotificationChannel[]
+  recipientCount Int                   @default(0)
+  publishedAt    DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  acks           AnnouncementAck[]
 
   @@index([schoolId, publishedAt])
 }
@@ -1388,11 +1400,15 @@ model Notification {
   body       String
   link       String?
   data       Json?
+  // Objet concerné (ex. « Announcement », « Conversation ») : regroupements et statistiques
+  refType    String?
+  refId      String?
   readAt     DateTime?
   createdAt  DateTime               @default(now())
   deliveries NotificationDelivery[]
 
   @@index([schoolId, userId, readAt])
+  @@index([refType, refId])
 }
 
 enum DeliveryStatus {
@@ -1416,6 +1432,7 @@ model NotificationDelivery {
   providerMessageId String?
   error             String?
   attempts          Int                 @default(0)
+  scheduledFor      DateTime? // envoi différé (heures calmes)
   sentAt            DateTime?
   deliveredAt       DateTime?
   readAt            DateTime?
@@ -1423,6 +1440,7 @@ model NotificationDelivery {
   updatedAt         DateTime            @updatedAt
 
   @@index([schoolId, status])
+  @@index([status, scheduledFor])
   @@index([providerMessageId])
 }
 
@@ -1614,4 +1632,31 @@ model CashClosing {
   createdAt    DateTime @default(now())
 
   @@unique([schoolId, date])
+}
+
+// Rendez-vous parents-professeurs : créneaux publiés par le professeur, réservés par un parent.
+enum MeetingStatus {
+  OPEN
+  BOOKED
+  CANCELLED
+}
+
+model MeetingSlot {
+  id         String        @id @default(cuid())
+  schoolId   String
+  school     School        @relation(fields: [schoolId], references: [id])
+  staffId    String
+  startsAt   DateTime
+  endsAt     DateTime
+  location   String?
+  status     MeetingStatus @default(OPEN)
+  guardianId String?
+  studentId  String?
+  note       String?
+  bookedAt   DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([schoolId, staffId, startsAt])
+  @@index([schoolId, guardianId])
 }

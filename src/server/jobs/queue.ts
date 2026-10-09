@@ -26,8 +26,10 @@ export function jobsInline() {
  * tâche s'exécute tout de suite ; une erreur est alors journalisée sans
  * interrompre l'action de l'utilisateur.
  */
-export async function enqueue<N extends JobName>(name: N, data: JobData[N]) {
+export async function enqueue<N extends JobName>(name: N, data: JobData[N], options: { delayMs?: number } = {}) {
   if (jobsInline()) {
+    // Sans Redis, un envoi différé (heures calmes) attend la tâche « deliveries.flush ».
+    if (options.delayMs) return;
     try {
       await runJob(name, data, { final: true });
     } catch (error) {
@@ -37,6 +39,7 @@ export async function enqueue<N extends JobName>(name: N, data: JobData[N]) {
   }
   queue ??= new Queue(QUEUE_NAME, { connection: redisConnection() });
   await queue.add(name, data, {
+    delay: options.delayMs || undefined,
     attempts: 4,
     backoff: { type: "exponential", delay: 30_000 },
     removeOnComplete: 1000,

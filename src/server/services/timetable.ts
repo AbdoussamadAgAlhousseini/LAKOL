@@ -140,7 +140,7 @@ export async function setException(
     select: { studentId: true },
   });
   for (const { studentId } of enrolled) {
-    await notifyGuardians(ctx, studentId, { ...message, link: `/${ctx.school.slug}/timetable` });
+    await notifyGuardians(ctx, studentId, { ...message, urgent: true, link: `/${ctx.school.slug}/timetable` });
   }
   await audit(ctx.db, actor(ctx), {
     action: `timetable.${input.kind.toLowerCase()}`,

@@ -21,7 +21,9 @@
     "postinstall": "prisma generate",
     "worker": "tsx worker/index.ts",
     "jobs:reminders": "tsx scripts/run-job.ts homework.reminders",
-    "jobs:payment-reminders": "tsx scripts/run-job.ts finance.reminders"
+    "jobs:payment-reminders": "tsx scripts/run-job.ts finance.reminders",
+    "db:sync-permissions": "tsx scripts/sync-permissions.ts",
+    "jobs:flush": "tsx scripts/run-job.ts deliveries.flush"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1148.0",

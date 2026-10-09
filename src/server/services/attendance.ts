@@ -143,6 +143,7 @@ async function notifyAbsence(ctx: ServiceContext, attendanceId: string) {
     : "";
   await notifyGuardians(ctx, record.studentId, {
     type: "attendance.absent",
+    urgent: true,
     title: `Absence — ${record.student.firstName} ${record.student.lastName}`,
     body: `${record.student.firstName} est absent(e)${course} ce ${day}. Merci de justifier l'absence dans LAKOL ou auprès de l'école.`,
     link: `/${ctx.school.slug}/attendance`,
