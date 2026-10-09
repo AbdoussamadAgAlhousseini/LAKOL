@@ -20,6 +20,7 @@ export default async function SpacesPage({ params }: { params: Promise<{ locale:
   const current = await getCurrentSession();
   if (!current) return redirect({ href: "/login", locale });
 
+  if (current.user.mustChangePwd) return redirect({ href: "/account/password", locale });
   const spaces = await listSpaces(current.user.id);
   const isPlatformAdmin = current.user.isPlatformAdmin;
   if (spaces.length === 1 && !isPlatformAdmin) {

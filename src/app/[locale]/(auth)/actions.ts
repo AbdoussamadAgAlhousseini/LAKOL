@@ -103,3 +103,32 @@ export async function resetPasswordAction(state: FormState, formData: FormData):
   await invalidateUserSessions(user.id);
   redirect({ href: "/login?reset=1", locale: parsed.data.locale });
 }
+
+const changePasswordSchema = z.object({
+  locale: z.string(),
+  current: z.string().min(1).max(200),
+  password: z.string().min(8).max(200),
+  confirm: z.string().min(1).max(200),
+});
+
+/** Changement de mot de passe (obligatoire après un mot de passe provisoire). */
+export async function changePasswordAction(_: FormState, formData: FormData): Promise<FormState> {
+  const parsed = changePasswordSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: "passwordTooShort" };
+  const { locale, current, password, confirm } = parsed.data;
+  if (password !== confirm) return { error: "passwordMismatch" };
+
+  const session = await getCurrentSession();
+  if (!session) redirect({ href: "/login", locale });
+  const user = session!.user;
+  if (!(await verifyPassword(user.passwordHash ?? DUMMY_HASH, current))) return { error: "wrongCurrentPassword" };
+  if (current === password) return { error: "passwordUnchanged" };
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash: await hashPassword(password), mustChangePwd: false },
+  });
+  // Les autres sessions (ex. un appareil partagé) sont fermées.
+  await prisma.session.deleteMany({ where: { userId: user.id, id: { not: session!.session.id } } });
+  redirect({ href: "/spaces", locale });
+}

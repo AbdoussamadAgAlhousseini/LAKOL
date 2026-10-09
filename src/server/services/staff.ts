@@ -2,6 +2,7 @@ import "server-only";
 import type { ContractType, Gender, Prisma } from "@prisma/client";
 import { audit } from "@/server/audit";
 import { DomainError } from "@/server/errors";
+import { ForbiddenError } from "@/server/rbac/policies";
 import { actor, paginate, type ServiceContext } from "./context";
 import { ensureUser, grantRole, resetToTemporaryPassword, revokeRole, sendAccess } from "./accounts";
 import { found } from "./structure";
@@ -19,6 +20,16 @@ export const STAFF_ROLES = [
   "DRIVER",
 ] as const;
 export type StaffRole = (typeof STAFF_ROLES)[number];
+
+/**
+ * Donner des accès exige « user.manage » ; toucher au rôle de direction exige
+ * en plus « role.manage » (évite qu'un secrétariat s'attribue la direction).
+ */
+function assertCanAssign(ctx: ServiceContext, changed: string[]) {
+  if (changed.length === 0) return;
+  if (!ctx.scope.permissions.has("user.manage")) throw new ForbiddenError();
+  if (changed.includes("DIRECTOR") && !ctx.scope.permissions.has("role.manage")) throw new ForbiddenError();
+}
 
 export interface StaffInput {
   firstName: string;
@@ -103,6 +114,7 @@ export async function createStaff(
   ctx: ServiceContext,
   input: StaffInput & { roles: StaffRole[]; sendAccess?: boolean },
 ) {
+  assertCanAssign(ctx, input.roles);
   if (input.roles.length > 0 && !input.phone && !input.email) throw new DomainError("contactRequired", "phone");
   let userId: string | null = null;
   let access: { user: Awaited<ReturnType<typeof ensureUser>>["user"]; tempPassword: string | null } | null = null;
@@ -151,6 +163,14 @@ export async function setStaffRoles(ctx: ServiceContext, input: { staffId: strin
     const isDirector = await ctx.db.userRole.findFirst({ where: { userId: ctx.user.id, role: { key: "DIRECTOR" } } });
     if (isDirector) throw new DomainError("cannotRemoveOwnDirector");
   }
+
+  const current = staff.userId
+    ? (await ctx.db.userRole.findMany({ where: { userId: staff.userId }, include: { role: true } })).map(
+        (r) => r.role.key,
+      )
+    : [];
+  const changed = STAFF_ROLES.filter((r) => input.roles.includes(r) !== current.includes(r));
+  assertCanAssign(ctx, changed);
 
   let userId = staff.userId;
   if (!userId && input.roles.length > 0) {

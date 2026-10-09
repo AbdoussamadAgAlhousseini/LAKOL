@@ -12,6 +12,7 @@ import {
   Megaphone,
   MessageCircle,
   NotebookPen,
+  School,
   Settings,
   Shapes,
   ShieldAlert,
@@ -26,6 +27,7 @@ import { cn } from "@/lib/utils";
 const ICONS: Record<string, LucideIcon> = {
   dashboard: Home,
   students: GraduationCap,
+  classes: School,
   staff: Users,
   structure: Shapes,
   timetable: CalendarDays,
