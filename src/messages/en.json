@@ -177,7 +177,14 @@
     "submissionClosed": "Online submission is not open for this homework.",
     "emptySubmission": "Add some text or a file.",
     "alreadyGraded": "This homework is already graded.",
-    "alreadyJustified": "This absence is already excused."
+    "alreadyJustified": "This absence is already excused.",
+    "termLocked": "This term is closed.",
+    "assessmentLocked": "Grades are validated: only management can change them.",
+    "invalidScores": "Some grades are invalid or above the maximum.",
+    "unknownMatricule": "The file contains student IDs not in this class.",
+    "noAssessments": "No assessments for this term.",
+    "gradesNotValidated": "First validate the class's grades.",
+    "nothingToPublish": "No report cards ready to publish."
   },
   "enums": {
     "gender": {
@@ -302,7 +309,8 @@
     "documentCategory": "Document type",
     "file": "File (PDF or image, 5 MB max)",
     "uploadDocument": "Add document",
-    "history": "School history"
+    "history": "School history",
+    "studentCard": "Student ID card"
   },
   "import": {
     "title": "Import students",
@@ -521,7 +529,9 @@
       "Document": "Documents",
       "Term": "Terms",
       "Attendance": "Attendance",
-      "TimetableSlot": "Timetable"
+      "TimetableSlot": "Timetable",
+      "Class": "Classes",
+      "Grade": "Grades"
     },
     "actions": {
       "student.create": "enrolled a student",
@@ -551,7 +561,12 @@
       "attendance.justify": "accepted an excuse",
       "attendance.reject": "rejected an excuse",
       "discipline.create": "recorded an incident",
-      "discipline.delete": "deleted an incident"
+      "discipline.delete": "deleted an incident",
+      "grade.update_after_lock": "changed a validated grade",
+      "grade.validate": "validated grades",
+      "grade.unlock": "unlocked grades",
+      "reportcard.generate": "issued report cards",
+      "reportcard.publish": "published report cards"
     }
   },
   "account": {
@@ -732,5 +747,112 @@
       "SANCTION": "Sanction",
       "SUMMONS": "Summons"
     }
+  },
+  "grades": {
+    "title": "Grades",
+    "noTerm": "No term defined for the active year.",
+    "terms": "Terms",
+    "locked": "Locked",
+    "overview": "Progress — {term}",
+    "progress": "{covered}/{total} subjects graded · {count, plural, =0 {no assessments} one {# assessment} other {# assessments}}",
+    "validated": "Validated",
+    "validate": "Validate grades",
+    "validateConfirm": "Validate and lock this class's grades for the term? Teachers will no longer be able to change them.",
+    "myAssessments": "My assessments",
+    "councilOf": "Class council {name}",
+    "noAssessment": "No assessments for this term.",
+    "newAssessment": "New assessment",
+    "classSubject": "Class and subject",
+    "type": "Type",
+    "assessmentTitle": "Title",
+    "titlePlaceholder": "E.g. Quiz no. 2",
+    "date": "Date",
+    "outOf": "Out of",
+    "weight": "Weight",
+    "weightHint": "An exam often counts double.",
+    "createAndGrade": "Create and enter grades",
+    "types": {
+      "QUIZ": "Quiz",
+      "HOMEWORK": "Homework",
+      "COMPOSITION": "Exam",
+      "MOCK_EXAM": "Mock exam"
+    },
+    "hidden": "the school has not given you access to grades.",
+    "rankOf": "Rank: {rank} of {size}",
+    "absent": "absent",
+    "saved": "Saved.",
+    "gridHint": "Type the grade (e.g. 13.5), “abs” for absent. Enter moves to the next student. Out of /{outOf}.",
+    "filled": "{filled}/{total} grades entered",
+    "saveGrades": "Save grades",
+    "deleteConfirm": "Delete this assessment and its grades?",
+    "delete": "Delete",
+    "lockedEditable": "Grades validated: any change will be recorded in the audit log.",
+    "lockedInfo": "Grades validated by management: they can no longer be changed.",
+    "importTitle": "Import from Excel",
+    "importHint": "File with two columns: matricule and note.",
+    "importFile": "File (.xlsx or .csv)",
+    "import": "Import",
+    "classStats": "Class average {average}/{scale} · highest {highest} · lowest {lowest}",
+    "ranking": "Ranking",
+    "notValidatedYet": "Grades are not validated yet: results may still change.",
+    "rank": "Rank",
+    "student": "Student",
+    "average": "Avg.",
+    "reportCard": "Report",
+    "subjectAppraisals": "Comments — {subject}",
+    "saveAppraisals": "Save comments",
+    "generalAppraisals": "General comment (form teacher)",
+    "council": "Class council",
+    "councilHint": "Distinctions suggested from the average: change if needed.",
+    "suggested": "suggested",
+    "distinction": "Distinction",
+    "noDistinction": "No distinction",
+    "decision": "Decision",
+    "noDecision": "No decision",
+    "saveCouncil": "Save council",
+    "distinctions": {
+      "CONGRATULATIONS": "Congratulations",
+      "HONOR_ROLL": "Honor roll",
+      "ENCOURAGEMENT": "Encouragement",
+      "WORK_WARNING": "Work warning",
+      "CONDUCT_WARNING": "Conduct warning"
+    },
+    "decisions": {
+      "PROMOTED": "Promoted",
+      "CONDITIONAL": "Conditional promotion",
+      "REPEAT": "Repeats the year",
+      "EXPELLED": "Expelled"
+    }
+  },
+  "reportCards": {
+    "title": "Report cards",
+    "intro": "Validate grades, issue the PDF report cards, then publish them to parents.",
+    "teacherIntro": "Results and comments for your classes.",
+    "noTerm": "No term defined.",
+    "steps": {
+      "noGrades": "No grades",
+      "toValidate": "Grades to validate",
+      "toGenerate": "To issue",
+      "toPublish": "Ready to publish",
+      "published": "Published"
+    },
+    "counts": "{published}/{total} published",
+    "validate": "Validate grades",
+    "validateConfirm": "Validate and lock this class's grades?",
+    "generate": "Issue report cards",
+    "regenerate": "Reissue",
+    "publish": "Publish to parents",
+    "publishConfirm": "Publish the report cards? Parents will be notified by WhatsApp.",
+    "exams": "National exams: mock exams",
+    "examsHint": "Share of students at or above the pass mark in mock exams.",
+    "mockCount": "{count, plural, =0 {no mock exams} one {# mock exam} other {# mock exams}} · {candidates} candidates",
+    "passRate": "pass",
+    "average": "average",
+    "none": "No report cards published yet.",
+    "publishedOn": "published {date}",
+    "averageValue": "average {value}",
+    "blocked": "Report card available once school fees are paid. Please contact the school's accounting office.",
+    "hidden": "Access to grades not allowed.",
+    "download": "Download (PDF)"
   }
 }

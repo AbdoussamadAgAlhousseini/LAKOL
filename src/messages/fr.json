@@ -177,7 +177,14 @@
     "submissionClosed": "Le dépôt en ligne n'est pas ouvert pour ce devoir.",
     "emptySubmission": "Ajoutez un texte ou un fichier.",
     "alreadyGraded": "Ce devoir est déjà corrigé.",
-    "alreadyJustified": "Cette absence est déjà justifiée."
+    "alreadyJustified": "Cette absence est déjà justifiée.",
+    "termLocked": "Cette période est clôturée.",
+    "assessmentLocked": "Les notes sont validées : seule la direction peut les modifier.",
+    "invalidScores": "Certaines notes sont invalides ou dépassent le barème.",
+    "unknownMatricule": "Le fichier contient des matricules inconnus dans cette classe.",
+    "noAssessments": "Aucune évaluation pour cette période.",
+    "gradesNotValidated": "Validez d'abord les notes de la classe.",
+    "nothingToPublish": "Aucun bulletin prêt à publier."
   },
   "enums": {
     "gender": {
@@ -302,7 +309,8 @@
     "documentCategory": "Type de document",
     "file": "Fichier (PDF ou image, 5 Mo max)",
     "uploadDocument": "Ajouter le document",
-    "history": "Historique scolaire"
+    "history": "Historique scolaire",
+    "studentCard": "Carte scolaire"
   },
   "import": {
     "title": "Importer des élèves",
@@ -521,7 +529,9 @@
       "Document": "Documents",
       "Term": "Périodes",
       "Attendance": "Présences",
-      "TimetableSlot": "Emploi du temps"
+      "TimetableSlot": "Emploi du temps",
+      "Class": "Classes",
+      "Grade": "Notes"
     },
     "actions": {
       "student.create": "inscription d'un élève",
@@ -551,7 +561,12 @@
       "attendance.justify": "validation d'un justificatif",
       "attendance.reject": "refus d'un justificatif",
       "discipline.create": "incident disciplinaire",
-      "discipline.delete": "suppression d'un incident"
+      "discipline.delete": "suppression d'un incident",
+      "grade.update_after_lock": "modification d'une note validée",
+      "grade.validate": "validation des notes",
+      "grade.unlock": "déverrouillage des notes",
+      "reportcard.generate": "édition des bulletins",
+      "reportcard.publish": "publication des bulletins"
     }
   },
   "account": {
@@ -732,5 +747,112 @@
       "SANCTION": "Sanction",
       "SUMMONS": "Convocation"
     }
+  },
+  "grades": {
+    "title": "Notes",
+    "noTerm": "Aucune période définie pour l'année active.",
+    "terms": "Périodes",
+    "locked": "Verrouillé",
+    "overview": "Avancement — {term}",
+    "progress": "{covered}/{total} matières notées · {count, plural, =0 {aucune évaluation} one {# évaluation} other {# évaluations}}",
+    "validated": "Validé",
+    "validate": "Valider les notes",
+    "validateConfirm": "Valider et verrouiller les notes de cette classe pour la période ? Les professeurs ne pourront plus les modifier.",
+    "myAssessments": "Mes évaluations",
+    "councilOf": "Conseil de classe {name}",
+    "noAssessment": "Aucune évaluation pour cette période.",
+    "newAssessment": "Nouvelle évaluation",
+    "classSubject": "Classe et matière",
+    "type": "Type",
+    "assessmentTitle": "Intitulé",
+    "titlePlaceholder": "Ex. Interrogation n°2",
+    "date": "Date",
+    "outOf": "Barème",
+    "weight": "Poids",
+    "weightHint": "Une composition compte souvent double.",
+    "createAndGrade": "Créer et saisir les notes",
+    "types": {
+      "QUIZ": "Interrogation",
+      "HOMEWORK": "Devoir",
+      "COMPOSITION": "Composition",
+      "MOCK_EXAM": "Examen blanc"
+    },
+    "hidden": "l'école ne vous donne pas accès aux notes.",
+    "rankOf": "Rang : {rank} sur {size}",
+    "absent": "absent",
+    "saved": "Enregistré.",
+    "gridHint": "Tapez la note (ex. 13,5), « abs » pour un absent. Entrée passe à l'élève suivant. Barème : /{outOf}.",
+    "filled": "{filled}/{total} notes saisies",
+    "saveGrades": "Enregistrer les notes",
+    "deleteConfirm": "Supprimer cette évaluation et ses notes ?",
+    "delete": "Supprimer",
+    "lockedEditable": "Notes validées : toute modification sera tracée dans le journal d'audit.",
+    "lockedInfo": "Notes validées par la direction : elles ne sont plus modifiables.",
+    "importTitle": "Importer depuis Excel",
+    "importHint": "Fichier avec deux colonnes : matricule et note.",
+    "importFile": "Fichier (.xlsx ou .csv)",
+    "import": "Importer",
+    "classStats": "Moyenne de la classe {average}/{scale} · plus forte {highest} · plus faible {lowest}",
+    "ranking": "Classement",
+    "notValidatedYet": "Les notes ne sont pas encore validées : les résultats peuvent encore changer.",
+    "rank": "Rang",
+    "student": "Élève",
+    "average": "Moy.",
+    "reportCard": "Bulletin",
+    "subjectAppraisals": "Appréciations — {subject}",
+    "saveAppraisals": "Enregistrer les appréciations",
+    "generalAppraisals": "Appréciation générale (professeur principal)",
+    "council": "Conseil de classe",
+    "councilHint": "Distinctions proposées d'après la moyenne : modifiez si besoin.",
+    "suggested": "proposé",
+    "distinction": "Distinction",
+    "noDistinction": "Aucune distinction",
+    "decision": "Décision",
+    "noDecision": "Pas de décision",
+    "saveCouncil": "Enregistrer le conseil",
+    "distinctions": {
+      "CONGRATULATIONS": "Félicitations",
+      "HONOR_ROLL": "Tableau d'honneur",
+      "ENCOURAGEMENT": "Encouragements",
+      "WORK_WARNING": "Avertissement travail",
+      "CONDUCT_WARNING": "Avertissement conduite"
+    },
+    "decisions": {
+      "PROMOTED": "Admis(e) en classe supérieure",
+      "CONDITIONAL": "Passage conditionnel",
+      "REPEAT": "Redouble",
+      "EXPELLED": "Exclu(e)"
+    }
+  },
+  "reportCards": {
+    "title": "Bulletins",
+    "intro": "Validez les notes, éditez les bulletins PDF, puis publiez-les aux parents.",
+    "teacherIntro": "Résultats et appréciations de vos classes.",
+    "noTerm": "Aucune période définie.",
+    "steps": {
+      "noGrades": "Pas de notes",
+      "toValidate": "Notes à valider",
+      "toGenerate": "Bulletins à éditer",
+      "toPublish": "Prêts à publier",
+      "published": "Publiés"
+    },
+    "counts": "{published}/{total} publiés",
+    "validate": "Valider les notes",
+    "validateConfirm": "Valider et verrouiller les notes de cette classe ?",
+    "generate": "Éditer les bulletins",
+    "regenerate": "Rééditer",
+    "publish": "Publier aux parents",
+    "publishConfirm": "Publier les bulletins ? Les parents seront prévenus par WhatsApp.",
+    "exams": "Examens nationaux : examens blancs",
+    "examsHint": "Taux d'élèves ayant la moyenne aux examens blancs.",
+    "mockCount": "{count, plural, =0 {aucun examen blanc} one {# examen blanc} other {# examens blancs}} · {candidates} candidats",
+    "passRate": "ont la moyenne",
+    "average": "moyenne",
+    "none": "Aucun bulletin publié pour le moment.",
+    "publishedOn": "publié le {date}",
+    "averageValue": "moyenne {value}",
+    "blocked": "Bulletin disponible après règlement des frais scolaires. Rapprochez-vous de la comptabilité de l'école.",
+    "hidden": "Accès aux notes non autorisé.",
+    "download": "Télécharger (PDF)"
   }
 }

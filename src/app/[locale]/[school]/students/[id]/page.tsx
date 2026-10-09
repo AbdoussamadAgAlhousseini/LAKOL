@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-import { FileText, Pencil, Trash2 } from "lucide-react";
+import { FileText, IdCard, Pencil, Trash2 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { loadSchoolPage, loadOrDeny } from "@/server/page-context";
 import { can } from "@/server/rbac/policies";
@@ -84,13 +84,20 @@ export default async function StudentPage({
           </span>
         }
         actions={
-          canWrite && (
+          <>
             <Button variant="outline" asChild>
-              <Link href={`${base}/${s.id}/edit`}>
-                <Pencil /> {t("edit")}
-              </Link>
+              <a href={`/api/schools/${school}/students/${s.id}/card`} target="_blank">
+                <IdCard /> {t("studentCard")}
+              </a>
             </Button>
-          )
+            {canWrite && (
+              <Button variant="outline" asChild>
+                <Link href={`${base}/${s.id}/edit`}>
+                  <Pencil /> {t("edit")}
+                </Link>
+              </Button>
+            )}
+          </>
         }
       />
 
