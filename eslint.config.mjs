@@ -29,6 +29,7 @@ const eslintConfig = [
       "src/server/db/**",
       "src/server/auth/**",
       "src/server/platform/**",
+      "src/server/jobs/**",
       "src/server/context.ts",
       "src/app/**/(auth)/**",
       "src/app/**/spaces/**",

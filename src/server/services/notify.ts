@@ -1,27 +1,32 @@
-import "server-only";
-import type { NotificationChannel, User } from "@prisma/client";
-import { getEmailProvider } from "@/server/adapters/email";
-import { getWhatsAppProvider } from "@/server/adapters/whatsapp";
-import { logger } from "@/server/logger";
-import type { ServiceContext } from "./context";
+import type { NotificationChannel, School, User } from "@prisma/client";
+import type { TenantDb } from "@/server/db/tenant";
+import { enqueue } from "@/server/jobs/queue";
+
+/** Le minimum pour notifier : l'école et son client de base (utilisable hors requête). */
+export interface NotifyContext {
+  db: TenantDb;
+  school: School;
+}
 
 export interface OutgoingMessage {
-  type: string; // ex. "account.created"
+  type: string; // ex. "attendance.absent"
   title: string;
   body: string;
   link?: string;
 }
 
+type ExternalChannel = Exclude<NotificationChannel, "IN_APP">;
+
 /**
- * Notifie un utilisateur : notification in-app + envois externes tracés
- * (NotificationDelivery). Un échec d'envoi n'interrompt pas l'opération.
- * Envoi synchrone pour l'instant ; passera par la file de tâches (phase 3).
+ * Notifie un utilisateur : notification in-app immédiate, puis envoi externe
+ * (WhatsApp en priorité, email sinon) mis en file et tracé dans
+ * NotificationDelivery. `channels: []` = in-app seulement.
  */
 export async function notifyUser(
-  ctx: ServiceContext,
+  ctx: NotifyContext,
   user: Pick<User, "id" | "phone" | "email">,
   message: OutgoingMessage,
-  channels: Exclude<NotificationChannel, "IN_APP">[] = ["WHATSAPP", "EMAIL"],
+  channels: ExternalChannel[] = ["WHATSAPP", "EMAIL"],
 ) {
   const schoolId = ctx.school.id;
   const notification = await ctx.db.notification.create({
@@ -34,9 +39,7 @@ export async function notifyUser(
       link: message.link,
     },
   });
-
-  // WhatsApp en priorité ; l'email seulement si pas de téléphone.
-  const channel =
+  const channel: ExternalChannel | null =
     channels.includes("WHATSAPP") && user.phone
       ? "WHATSAPP"
       : channels.includes("EMAIL") && user.email
@@ -44,32 +47,35 @@ export async function notifyUser(
         : null;
   if (!channel) return { notificationId: notification.id, channel: null };
 
-  const recipient = channel === "WHATSAPP" ? user.phone! : user.email!;
   const delivery = await ctx.db.notificationDelivery.create({
-    data: { schoolId, notificationId: notification.id, channel, recipient },
+    data: {
+      schoolId,
+      notificationId: notification.id,
+      channel,
+      recipient: channel === "WHATSAPP" ? user.phone! : user.email!,
+    },
   });
-  try {
-    const text = `${message.title}\n\n${message.body}`;
-    const result =
-      channel === "WHATSAPP"
-        ? await getWhatsAppProvider().sendText({ to: recipient, body: text })
-        : await getEmailProvider().send({ to: recipient, subject: message.title, text: message.body });
-    await ctx.db.notificationDelivery.update({
-      where: { id: delivery.id },
-      data: {
-        status: "SENT",
-        sentAt: new Date(),
-        attempts: 1,
-        providerMessageId: result.providerMessageId,
-        provider: channel === "WHATSAPP" ? getWhatsAppProvider().name : getEmailProvider().name,
-      },
-    });
-  } catch (error) {
-    logger.error({ channel, error: String(error) }, "échec d'envoi");
-    await ctx.db.notificationDelivery.update({
-      where: { id: delivery.id },
-      data: { status: "FAILED", attempts: 1, error: String(error).slice(0, 500) },
-    });
-  }
+  await enqueue("delivery.send", { deliveryId: delivery.id });
   return { notificationId: notification.id, channel };
+}
+
+/** Notifie les tuteurs d'un élève qui acceptent les notifications. Renvoie le nombre de parents prévenus. */
+export async function notifyGuardians(
+  ctx: NotifyContext,
+  studentId: string,
+  message: OutgoingMessage,
+  channels: ExternalChannel[] = ["WHATSAPP", "EMAIL"],
+) {
+  const links = await ctx.db.studentGuardian.findMany({
+    where: { studentId, receivesNotifications: true, guardian: { deletedAt: null, userId: { not: null } } },
+    include: { guardian: { include: { user: true } } },
+  });
+  let count = 0;
+  for (const link of links) {
+    const user = link.guardian.user;
+    if (!user || !user.isActive) continue;
+    await notifyUser(ctx, user, message, channels);
+    count += 1;
+  }
+  return count;
 }

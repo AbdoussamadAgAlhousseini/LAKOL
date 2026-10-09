@@ -18,12 +18,13 @@ export async function contextFor(
     include: { permissions: true },
   });
   const db = forSchool(school.id);
-  const { classIds, studentIds } = await loadScope(db, user.id, roleKey);
+  const { classIds, studentIds, staffId } = await loadScope(db, user.id, roleKey);
   return {
     db,
     school,
     user,
     ip: null,
+    staffId,
     scope: { permissions: new Set(role.permissions.map((p) => p.permissionKey)), classIds, studentIds },
   };
 }

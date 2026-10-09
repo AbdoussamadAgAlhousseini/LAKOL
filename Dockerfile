@@ -13,6 +13,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN pnpm prisma generate && pnpm build
 
+# Worker des tâches de fond (envois WhatsApp/email, rappels) : code source + tsx.
+FROM build AS worker
+ENV NODE_ENV=production
+CMD ["pnpm", "worker"]
+
 FROM base AS runner
 ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0
 RUN addgroup -S lakol && adduser -S lakol -G lakol

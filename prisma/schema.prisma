@@ -139,6 +139,7 @@ model School {
   auditLogs           AuditLog[]
   counters            Counter[]
   preRegistrations    PreRegistration[]
+  timetableExceptions TimetableException[]
 }
 
 model Subscription {
@@ -761,6 +762,7 @@ model TimetableSlot {
   updatedAt DateTime @updatedAt
 
   attendances Attendance[]
+  exceptions  TimetableException[]
 
   @@index([schoolId, classId, dayOfWeek])
   @@index([schoolId, staffId, dayOfWeek])
@@ -806,6 +808,7 @@ model Homework {
   dueAt           DateTime
   allowSubmission Boolean              @default(false)
   publishedAt     DateTime?
+  reminderSentAt  DateTime?
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
   deletedAt       DateTime?
@@ -850,26 +853,30 @@ enum AttendanceStatus {
 }
 
 model Attendance {
-  id              String           @id @default(cuid())
-  schoolId        String
-  school          School           @relation(fields: [schoolId], references: [id])
-  clientId        String?          @unique // idempotence pour la synchro hors ligne
-  studentId       String
-  student         Student          @relation(fields: [studentId], references: [id])
-  classId         String
-  class           Class            @relation(fields: [classId], references: [id])
-  subjectId       String?
-  subject         Subject?         @relation(fields: [subjectId], references: [id])
-  timetableSlotId String?
-  timetableSlot   TimetableSlot?   @relation(fields: [timetableSlotId], references: [id])
-  date            DateTime         @db.Date
-  status          AttendanceStatus
-  minutesLate     Int?
-  reason          String?
-  justified       Boolean          @default(false)
-  recordedById    String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                       String           @id @default(cuid())
+  schoolId                 String
+  school                   School           @relation(fields: [schoolId], references: [id])
+  clientId                 String?          @unique // idempotence pour la synchro hors ligne
+  studentId                String
+  student                  Student          @relation(fields: [studentId], references: [id])
+  classId                  String
+  class                    Class            @relation(fields: [classId], references: [id])
+  subjectId                String?
+  subject                  Subject?         @relation(fields: [subjectId], references: [id])
+  timetableSlotId          String?
+  timetableSlot            TimetableSlot?   @relation(fields: [timetableSlotId], references: [id])
+  date                     DateTime         @db.Date
+  status                   AttendanceStatus
+  minutesLate              Int?
+  reason                   String?
+  justified                Boolean          @default(false)
+  // Justificatif déposé par le parent, puis validé par la vie scolaire
+  justificationSubmittedAt DateTime?
+  justifiedById            String?
+  parentNotifiedAt         DateTime?
+  recordedById             String
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
 
   @@index([schoolId, studentId, date])
   @@index([schoolId, classId, date])
@@ -1542,4 +1549,27 @@ model PreRegistration {
 
   @@index([schoolId, status])
   @@index([ip, createdAt])
+}
+
+// Annulation ou remplacement ponctuel d'un créneau (notifié aux parents)
+enum TimetableExceptionKind {
+  CANCELLED
+  REPLACED
+}
+
+model TimetableException {
+  id                 String                 @id @default(cuid())
+  schoolId           String
+  school             School                 @relation(fields: [schoolId], references: [id])
+  slotId             String
+  slot               TimetableSlot          @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  date               DateTime               @db.Date
+  kind               TimetableExceptionKind
+  replacementStaffId String?
+  note               String?
+  createdById        String
+  createdAt          DateTime               @default(now())
+
+  @@unique([slotId, date])
+  @@index([schoolId, date])
 }

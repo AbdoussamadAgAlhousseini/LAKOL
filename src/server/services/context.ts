@@ -8,6 +8,8 @@ export interface ServiceContext {
   school: School;
   user: User;
   scope: AccessScope;
+  /** Fiche personnel de l'utilisateur dans l'espace actif (professeur…). */
+  staffId?: string | null;
   ip?: string | null;
 }
 
