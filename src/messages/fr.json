@@ -524,7 +524,10 @@
     "logoFile": "Image (PNG, JPG ou WEBP, 5 Mo max)",
     "uploadLogo": "Changer le logo",
     "publicForm": "Formulaire de pré-inscription",
-    "publicFormHint": "Partagez ce lien aux parents (WhatsApp, page Facebook…). Les demandes arrivent dans Élèves › Pré-inscriptions."
+    "publicFormHint": "Partagez ce lien aux parents (WhatsApp, page Facebook…). Les demandes arrivent dans Élèves › Pré-inscriptions.",
+    "quietHoursStart": "Début des heures calmes",
+    "quietHoursEnd": "Fin des heures calmes",
+    "quietHoursHint": "Les WhatsApp et emails non urgents sont envoyés après cette période (les absences restent immédiates)."
   },
   "audit": {
     "title": "Journal d'audit",

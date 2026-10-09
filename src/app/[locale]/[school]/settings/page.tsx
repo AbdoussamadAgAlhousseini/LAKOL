@@ -15,6 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations("settings"))("title") };
 }
 
+const HOURS = Array.from({ length: 24 }, (_, h) => h);
+
 export default async function SettingsPage({ params }: { params: Promise<{ locale: string; school: string }> }) {
   const { locale, school } = await params;
   const ctx = await loadGuardedPage(school, locale, (c) => can(c.scope, "school.settings.manage"));
@@ -81,6 +83,20 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
               <Select id="defaultLocale" name="defaultLocale" defaultValue={s.defaultLocale}>
                 <option value="fr">Français</option>
                 <option value="en">English</option>
+              </Select>
+            </Field>
+            <Field name="quietHoursStart" label={t("quietHoursStart")} hint={t("quietHoursHint")}>
+              <Select id="quietHoursStart" name="quietHoursStart" defaultValue={String(s.quietHoursStart)}>
+                {HOURS.map((h) => (
+                  <option key={h} value={h}>{`${String(h).padStart(2, "0")}:00`}</option>
+                ))}
+              </Select>
+            </Field>
+            <Field name="quietHoursEnd" label={t("quietHoursEnd")}>
+              <Select id="quietHoursEnd" name="quietHoursEnd" defaultValue={String(s.quietHoursEnd)}>
+                {HOURS.map((h) => (
+                  <option key={h} value={h}>{`${String(h).padStart(2, "0")}:00`}</option>
+                ))}
               </Select>
             </Field>
             <label className="flex items-center gap-3 text-sm sm:col-span-2">

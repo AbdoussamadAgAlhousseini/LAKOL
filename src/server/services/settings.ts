@@ -20,6 +20,9 @@ export interface SchoolSettingsInput {
   secondaryColor: string;
   reportCardHeader?: string | null;
   blockReportIfUnpaid: boolean;
+  /** Heures calmes (heure locale) : pas de WhatsApp/email non urgent entre ces heures. */
+  quietHoursStart: number;
+  quietHoursEnd: number;
 }
 
 export async function updateSchoolSettings(ctx: ServiceContext, input: SchoolSettingsInput) {

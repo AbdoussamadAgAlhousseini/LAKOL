@@ -23,6 +23,8 @@ export const updateSettingsAction = schoolAction(
       secondaryColor: color,
       reportCardHeader: optionalText(500),
       blockReportIfUnpaid: checkbox,
+      quietHoursStart: z.coerce.number().int().min(0).max(23),
+      quietHoursEnd: z.coerce.number().int().min(0).max(23),
     }),
   },
   async (ctx, input) => {

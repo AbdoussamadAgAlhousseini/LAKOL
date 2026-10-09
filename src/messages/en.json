@@ -524,7 +524,10 @@
     "logoFile": "Image (PNG, JPG or WEBP, 5 MB max)",
     "uploadLogo": "Change logo",
     "publicForm": "Pre-registration form",
-    "publicFormHint": "Share this link with parents (WhatsApp, Facebook page…). Requests arrive in Students › Pre-registrations."
+    "publicFormHint": "Share this link with parents (WhatsApp, Facebook page…). Requests arrive in Students › Pre-registrations.",
+    "quietHoursStart": "Quiet hours start",
+    "quietHoursEnd": "Quiet hours end",
+    "quietHoursHint": "Non-urgent WhatsApp messages and emails are sent after this period (absences are still sent immediately)."
   },
   "audit": {
     "title": "Audit log",

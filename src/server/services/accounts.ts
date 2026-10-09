@@ -138,5 +138,6 @@ export async function sendAccess(
         title: t.accessTitle(school),
         body: t.accessBody(account.firstName, school, url, t.roles[kind]),
       };
-  return notifyUser(ctx, recipient, message);
+  // Demandé par l'école à l'instant : envoyé même pendant les heures calmes.
+  return notifyUser(ctx, recipient, { ...message, urgent: true });
 }
