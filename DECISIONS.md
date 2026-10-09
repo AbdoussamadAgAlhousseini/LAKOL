@@ -60,3 +60,31 @@ Le seed vide la base puis la remplit avec un générateur pseudo-aléatoire à g
 ## 011 — Tâches de fond reportées à la phase 3
 
 En phase 1, le seul envoi est le code de réinitialisation, fait de façon synchrone. BullMQ + Redis arrivent avec les notifications d'absence (phase 3) et seront généralisés en phase 6.
+
+## 012 — Élèves : connexion par matricule
+
+Beaucoup d'élèves n'ont ni téléphone ni email. Le champ `User.username` reçoit le matricule en minuscules ; l'écran de connexion accepte email, téléphone ou matricule. Les accès d'un élève sont envoyés à son parent principal.
+
+## 013 — Comptes parents partagés entre écoles
+
+Un parent garde un seul compte (identifié par son téléphone) même si ses enfants sont dans plusieurs écoles. Une école ne peut pas réinitialiser le mot de passe d'un compte qui sert ailleurs : le parent utilise « Mot de passe oublié ». Un mot de passe provisoire impose un changement à la première connexion.
+
+## 014 — Rôle de direction protégé
+
+Attribuer des rôles exige `user.manage` ; attribuer ou retirer le rôle de direction exige en plus `role.manage` (direction uniquement), pour empêcher toute élévation de privilèges par le secrétariat. Le rôle « professeur principal » suit automatiquement l'attribution des classes.
+
+## 015 — Formulaires sans dépendance
+
+Les formulaires utilisent un composant `ActionForm` maison (FormData → action serveur, erreurs par champ et erreurs métier traduites) plutôt qu'une bibliothèque de formulaires, pour garder des pages légères. Les erreurs métier (`DomainError`) portent une clé de traduction.
+
+## 016 — Fichiers : stockage local en développement, S3 en production
+
+`STORAGE_PROVIDER=local` écrit dans `./storage` ; `s3` vise tout stockage compatible (R2, MinIO…). Les fichiers sont servis par `/api/files/[id]` après contrôle d'accès (périmètre de l'élève, appartenance à l'école), jamais par une URL publique.
+
+## 017 — Import Excel en deux temps
+
+Le fichier est d'abord vérifié ligne par ligne (classe inconnue, téléphone invalide, doublon…) sans rien écrire ; l'import n'est possible que si toutes les lignes sont valides. Formats : .xlsx (exceljs) et CSV (séparateur « ; » ou « , »).
+
+## 018 — Pré-inscription publique
+
+Formulaire sans compte sur `/{langue}/inscription/{école}`, limité à 10 demandes par heure et par IP, avec un champ piège contre les robots. La validation par l'école crée l'élève, le parent et son compte comme une inscription normale.

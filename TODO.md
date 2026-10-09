@@ -3,7 +3,7 @@
 ## Phases
 
 - [x] **Phase 1 : Fondations** — schéma complet, seed, authentification, multi-tenant, RBAC, navigation par rôle, i18n
-- [ ] **Phase 2 : Structure et acteurs** — années, périodes, classes, matières ; CRUD élèves, parents (création auto + envoi des accès WhatsApp), personnel, affectations ; import Excel ; paramètres et personnalisation de l'école ; journal d'audit consultable
+- [x] **Phase 2 : Structure et acteurs** — années, périodes, classes, matières ; élèves, parents (comptes automatiques + accès WhatsApp), personnel, affectations ; import Excel/CSV ; pré-inscription en ligne ; paramètres ; journal d'audit
 - [ ] **Phase 3 : Pédagogie quotidienne** — emploi du temps (détection de conflits), cahier de textes, devoirs (rendu, correction), appel avec notification parent (BullMQ)
 - [ ] **Phase 4 : Évaluations** — saisie des notes, moyennes et rangs, verrouillage, conseil de classe, bulletins PDF
 - [ ] **Phase 5 : Finances** — frais, échéanciers, réductions, paiements à l'école, reçus PDF, relances, dépenses
@@ -12,6 +12,13 @@
 - [ ] **Phase 8 : Finitions** — PWA et hors ligne, tableaux de bord avancés, modules optionnels, performances
 
 ## Améliorations prévues
+
+- [ ] Carte scolaire PDF avec QR code (avec la génération PDF de la phase 4).
+- [ ] Compression des photos et logos à l'envoi (aujourd'hui : 5 Mo max, formats contrôlés).
+- [ ] Notifier le parent par WhatsApp quand sa pré-inscription est refusée.
+- [ ] Réinscription en masse d'une classe vers l'année suivante (aujourd'hui : élève par élève).
+- [ ] Grille de coefficients pour une nouvelle série de lycée depuis l'interface (aujourd'hui : séries existantes du seed ou via le niveau sans série).
+- [ ] Envois WhatsApp de l'import en file de tâches (aujourd'hui synchrones, phase 3).
 
 - [ ] **Paiement mobile** (Orange Money, Moov Money, Wave) : implémenter un `PaymentProvider`. Le modèle `Payment` a déjà `provider` / `providerRef`, et `PaymentMethod.MOBILE_MONEY` est réservé.
 - [ ] Row-Level Security PostgreSQL en défense supplémentaire de l'extension `forSchool()`.

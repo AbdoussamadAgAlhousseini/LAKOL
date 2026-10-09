@@ -3,7 +3,7 @@
 Plateforme SaaS de gestion scolaire multi-écoles, pensée pour l'Afrique de l'Ouest francophone (Mali en priorité).
 Direction, secrétariat, professeurs, parents et élèves travaillent dans un seul outil, chacun dans son espace.
 
-> État : **phase 1 (fondations)** terminée. Voir `TODO.md` pour la suite et `CLAUDE.md` pour le cahier des charges.
+> État : **phases 1 (fondations) et 2 (structure et acteurs)** terminées. Voir `TODO.md` pour la suite et `CLAUDE.md` pour le cahier des charges.
 
 ## Prérequis
 
@@ -39,6 +39,10 @@ Les deux écoles de démonstration sont `les-etoiles` (Bamako, 30 élèves) et `
 | Directeur de l'école B                                         | `directeur@le-savoir.lakol.test`                        | `Lakol2025!`  |
 
 Les numéros sont saisis au format local malien (8 chiffres) ou international (`+223…`).
+
+Les nouveaux comptes (parents, personnel, élèves) reçoivent un mot de passe provisoire par WhatsApp. En développement, ce message s'affiche dans les logs du serveur ; il faut le changer à la première connexion.
+
+Formulaire public de pré-inscription : http://localhost:3000/fr/inscription/les-etoiles
 
 ## Scripts
 

@@ -74,6 +74,14 @@ tests/unit, integration, e2e
 - Numérotation sans trou (matricules, factures, reçus) via `Counter`, incrémenté dans la transaction de création.
 - Pièces jointes : table `Document` polymorphe (`entityType`, `entityId`), fichiers sur S3.
 
+## Modules métier (phase 2)
+
+- **Services** (`src/server/services/`) : `structure`, `students` (dont tuteurs, comptes élèves, documents), `staff`, `import`, `preregistrations`, `settings`, `accounts` (création / réutilisation des comptes, rôles, envoi des accès), `notify` (notification in-app + WhatsApp/email tracés dans `NotificationDelivery`). Ils reçoivent un `ServiceContext` (client d'école, utilisateur, droits) et ne dépendent pas de Next.js : les tests d'intégration les appellent directement.
+- **Actions** : un fichier `actions.ts` par module dans `src/app/[locale]/[school]/…`, chaque action passant par `schoolAction` (droits + validation Zod). Les erreurs métier (`DomainError`) sont renvoyées comme clés de traduction.
+- **Formulaires** : `ActionForm` / `Field` / `SubmitButton` (`src/components/forms`) gèrent l'envoi, les erreurs par champ et la redirection.
+- **Fichiers** : adapter `StorageProvider` (local ou S3), lecture via `/api/files/[id]` avec contrôle d'accès.
+- **Pages publiques** : pré-inscription (`/{langue}/inscription/{école}`), via `src/server/platform/preregistration.ts`.
+
 ## Services externes
 
 Interfaces dans `src/server/adapters/` :
