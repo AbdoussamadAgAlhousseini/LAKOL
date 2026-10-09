@@ -51,7 +51,10 @@ export async function listSpaces(userId: string): Promise<Space[]> {
     where: { userId, school: { isActive: true, deletedAt: null } },
     include: { role: true, school: true },
   });
+  // « Professeur principal » inclut tous les droits de « Professeur » : un seul espace suffit.
+  const headIn = new Set(rows.filter((r) => r.role.key === "HEAD_TEACHER").map((r) => r.schoolId));
   return rows
+    .filter((r) => !(r.role.key === "TEACHER" && headIn.has(r.schoolId)))
     .map((r) => ({
       schoolId: r.schoolId,
       schoolSlug: r.school.slug,

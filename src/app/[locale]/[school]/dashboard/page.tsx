@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-import { BookOpen, CalendarX, GraduationCap, NotebookPen, Shapes, Users, Wallet } from "lucide-react";
+import { BookOpen, CalendarX, ClipboardCheck, GraduationCap, NotebookPen, Shapes, Users, Wallet } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { myTodaySlots } from "@/server/services/attendance";
+import { dayStart, formatTime, isoDate } from "@/lib/time";
 import { loadSchoolPage } from "@/server/page-context";
 import { getSchoolOverview, getStudentCards, getTeacherClasses } from "@/server/services/dashboard";
 import type { SchoolContext } from "@/server/context";
@@ -83,10 +86,33 @@ async function SchoolOverview({ ctx, locale }: { ctx: SchoolContext; locale: str
 
 async function TeacherClasses({ ctx }: { ctx: SchoolContext }) {
   const t = await getTranslations("dashboard");
-  const classes = await getTeacherClasses(ctx);
+  const [classes, slots] = await Promise.all([getTeacherClasses(ctx), myTodaySlots(ctx)]);
+  const today = isoDate(dayStart());
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">{t("myClasses")}</h2>
+      <h2 className="text-lg font-semibold">{t("today")}</h2>
+      {slots.length === 0 && <p className="text-muted-foreground">{t("noCourseToday")}</p>}
+      <div className="grid gap-2 sm:grid-cols-2">
+        {slots.map((s) => (
+          <Link
+            key={s.id}
+            href={`/${ctx.school.slug}/attendance/call?classId=${s.classId}&slotId=${s.id}&date=${today}`}
+            className="bg-card hover:bg-accent flex min-h-14 items-center gap-3 rounded-lg border p-3"
+          >
+            <ClipboardCheck className="text-primary size-6" aria-hidden />
+            <span className="flex-1">
+              <span className="block font-semibold">
+                {s.class.name} — {s.subject.name}
+              </span>
+              <span className="text-muted-foreground text-sm tabular-nums">
+                {formatTime(s.startMin)}–{formatTime(s.endMin)}
+              </span>
+            </span>
+            <span className="text-primary text-sm font-medium">{t("takeCall")}</span>
+          </Link>
+        ))}
+      </div>
+      <h2 className="mt-4 text-lg font-semibold">{t("myClasses")}</h2>
       {classes.length === 0 && <p className="text-muted-foreground">{t("noClass")}</p>}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {classes.map((c) => (

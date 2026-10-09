@@ -14,7 +14,18 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations("audit"))("title") };
 }
 
-const ENTITIES = ["Student", "Staff", "User", "StudentGuardian", "AcademicYear", "School", "Document", "Term"] as const;
+const ENTITIES = [
+  "Student",
+  "Staff",
+  "User",
+  "StudentGuardian",
+  "AcademicYear",
+  "School",
+  "Document",
+  "Term",
+  "Attendance",
+  "TimetableSlot",
+] as const;
 
 function summarize(value: unknown): string {
   if (!value || typeof value !== "object") return "";

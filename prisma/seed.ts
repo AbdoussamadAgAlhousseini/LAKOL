@@ -639,29 +639,38 @@ async function seedEtoiles(planId: string) {
     classes.push({ ...def, cls, codes: Object.keys(levelCoefs) });
   }
 
-  // Emploi du temps de la 7e A (lundi-vendredi, 4 créneaux le matin)
+  // Emploi du temps de toutes les classes (lundi-vendredi, 4 créneaux le matin) :
+  // pour chaque créneau, première matière dont le professeur est libre.
   const slots = [
     [480, 535],
     [540, 595],
     [610, 665],
     [670, 725],
   ];
-  const c7 = classes[1];
   for (let day = 1; day <= 5; day++) {
     for (const [i, [startMin, endMin]] of slots.entries()) {
-      const code = c7.codes[(day * 4 + i) % c7.codes.length];
-      await prisma.timetableSlot.create({
-        data: {
-          schoolId,
-          classId: c7.cls.id,
-          subjectId: subjects[code].id,
-          staffId: teacherFor(code).staff.id,
-          roomId: c7.room.id,
-          dayOfWeek: day,
-          startMin,
-          endMin,
-        },
-      });
+      const busy = new Set<string>();
+      for (const [classIdx, c] of classes.entries()) {
+        for (let k = 0; k < c.codes.length; k++) {
+          const code = c.codes[(day * 4 + i + classIdx + k) % c.codes.length];
+          const staffId = teacherFor(code).staff.id;
+          if (busy.has(staffId)) continue;
+          busy.add(staffId);
+          await prisma.timetableSlot.create({
+            data: {
+              schoolId,
+              classId: c.cls.id,
+              subjectId: subjects[code].id,
+              staffId,
+              roomId: c.room.id,
+              dayOfWeek: day,
+              startMin,
+              endMin,
+            },
+          });
+          break;
+        }
+      }
     }
   }
 
