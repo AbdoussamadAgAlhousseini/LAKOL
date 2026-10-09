@@ -49,27 +49,30 @@ Formulaire public de pré-inscription : http://localhost:3000/fr/inscription/les
 
 ## Scripts
 
-| Commande                                                 | Rôle                                                                |
-| -------------------------------------------------------- | ------------------------------------------------------------------- |
-| `pnpm dev` / `pnpm build` / `pnpm start`                 | Développement, build et serveur de production                       |
-| `pnpm lint` / `pnpm typecheck` / `pnpm format`           | ESLint, TypeScript strict, Prettier                                 |
-| `pnpm test:unit`                                         | Tests unitaires (sans base)                                         |
-| `pnpm test:integration`                                  | Tests d'intégration (base migrée et seedée requise)                 |
-| `pnpm test:e2e`                                          | Parcours Playwright (lance `pnpm start` : faire `pnpm build` avant) |
-| `pnpm db:migrate` / `db:deploy` / `db:seed` / `db:reset` | Base de données                                                     |
+| Commande                                                 | Rôle                                                                 |
+| -------------------------------------------------------- | -------------------------------------------------------------------- |
+| `pnpm dev` / `pnpm build` / `pnpm start`                 | Développement, build et serveur de production                        |
+| `pnpm lint` / `pnpm typecheck` / `pnpm format`           | ESLint, TypeScript strict, Prettier                                  |
+| `pnpm test:unit`                                         | Tests unitaires (sans base)                                          |
+| `pnpm test:integration`                                  | Tests d'intégration (base migrée et seedée requise)                  |
+| `pnpm test:e2e`                                          | Parcours Playwright (lance `pnpm start` : faire `pnpm build` avant)  |
+| `pnpm db:migrate` / `db:deploy` / `db:seed` / `db:reset` | Base de données                                                      |
+| `pnpm db:sync-permissions`                               | Après une mise à jour : ajoute les nouvelles permissions aux rôles   |
+| `pnpm worker` / `pnpm jobs:flush`                        | Worker de la file de tâches / envoi des messages différés en attente |
 
 ## Variables d'environnement
 
 Voir `.env.example`. En développement, WhatsApp et email sont simulés : les messages (dont les codes de vérification) s'affichent dans les logs du serveur.
 
-| Variable            | Description                                                                          |
-| ------------------- | ------------------------------------------------------------------------------------ |
-| `DATABASE_URL`      | Connexion PostgreSQL                                                                 |
-| `REDIS_URL`         | File de tâches (à partir de la phase 3)                                              |
-| `APP_URL`           | URL publique, pour les liens envoyés                                                 |
-| `WHATSAPP_PROVIDER` | `mock` (défaut) ou `meta` (avec `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`) |
-| `EMAIL_PROVIDER`    | `mock` (défaut) ou `resend` (avec `RESEND_API_KEY`, `EMAIL_FROM`)                    |
-| `S3_*`              | Stockage de fichiers compatible S3 (MinIO en local, Cloudflare R2 en production)     |
+| Variable                                        | Description                                                                              |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                  | Connexion PostgreSQL                                                                     |
+| `REDIS_URL`                                     | File de tâches (à partir de la phase 3)                                                  |
+| `APP_URL`                                       | URL publique, pour les liens envoyés                                                     |
+| `WHATSAPP_PROVIDER`                             | `mock` (défaut) ou `meta` (avec `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`)     |
+| `WHATSAPP_VERIFY_TOKEN` / `WHATSAPP_APP_SECRET` | Webhook des statuts (`/api/webhooks/whatsapp`) : jeton de vérification et signature Meta |
+| `EMAIL_PROVIDER`                                | `mock` (défaut) ou `resend` (avec `RESEND_API_KEY`, `EMAIL_FROM`)                        |
+| `S3_*`                                          | Stockage de fichiers compatible S3 (MinIO en local, Cloudflare R2 en production)         |
 
 ## Déploiement
 

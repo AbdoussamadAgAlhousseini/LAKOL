@@ -114,6 +114,16 @@ tests/unit, integration, e2e
 - **Paie** : fiches mensuelles (salaire de base, heures de vacation × taux, primes, retenues) ; le paiement crée une dépense « Salaires ».
 - **Paiement mobile** : interface `PaymentProvider` (`adapters/payment`) prête ; seul le fournisseur « manual » est actif.
 
+## Communication (phase 6)
+
+- **Messagerie** (`services/messaging.ts`) : conversations à deux, rattachées à un élève quand c'est un échange parent ↔ professeur. Contacts autorisés : le parent écrit aux professeurs et au professeur principal des classes de ses enfants, et à l'administration ; le professeur écrit au personnel et aux parents de ses élèves ; l'administration écrit à tous. Pas de messagerie entre parents. Messages vocaux (MediaRecorder, 3 Mo max) stockés comme `Document` « Message », lisibles par les participants seulement.
+- **Modération** : un participant signale un message ; la direction voit uniquement ce message (pas la conversation) et peut le masquer (audité).
+- **Annonces et circulaires** : public (école, parents, personnel, niveaux, classes) résolu à la publication ; une notification par destinataire (`Notification.refType = "Announcement"`), qui sert aussi de droit de lecture ; accusé de lecture (`AnnouncementAck`), suivi et relance des retardataires.
+- **Notifications** : in-app toujours ; WhatsApp/email selon le cas. **Heures calmes** de l'école (20 h – 7 h par défaut, fuseau `School.timezone`) : les envois non urgents sont programmés (`NotificationDelivery.scheduledFor`, délai BullMQ) ; absences, annulations de cours et envois d'accès restent immédiats. Tâche `deliveries.flush` toutes les 10 min en filet de sécurité.
+- **Suivi des envois** : webhook WhatsApp (`/api/webhooks/whatsapp`, signature HMAC vérifiée) → SENT / DELIVERED / READ / FAILED, sans retour en arrière ; page de suivi et renvoi des échecs.
+- **Temps réel** : flux SSE `/api/schools/{école}/events` (compteurs de notifications et de messages non lus toutes les 5 s, reconnexion automatique après 5 min).
+- **Rendez-vous** : le professeur publie des séries de créneaux (`MeetingSlot`, chevauchements refusés) ; le parent réserve un créneau d'un professeur de son enfant (mise à jour atomique : un créneau ne se réserve qu'une fois) ; chaque partie est prévenue des réservations et annulations.
+
 ## Services externes
 
 Interfaces dans `src/server/adapters/` :

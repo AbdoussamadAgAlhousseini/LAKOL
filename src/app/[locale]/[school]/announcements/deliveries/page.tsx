@@ -78,7 +78,9 @@ export default async function DeliveriesPage({
             <Badge variant={VARIANT[d.status]}>{t(`statuses.${d.status}`)}</Badge>
             <span className="font-medium">{d.channel === "WHATSAPP" ? "WhatsApp" : "Email"}</span>
             <span className="text-muted-foreground">{d.recipient}</span>
-            <span className="min-w-0 flex-1 truncate">{d.notification.title}</span>
+            <span className="order-last basis-full truncate sm:order-none sm:min-w-0 sm:flex-1 sm:basis-auto">
+              {d.notification.title}
+            </span>
             <span className="text-muted-foreground text-xs">
               {d.scheduledFor && d.status === "QUEUED"
                 ? t("scheduledFor", { date: fmt.format(d.scheduledFor) })

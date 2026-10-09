@@ -81,7 +81,9 @@ export default async function MeetingsPage({ params }: { params: Promise<{ local
         {days.map((d) => (
           <Card key={d} className="p-0" data-testid="slot-day">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base capitalize">{day.format(new Date(`${d}T12:00:00Z`))}</CardTitle>
+              <CardTitle className="text-base first-letter:uppercase">
+                {day.format(new Date(`${d}T12:00:00Z`))}
+              </CardTitle>
             </CardHeader>
             <CardContent className="divide-y p-0">
               {slots
@@ -94,7 +96,8 @@ export default async function MeetingsPage({ params }: { params: Promise<{ local
                     {s.status === "BOOKED" ? (
                       <>
                         <Badge variant="success">{t("booked")}</Badge>
-                        <span className="min-w-0 flex-1">
+                        <span className="flex-1 sm:hidden" />
+                        <span className="order-last min-w-0 basis-full sm:order-none sm:flex-1 sm:basis-auto">
                           {s.guardian && `${s.guardian.firstName} ${s.guardian.lastName}`}
                           {s.student && ` · ${t("parentOf", { name: s.student.firstName })}`}
                           {s.guardian?.phone && <span className="text-muted-foreground"> · {s.guardian.phone}</span>}
@@ -144,7 +147,7 @@ export default async function MeetingsPage({ params }: { params: Promise<{ local
               <div key={b.id} className="flex flex-wrap items-center gap-3 rounded-lg border p-3 text-sm">
                 <CalendarClock className="text-primary size-6 shrink-0" aria-hidden />
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold capitalize">
+                  <p className="font-semibold first-letter:uppercase">
                     {day.format(b.startsAt)} · {time.format(b.startsAt)}
                   </p>
                   <p className="text-muted-foreground">
@@ -198,7 +201,9 @@ export default async function MeetingsPage({ params }: { params: Promise<{ local
                           />
                           <span className="font-semibold tabular-nums">{time.format(s.startsAt)}</span>
                         </span>
-                        <span className="text-muted-foreground text-xs capitalize">{day.format(s.startsAt)}</span>
+                        <span className="text-muted-foreground text-xs first-letter:uppercase">
+                          {day.format(s.startsAt)}
+                        </span>
                       </label>
                     ))}
                   </div>

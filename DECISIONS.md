@@ -132,3 +132,27 @@ Le reçu PDF est reconstruit à partir des données à chaque téléchargement (
 ## 029 — Relances limitées et ciblées
 
 Au plus une relance WhatsApp par semaine et par élève, uniquement aux tuteurs autorisés à voir les frais : on limite le coût des messages et on respecte les familles (ex. parent séparé sans accès aux frais).
+
+## 030 — Server-Sent Events plutôt que WebSockets
+
+Les besoins temps réel (compteurs, nouveaux messages) vont du serveur vers le client : SSE suffit, passe par HTTP standard (proxys, Vercel, VPS), se reconnecte seul et ne demande pas de serveur dédié. Le flux interroge la base toutes les 5 s et se ferme après 5 min ; un passage à Redis pub/sub est possible si la charge l'exige.
+
+## 031 — Pas de messagerie entre parents, conversations à deux
+
+Pour protéger les familles et les données des mineurs, un parent ne peut écrire qu'aux professeurs de ses enfants et à l'administration. Les conversations sont à deux personnes et rattachées à l'élève concerné ; une nouvelle prise de contact reprend la conversation existante.
+
+## 032 — Un seul WhatsApp tant que le message précédent n'est pas lu
+
+Un nouveau message déclenche un WhatsApp seulement si le destinataire n'a pas de notification non lue pour cette conversation : on évite d'inonder un parent pendant un échange, tout en le prévenant du premier message.
+
+## 033 — Heures calmes côté école
+
+Les envois WhatsApp/email non urgents sont différés hors de la plage 20 h – 7 h (réglable par l'école). Le délai est calculé dans le fuseau de l'école et confié à BullMQ ; une tâche périodique rattrape les envois restés en attente (redémarrage, Redis indisponible). Les messages urgents (absence, cours annulé, accès au compte) partent immédiatement.
+
+## 034 — Le droit de lire une annonce découle de sa notification
+
+À la publication, chaque destinataire reçoit une notification liée à l'annonce. C'est cette notification qui donne accès à l'annonce et à l'accusé de lecture : le public est figé au moment de l'envoi (un élève arrivé plus tard ne reçoit pas une ancienne circulaire), et les statistiques de lecture sont exactes.
+
+## 035 — Rendez-vous par créneaux publiés
+
+Plutôt qu'un agenda partagé, le professeur publie des séries de créneaux et le parent en réserve un. La réservation est une mise à jour conditionnelle (`status = OPEN`) : deux parents ne peuvent pas obtenir le même créneau.
