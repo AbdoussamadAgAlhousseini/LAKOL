@@ -184,7 +184,19 @@
     "unknownMatricule": "The file contains student IDs not in this class.",
     "noAssessments": "No assessments for this term.",
     "gradesNotValidated": "First validate the class's grades.",
-    "nothingToPublish": "No report cards ready to publish."
+    "nothingToPublish": "No report cards ready to publish.",
+    "invalidAmount": "Invalid amount.",
+    "discountValue": "Enter either a percentage or an amount.",
+    "discountUsed": "This discount is already applied to invoices.",
+    "invoiceHasPayments": "This invoice already has payments: cancel them first.",
+    "methodUnavailable": "Payment method not available.",
+    "referenceRequired": "Enter the cheque or transfer number.",
+    "invoiceNotOpen": "This invoice is already paid.",
+    "overpayment": "The amount exceeds the balance due.",
+    "alreadyCancelled": "This payment is already cancelled.",
+    "alreadyClosed": "The cash for this day is already closed.",
+    "differenceNeedsNote": "Explain the cash difference in the note.",
+    "payrollPaid": "This salary is already paid."
   },
   "enums": {
     "gender": {
@@ -310,7 +322,8 @@
     "file": "File (PDF or image, 5 MB max)",
     "uploadDocument": "Add document",
     "history": "School history",
-    "studentCard": "Student ID card"
+    "studentCard": "Student ID card",
+    "financeAccount": "Fees account"
   },
   "import": {
     "title": "Import students",
@@ -531,7 +544,12 @@
       "Attendance": "Attendance",
       "TimetableSlot": "Timetable",
       "Class": "Classes",
-      "Grade": "Grades"
+      "Grade": "Grades",
+      "Invoice": "Invoices",
+      "Payment": "Payments",
+      "Expense": "Expenses",
+      "FeeSchedule": "Fees",
+      "CashClosing": "Cash"
     },
     "actions": {
       "student.create": "enrolled a student",
@@ -566,7 +584,16 @@
       "grade.validate": "validated grades",
       "grade.unlock": "unlocked grades",
       "reportcard.generate": "issued report cards",
-      "reportcard.publish": "published report cards"
+      "reportcard.publish": "published report cards",
+      "fee.update": "changed a fee grid",
+      "discount.create": "added a discount",
+      "discount.delete": "removed a discount",
+      "invoice.generate": "generated payment schedules",
+      "invoice.cancel": "cancelled an invoice",
+      "payment.cancel": "cancelled a payment",
+      "expense.delete": "deleted an expense",
+      "cash.close": "closed the cash",
+      "payroll.pay": "paid a salary"
     }
   },
   "account": {
@@ -854,5 +881,209 @@
     "blocked": "Report card available once school fees are paid. Please contact the school's accounting office.",
     "hidden": "Access to grades not allowed.",
     "download": "Download (PDF)"
+  },
+  "finance": {
+    "title": "Finance",
+    "yearLabel": "School year {year}",
+    "kpi": {
+      "expected": "Expected",
+      "collected": "Collected",
+      "rate": "Collection rate",
+      "overdue": "Overdue"
+    },
+    "debtors": "{count, plural, =0 {No families behind} one {# student behind on payments} other {# students behind on payments}}",
+    "seeUnpaid": "see unpaid",
+    "expensesTotal": "Expenses this year: {amount}",
+    "byClass": "Collection by class",
+    "classOverdue": "{amount} overdue · {count} student(s)",
+    "byMonth": "Collections by month",
+    "noPayment": "No payments.",
+    "familyTitle": "School fees",
+    "familyIntro": "Payments are made at the school (cash, cheque or transfer). Receipts are available here.",
+    "hidden": "the school has not given you access to fees.",
+    "tabs": {
+      "label": "Finance",
+      "dashboard": "Dashboard",
+      "accounts": "Student accounts",
+      "unpaid": "Unpaid",
+      "cash": "Daily cash",
+      "expenses": "Expenses",
+      "fees": "Fees",
+      "payroll": "Payroll"
+    },
+    "account": {
+      "total": "Total for the year",
+      "paid": "Paid",
+      "balance": "Balance due",
+      "overdue": "Of which overdue",
+      "schedule": "Payment schedule",
+      "noInvoice": "No invoices this year.",
+      "due": "due {date}",
+      "alreadyPaid": "already paid: {amount}",
+      "late": "Late",
+      "payments": "Payments",
+      "noPayment": "No payments.",
+      "cancelled": "Cancelled: {reason}",
+      "receipt": "Receipt {number}"
+    },
+    "invoiceStatus": {
+      "UNPAID": "To pay",
+      "PARTIAL": "Partial",
+      "PAID": "Paid",
+      "CANCELLED": "Cancelled"
+    },
+    "methods": {
+      "CASH": "Cash",
+      "CHEQUE": "Cheque",
+      "TRANSFER": "Transfer",
+      "MOBILE_MONEY": "Mobile money"
+    },
+    "accountsIntro": "Search for a student to record a payment or view their account.",
+    "searchStudent": "Name or student ID",
+    "class": "Class",
+    "allClasses": "All classes",
+    "search": "Search",
+    "studentRecord": "student record",
+    "remind": "Remind",
+    "remindConfirm": "Send a WhatsApp reminder to the parents?",
+    "pay": {
+      "title": "Record a payment",
+      "hint": "Balance due: {balance}. The payment goes to the oldest instalments first.",
+      "done": "Payment recorded, receipt issued.",
+      "amount": "Amount",
+      "method": "Payment method",
+      "reference": "Reference",
+      "referenceHint": "Cheque or transfer number",
+      "invoice": "Apply first to",
+      "oldestFirst": "Oldest instalments",
+      "payer": "Paid by",
+      "date": "Date",
+      "submit": "Save and issue receipt"
+    },
+    "cancelInvoice": "Cancel invoice",
+    "reason": "Reason",
+    "confirm": "Confirm",
+    "cancelPayment": "Cancel payment",
+    "cancelPaymentConfirm": "Cancel this payment? The related invoices will be reopened.",
+    "discounts": {
+      "title": "Discounts",
+      "none": "No discounts.",
+      "kinds": {
+        "SIBLING": "Sibling",
+        "SCHOLARSHIP": "Scholarship",
+        "STAFF_CHILD": "Staff child",
+        "EXCEPTIONAL": "Exceptional discount"
+      },
+      "kind": "Type",
+      "label": "Label",
+      "percent": "Percentage (%)",
+      "amount": "or amount",
+      "feeType": "On",
+      "allFees": "All fees",
+      "hint": "The discount applies to instalments not yet invoiced.",
+      "add": "Add discount"
+    },
+    "remove": "Remove",
+    "optional": {
+      "title": "Optional fees",
+      "hint": "Canteen, transport, uniform… invoiced on request.",
+      "type": "Fee type",
+      "amount": "Amount",
+      "label": "Label",
+      "labelPlaceholder": "E.g. Canteen — October",
+      "dueDate": "Due date",
+      "add": "Invoice"
+    },
+    "unpaidSummary": "{count, plural, =0 {No unpaid} one {# student} other {# students}} · {amount} overdue",
+    "remindAllConfirm": "Send a WhatsApp reminder to all families behind (at most once a week)?",
+    "remindAll": "Remind all families",
+    "remindHint": "Automatic reminders go out every morning, at most once a week per student, to parents allowed to see fees.",
+    "noUnpaid": "No overdue payments. Well done!",
+    "lastReminder": "reminded {date}",
+    "date": "Date",
+    "show": "Show",
+    "cash": {
+      "summary": "Today's movements",
+      "in": "Collected",
+      "out": "Spent",
+      "total": "Total ({count} payments)",
+      "closing": "Cash closing",
+      "expected": "Expected cash",
+      "closed": "Cash closed: {counted} counted, difference {difference}.",
+      "counted": "Cash counted",
+      "note": "Note",
+      "noteHint": "Required if there is a difference.",
+      "close": "Close the cash",
+      "payments": "Today's payments — {amount}"
+    },
+    "expensesMonth": "Month total: {amount}",
+    "month": "Month",
+    "noExpense": "No expenses this month.",
+    "deleteConfirm": "Delete?",
+    "delete": "Delete",
+    "byCategory": "By category",
+    "newExpense": "New expense",
+    "saved": "Saved.",
+    "category": "Category",
+    "label": "Label",
+    "save": "Save",
+    "noYear": "No active school year.",
+    "feesIntro": "Fee grids for {year}.",
+    "generate": {
+      "title": "Generate payment schedules",
+      "hint": "Creates students' invoices from the fee grids (mandatory fees), discounts included. Safe: an instalment already invoiced is never recreated.",
+      "done": "Schedules up to date.",
+      "submit": "Generate"
+    },
+    "schedules": {
+      "title": "Fee grids",
+      "allLevels": "All grades",
+      "feeType": "Fee",
+      "level": "Grade",
+      "amount": "Amount per instalment",
+      "frequency": "Frequency",
+      "add": "Add"
+    },
+    "frequencies": {
+      "ONCE": "One-off",
+      "MONTHLY": "Monthly",
+      "TERMLY": "Per term",
+      "YEARLY": "Yearly"
+    },
+    "feeTypes": {
+      "title": "Fee types",
+      "optional": "optional",
+      "name": "Name",
+      "category": "Category",
+      "optionalHint": "Optional (invoiced on request)",
+      "add": "Add"
+    },
+    "categories": {
+      "REGISTRATION": "Registration",
+      "TUITION": "Tuition",
+      "CANTEEN": "Canteen",
+      "TRANSPORT": "Transport",
+      "UNIFORM": "Uniform",
+      "SUPPLIES": "Supplies",
+      "ACTIVITY": "Activities",
+      "OTHER": "Other"
+    },
+    "payroll": {
+      "total": "Monthly payroll: {amount} ({count} people)",
+      "prepare": "Prepare this month's payroll",
+      "empty": "No payslips for this month. Click “Prepare this month's payroll”.",
+      "status": {
+        "DRAFT": "To pay",
+        "VALIDATED": "Validated",
+        "PAID": "Paid"
+      },
+      "detail": "Base {base} · {hours} h hourly = {hourly} · bonuses {bonuses} · deductions {deductions}",
+      "hours": "Hours",
+      "bonuses": "Bonuses",
+      "deductions": "Deductions",
+      "update": "Recalculate",
+      "payConfirm": "Mark this salary as paid? A “Salaires” expense will be recorded.",
+      "pay": "Pay"
+    }
   }
 }

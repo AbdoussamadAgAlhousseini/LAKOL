@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-import { FileText, IdCard, Pencil, Trash2 } from "lucide-react";
+import { FileText, IdCard, Pencil, Trash2, Wallet } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { loadSchoolPage, loadOrDeny } from "@/server/page-context";
-import { can } from "@/server/rbac/policies";
+import { can, canAll } from "@/server/rbac/policies";
 import { getStudent } from "@/server/services/students";
 import { classOptions } from "@/server/services/options";
 import { getActiveYear } from "@/server/services/structure";
@@ -90,6 +90,13 @@ export default async function StudentPage({
                 <IdCard /> {t("studentCard")}
               </a>
             </Button>
+            {canAll(ctx.scope, "finance.read") && (
+              <Button variant="outline" asChild>
+                <Link href={`/${school}/finance/students/${s.id}`}>
+                  <Wallet /> {t("financeAccount")}
+                </Link>
+              </Button>
+            )}
             {canWrite && (
               <Button variant="outline" asChild>
                 <Link href={`${base}/${s.id}/edit`}>

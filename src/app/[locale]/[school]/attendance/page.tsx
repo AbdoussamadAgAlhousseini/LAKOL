@@ -10,6 +10,7 @@ import { listIncidents } from "@/server/services/discipline";
 import { classOptions } from "@/server/services/options";
 import { addDays, dayStart, formatTime, isoDate, parseIsoDate } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import { formatPercent } from "@/lib/money";
 import { ActionForm, Field, SubmitButton } from "@/components/forms/action-form";
 import { Forbidden } from "@/components/layout/forbidden";
 import { PageHeader } from "@/components/layout/page-header";
@@ -184,7 +185,7 @@ async function AbsenceList({ ctx, school, locale, sp }: Props) {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {(
             [
-              ["rate", today.rate === null ? "—" : `${today.rate} %`],
+              ["rate", formatPercent(today.rate, locale)],
               ["absentToday", today.absent],
               ["lateToday", today.late],
               ["excusedToday", today.excused],

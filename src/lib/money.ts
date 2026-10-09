@@ -27,3 +27,9 @@ export function applyBasisPoints(amount: number, basisPoints: number): number {
 export function sum(amounts: number[]): number {
   return amounts.reduce((total, a) => total + a, 0);
 }
+
+/** Pourcentage déjà calculé (ex. 31.3) -> « 31,3 % » selon la langue. */
+export function formatPercent(value: number | null, locale = "fr"): string {
+  if (value === null) return "—";
+  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(value)} %`;
+}

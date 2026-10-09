@@ -111,7 +111,7 @@ function Receipt({ d }: { d: ReceiptPdfData }) {
           Mode de paiement : {METHODS[d.method] ?? d.method}
           {d.reference ? ` — référence ${d.reference}` : ""}
         </Text>
-        <Text style={{ marginTop: 4 }}>Reste à payer après ce versement : {money(d.balanceAfter)}</Text>
+        <Text style={{ marginTop: 4 }}>Reste à payer à la date d&apos;édition : {money(d.balanceAfter)}</Text>
 
         <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 24 }}>
           <Text style={s.small}>Édité avec LAKOL — reçu à conserver</Text>

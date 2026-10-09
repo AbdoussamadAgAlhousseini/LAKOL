@@ -184,7 +184,19 @@
     "unknownMatricule": "Le fichier contient des matricules inconnus dans cette classe.",
     "noAssessments": "Aucune évaluation pour cette période.",
     "gradesNotValidated": "Validez d'abord les notes de la classe.",
-    "nothingToPublish": "Aucun bulletin prêt à publier."
+    "nothingToPublish": "Aucun bulletin prêt à publier.",
+    "invalidAmount": "Montant invalide.",
+    "discountValue": "Indiquez soit un pourcentage, soit un montant.",
+    "discountUsed": "Cette réduction est déjà appliquée sur des factures.",
+    "invoiceHasPayments": "Cette facture a déjà des paiements : annulez d'abord les paiements.",
+    "methodUnavailable": "Mode de paiement non disponible.",
+    "referenceRequired": "Indiquez le numéro du chèque ou du virement.",
+    "invoiceNotOpen": "Cette facture est déjà réglée.",
+    "overpayment": "Le montant dépasse ce qui reste à payer.",
+    "alreadyCancelled": "Ce paiement est déjà annulé.",
+    "alreadyClosed": "La caisse de ce jour est déjà clôturée.",
+    "differenceNeedsNote": "Expliquez l'écart de caisse dans la note.",
+    "payrollPaid": "Ce salaire est déjà payé."
   },
   "enums": {
     "gender": {
@@ -310,7 +322,8 @@
     "file": "Fichier (PDF ou image, 5 Mo max)",
     "uploadDocument": "Ajouter le document",
     "history": "Historique scolaire",
-    "studentCard": "Carte scolaire"
+    "studentCard": "Carte scolaire",
+    "financeAccount": "Compte financier"
   },
   "import": {
     "title": "Importer des élèves",
@@ -531,7 +544,12 @@
       "Attendance": "Présences",
       "TimetableSlot": "Emploi du temps",
       "Class": "Classes",
-      "Grade": "Notes"
+      "Grade": "Notes",
+      "Invoice": "Factures",
+      "Payment": "Paiements",
+      "Expense": "Dépenses",
+      "FeeSchedule": "Frais",
+      "CashClosing": "Caisse"
     },
     "actions": {
       "student.create": "inscription d'un élève",
@@ -566,7 +584,16 @@
       "grade.validate": "validation des notes",
       "grade.unlock": "déverrouillage des notes",
       "reportcard.generate": "édition des bulletins",
-      "reportcard.publish": "publication des bulletins"
+      "reportcard.publish": "publication des bulletins",
+      "fee.update": "modification d'une grille de frais",
+      "discount.create": "ajout d'une réduction",
+      "discount.delete": "retrait d'une réduction",
+      "invoice.generate": "génération des échéanciers",
+      "invoice.cancel": "annulation d'une facture",
+      "payment.cancel": "annulation d'un paiement",
+      "expense.delete": "suppression d'une dépense",
+      "cash.close": "clôture de caisse",
+      "payroll.pay": "paiement d'un salaire"
     }
   },
   "account": {
@@ -854,5 +881,209 @@
     "blocked": "Bulletin disponible après règlement des frais scolaires. Rapprochez-vous de la comptabilité de l'école.",
     "hidden": "Accès aux notes non autorisé.",
     "download": "Télécharger (PDF)"
+  },
+  "finance": {
+    "title": "Finances",
+    "yearLabel": "Année scolaire {year}",
+    "kpi": {
+      "expected": "Attendu",
+      "collected": "Encaissé",
+      "rate": "Taux de recouvrement",
+      "overdue": "Impayés échus"
+    },
+    "debtors": "{count, plural, =0 {Aucune famille en retard} one {# élève en retard de paiement} other {# élèves en retard de paiement}}",
+    "seeUnpaid": "voir les impayés",
+    "expensesTotal": "Dépenses de l'année : {amount}",
+    "byClass": "Recouvrement par classe",
+    "classOverdue": "{amount} d'impayés · {count} élève(s)",
+    "byMonth": "Encaissements par mois",
+    "noPayment": "Aucun paiement.",
+    "familyTitle": "Frais scolaires",
+    "familyIntro": "Les paiements se font à l'école (espèces, chèque ou virement). Les reçus sont disponibles ici.",
+    "hidden": "l'école ne vous donne pas accès aux frais.",
+    "tabs": {
+      "label": "Finances",
+      "dashboard": "Tableau de bord",
+      "accounts": "Comptes élèves",
+      "unpaid": "Impayés",
+      "cash": "Caisse du jour",
+      "expenses": "Dépenses",
+      "fees": "Frais",
+      "payroll": "Salaires"
+    },
+    "account": {
+      "total": "Total de l'année",
+      "paid": "Payé",
+      "balance": "Reste à payer",
+      "overdue": "Dont échu",
+      "schedule": "Échéancier",
+      "noInvoice": "Aucune facture pour l'année.",
+      "due": "échéance {date}",
+      "alreadyPaid": "déjà payé : {amount}",
+      "late": "En retard",
+      "payments": "Paiements",
+      "noPayment": "Aucun paiement.",
+      "cancelled": "Annulé : {reason}",
+      "receipt": "Reçu {number}"
+    },
+    "invoiceStatus": {
+      "UNPAID": "À payer",
+      "PARTIAL": "Partiel",
+      "PAID": "Payé",
+      "CANCELLED": "Annulée"
+    },
+    "methods": {
+      "CASH": "Espèces",
+      "CHEQUE": "Chèque",
+      "TRANSFER": "Virement",
+      "MOBILE_MONEY": "Mobile money"
+    },
+    "accountsIntro": "Recherchez un élève pour encaisser un paiement ou consulter son compte.",
+    "searchStudent": "Nom, prénom ou matricule",
+    "class": "Classe",
+    "allClasses": "Toutes les classes",
+    "search": "Rechercher",
+    "studentRecord": "fiche élève",
+    "remind": "Relancer",
+    "remindConfirm": "Envoyer une relance WhatsApp aux parents ?",
+    "pay": {
+      "title": "Encaisser un paiement",
+      "hint": "Reste à payer : {balance}. Le paiement est réparti sur les échéances les plus anciennes.",
+      "done": "Paiement enregistré, reçu édité.",
+      "amount": "Montant (FCFA)",
+      "method": "Mode de paiement",
+      "reference": "Référence",
+      "referenceHint": "N° de chèque ou de virement",
+      "invoice": "Affecter en priorité à",
+      "oldestFirst": "Les plus anciennes échéances",
+      "payer": "Payé par",
+      "date": "Date",
+      "submit": "Enregistrer et éditer le reçu"
+    },
+    "cancelInvoice": "Annuler la facture",
+    "reason": "Motif",
+    "confirm": "Confirmer",
+    "cancelPayment": "Annuler le paiement",
+    "cancelPaymentConfirm": "Annuler ce paiement ? Les factures concernées seront rouvertes.",
+    "discounts": {
+      "title": "Réductions",
+      "none": "Aucune réduction.",
+      "kinds": {
+        "SIBLING": "Fratrie",
+        "SCHOLARSHIP": "Bourse",
+        "STAFF_CHILD": "Enfant du personnel",
+        "EXCEPTIONAL": "Remise exceptionnelle"
+      },
+      "kind": "Type",
+      "label": "Libellé",
+      "percent": "Pourcentage (%)",
+      "amount": "ou montant (FCFA)",
+      "feeType": "Sur",
+      "allFees": "Tous les frais",
+      "hint": "La réduction s'applique aux échéances non encore facturées.",
+      "add": "Ajouter la réduction"
+    },
+    "remove": "Retirer",
+    "optional": {
+      "title": "Frais facultatifs",
+      "hint": "Cantine, transport, tenue… facturés à la demande.",
+      "type": "Type de frais",
+      "amount": "Montant (FCFA)",
+      "label": "Libellé",
+      "labelPlaceholder": "Ex. Cantine — octobre",
+      "dueDate": "Échéance",
+      "add": "Facturer"
+    },
+    "unpaidSummary": "{count, plural, =0 {Aucun impayé} one {# élève} other {# élèves}} · {amount} échus",
+    "remindAllConfirm": "Relancer par WhatsApp toutes les familles en retard (au plus une fois par semaine) ?",
+    "remindAll": "Relancer toutes les familles",
+    "remindHint": "Les relances automatiques partent chaque matin, au plus une fois par semaine par élève, aux parents autorisés à voir les frais.",
+    "noUnpaid": "Aucun impayé échu. Bravo !",
+    "lastReminder": "relancé le {date}",
+    "date": "Date",
+    "show": "Afficher",
+    "cash": {
+      "summary": "Mouvements du jour",
+      "in": "Encaissé",
+      "out": "Dépensé",
+      "total": "Total ({count} paiements)",
+      "closing": "Clôture de caisse",
+      "expected": "Espèces attendues",
+      "closed": "Caisse clôturée : {counted} comptés, écart {difference}.",
+      "counted": "Espèces comptées (FCFA)",
+      "note": "Note",
+      "noteHint": "Obligatoire en cas d'écart.",
+      "close": "Clôturer la caisse",
+      "payments": "Paiements du jour — {amount}"
+    },
+    "expensesMonth": "Total du mois : {amount}",
+    "month": "Mois",
+    "noExpense": "Aucune dépense ce mois-ci.",
+    "deleteConfirm": "Supprimer ?",
+    "delete": "Supprimer",
+    "byCategory": "Par catégorie",
+    "newExpense": "Nouvelle dépense",
+    "saved": "Enregistré.",
+    "category": "Catégorie",
+    "label": "Libellé",
+    "save": "Enregistrer",
+    "noYear": "Aucune année scolaire active.",
+    "feesIntro": "Grilles de frais de l'année {year}.",
+    "generate": {
+      "title": "Générer les échéanciers",
+      "hint": "Crée les factures des élèves à partir des grilles (frais obligatoires), réductions comprises. Sans risque : une échéance déjà facturée n'est jamais recréée.",
+      "done": "Échéanciers à jour.",
+      "submit": "Générer"
+    },
+    "schedules": {
+      "title": "Grilles de frais",
+      "allLevels": "Tous niveaux",
+      "feeType": "Frais",
+      "level": "Niveau",
+      "amount": "Montant par échéance",
+      "frequency": "Fréquence",
+      "add": "Ajouter"
+    },
+    "frequencies": {
+      "ONCE": "Unique",
+      "MONTHLY": "Mensuel",
+      "TERMLY": "Par trimestre",
+      "YEARLY": "Annuel"
+    },
+    "feeTypes": {
+      "title": "Types de frais",
+      "optional": "facultatif",
+      "name": "Nom",
+      "category": "Catégorie",
+      "optionalHint": "Facultatif (facturé à la demande)",
+      "add": "Ajouter"
+    },
+    "categories": {
+      "REGISTRATION": "Inscription",
+      "TUITION": "Scolarité",
+      "CANTEEN": "Cantine",
+      "TRANSPORT": "Transport",
+      "UNIFORM": "Tenue",
+      "SUPPLIES": "Fournitures",
+      "ACTIVITY": "Activités",
+      "OTHER": "Autre"
+    },
+    "payroll": {
+      "total": "Masse salariale du mois : {amount} ({count} personnes)",
+      "prepare": "Préparer la paie du mois",
+      "empty": "Aucune fiche de paie pour ce mois. Cliquez sur « Préparer la paie du mois ».",
+      "status": {
+        "DRAFT": "À payer",
+        "VALIDATED": "Validé",
+        "PAID": "Payé"
+      },
+      "detail": "Base {base} · {hours} h de vacation = {hourly} · primes {bonuses} · retenues {deductions}",
+      "hours": "Heures",
+      "bonuses": "Primes",
+      "deductions": "Retenues",
+      "update": "Recalculer",
+      "payConfirm": "Marquer ce salaire comme payé ? Une dépense « Salaires » sera enregistrée.",
+      "pay": "Payer"
+    }
   }
 }
