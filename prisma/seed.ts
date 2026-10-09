@@ -348,7 +348,7 @@ async function createStudent(
       data: {
         firstName: input.firstName,
         lastName: input.lastName,
-        email: `${matricule.toLowerCase()}@eleves.lakol.test`,
+        username: matricule.toLowerCase(),
         passwordHash: await pwd("Eleve2025!"),
       },
     });

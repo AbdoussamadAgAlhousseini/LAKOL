@@ -19,7 +19,7 @@ afterAll(() => prisma.$disconnect());
 describe("isolation entre écoles", () => {
   it("les listes ne contiennent que les données de l'école", async () => {
     const students = await forSchool(schoolA).student.findMany();
-    expect(students.length).toBe(30);
+    expect(students.length).toBe(await prisma.student.count({ where: { schoolId: schoolA } }));
     expect(students.every((s) => s.schoolId === schoolA)).toBe(true);
   });
 

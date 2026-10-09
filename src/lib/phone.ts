@@ -27,15 +27,23 @@ export function normalizePhone(input: string, country = "ML"): string | null {
   return `+${digits}`;
 }
 
-export type Identifier = { kind: "email"; value: string } | { kind: "phone"; value: string };
+export type Identifier =
+  { kind: "email"; value: string } | { kind: "phone"; value: string } | { kind: "username"; value: string };
 
-/** Interprète la saisie de connexion : email ou numéro de téléphone. */
+/**
+ * Interprète la saisie de connexion : email, numéro de téléphone, ou
+ * identifiant (matricule des élèves, ex. « eto-25-0029 »).
+ */
 export function parseIdentifier(input: string, country = "ML"): Identifier | null {
   const value = input.trim();
   if (value.includes("@")) {
     const email = value.toLowerCase();
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? { kind: "email", value: email } : null;
   }
-  const phone = normalizePhone(value, country);
-  return phone ? { kind: "phone", value: phone } : null;
+  if (/^[+\d\s.\-()]+$/.test(value)) {
+    const phone = normalizePhone(value, country);
+    return phone ? { kind: "phone", value: phone } : null;
+  }
+  const username = value.toLowerCase();
+  return /^[a-z][a-z0-9._-]{2,40}$/.test(username) ? { kind: "username", value: username } : null;
 }

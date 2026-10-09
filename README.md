@@ -25,18 +25,18 @@ pnpm dev                      # http://localhost:3000
 
 Les deux écoles de démonstration sont `les-etoiles` (Bamako, 30 élèves) et `le-savoir` (Sikasso, petite école servant aux tests d'isolation).
 
-| Rôle                                                       | Identifiant                                             | Mot de passe  |
-| ---------------------------------------------------------- | ------------------------------------------------------- | ------------- |
-| Super admin plateforme                                     | `admin@lakol.test`                                      | `Admin2025!`  |
-| Directeur                                                  | `directeur@les-etoiles.lakol.test` ou `70 00 00 10`     | `Lakol2025!`  |
-| Secrétariat                                                | `secretariat@les-etoiles.lakol.test`                    | `Lakol2025!`  |
-| Censeur                                                    | `censeur@les-etoiles.lakol.test`                        | `Lakol2025!`  |
-| Comptable                                                  | `comptable@les-etoiles.lakol.test`                      | `Lakol2025!`  |
-| Professeur de maths (principal de 7e A)                    | `prof.maths@les-etoiles.lakol.test` ou `70 00 00 20`    | `Lakol2025!`  |
-| Professeure de français (principale de 5e A **et** parent) | `prof.francais@les-etoiles.lakol.test` ou `70 00 00 21` | `Lakol2025!`  |
-| Parent de deux enfants (7e A et 9e A)                      | `70 00 00 01` ou `parent@lakol.test`                    | `Parent2025!` |
-| Élève (Aminata Traoré, 7e A)                               | `eto-25-0029@eleves.lakol.test`                         | `Eleve2025!`  |
-| Directeur de l'école B                                     | `directeur@le-savoir.lakol.test`                        | `Lakol2025!`  |
+| Rôle                                                           | Identifiant                                             | Mot de passe  |
+| -------------------------------------------------------------- | ------------------------------------------------------- | ------------- |
+| Super admin plateforme                                         | `admin@lakol.test`                                      | `Admin2025!`  |
+| Directeur                                                      | `directeur@les-etoiles.lakol.test` ou `70 00 00 10`     | `Lakol2025!`  |
+| Secrétariat                                                    | `secretariat@les-etoiles.lakol.test`                    | `Lakol2025!`  |
+| Censeur                                                        | `censeur@les-etoiles.lakol.test`                        | `Lakol2025!`  |
+| Comptable                                                      | `comptable@les-etoiles.lakol.test`                      | `Lakol2025!`  |
+| Professeur de maths (principal de 7e A)                        | `prof.maths@les-etoiles.lakol.test` ou `70 00 00 20`    | `Lakol2025!`  |
+| Professeure de français (principale de 5e A **et** parent)     | `prof.francais@les-etoiles.lakol.test` ou `70 00 00 21` | `Lakol2025!`  |
+| Parent de deux enfants (7e A et 9e A)                          | `70 00 00 01` ou `parent@lakol.test`                    | `Parent2025!` |
+| Élève (Aminata Traoré, 7e A) — le matricule sert d'identifiant | `ETO-25-0029`                                           | `Eleve2025!`  |
+| Directeur de l'école B                                         | `directeur@le-savoir.lakol.test`                        | `Lakol2025!`  |
 
 Les numéros sont saisis au format local malien (8 chiffres) ou international (`+223…`).
 

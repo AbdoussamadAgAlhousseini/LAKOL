@@ -138,6 +138,7 @@ model School {
   events              Event[]
   auditLogs           AuditLog[]
   counters            Counter[]
+  preRegistrations    PreRegistration[]
 }
 
 model Subscription {
@@ -206,6 +207,7 @@ model User {
   id              String    @id @default(cuid())
   email           String?   @unique
   phone           String?   @unique // format E.164 : +22370000000
+  username        String?   @unique // élèves sans email ni téléphone : matricule en minuscules
   passwordHash    String?
   firstName       String
   lastName        String
@@ -405,21 +407,22 @@ model Cycle {
 }
 
 model Level {
-  id              String               @id @default(cuid())
-  schoolId        String
-  school          School               @relation(fields: [schoolId], references: [id])
-  cycleId         String
-  cycle           Cycle                @relation(fields: [cycleId], references: [id])
-  name            String // "7e année", "10e"…
-  order           Int
-  nationalExam    String? // DEF, BAC
-  studentAccounts Boolean              @default(true)
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
-  classes         Class[]
-  coefficients    SubjectCoefficient[]
-  feeSchedules    FeeSchedule[]
-  resources       Resource[]
+  id               String               @id @default(cuid())
+  schoolId         String
+  school           School               @relation(fields: [schoolId], references: [id])
+  cycleId          String
+  cycle            Cycle                @relation(fields: [cycleId], references: [id])
+  name             String // "7e année", "10e"…
+  order            Int
+  nationalExam     String? // DEF, BAC
+  studentAccounts  Boolean              @default(true)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  classes          Class[]
+  coefficients     SubjectCoefficient[]
+  feeSchedules     FeeSchedule[]
+  resources        Resource[]
+  preRegistrations PreRegistration[]
 
   @@index([schoolId])
 }
@@ -1498,4 +1501,45 @@ model AuditLog {
 
   @@index([schoolId, entityType, entityId])
   @@index([schoolId, createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Pré-inscription en ligne (formulaire public), validée par l'école
+// ─────────────────────────────────────────────────────────────
+
+enum PreRegistrationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model PreRegistration {
+  id                String                @id @default(cuid())
+  schoolId          String
+  school            School                @relation(fields: [schoolId], references: [id])
+  levelId           String
+  level             Level                 @relation(fields: [levelId], references: [id])
+  firstName         String
+  lastName          String
+  gender            Gender
+  birthDate         DateTime?             @db.Date
+  birthPlace        String?
+  previousSchool    String?
+  guardianFirstName String
+  guardianLastName  String
+  guardianPhone     String
+  guardianEmail     String?
+  guardianRelation  GuardianRelationship
+  notes             String?
+  status            PreRegistrationStatus @default(PENDING)
+  studentId         String?
+  reviewedById      String?
+  reviewedAt        DateTime?
+  rejectionReason   String?
+  ip                String?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@index([schoolId, status])
+  @@index([ip, createdAt])
 }

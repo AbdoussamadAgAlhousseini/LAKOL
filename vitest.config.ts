@@ -16,8 +16,13 @@ export default defineConfig({
       },
       {
         extends: true,
-        // Nécessite une base migrée et seedée (pnpm db:seed).
-        test: { name: "integration", include: ["tests/integration/**/*.test.ts"], environment: "node" },
+        // Nécessite une base migrée ; le seed est rejoué avant les tests.
+        test: {
+          name: "integration",
+          include: ["tests/integration/**/*.test.ts"],
+          environment: "node",
+          globalSetup: ["tests/integration/global-setup.ts"],
+        },
       },
     ],
   },

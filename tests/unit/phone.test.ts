@@ -26,6 +26,9 @@ describe("parseIdentifier", () => {
   it("reconnaît un téléphone", () => {
     expect(parseIdentifier("70000001")).toEqual({ kind: "phone", value: "+22370000001" });
   });
+  it("reconnaît un matricule comme identifiant", () => {
+    expect(parseIdentifier("ETO-25-0029")).toEqual({ kind: "username", value: "eto-25-0029" });
+  });
   it("rejette un email mal formé", () => {
     expect(parseIdentifier("parent@")).toBeNull();
   });
