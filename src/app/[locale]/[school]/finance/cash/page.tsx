@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { ActionForm, Field, SubmitButton } from "@/components/forms/action-form";
 import { Forbidden } from "@/components/layout/forbidden";
 import { PageHeader } from "@/components/layout/page-header";
+import { ExportLink } from "@/components/layout/export-link";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,6 +53,12 @@ export default async function CashPage({
       <PageHeader
         title={t("tabs.cash")}
         description={<span className="first-letter:uppercase">{fmt.format(date)}</span>}
+        actions={
+          <ExportLink
+            href={`/api/schools/${school}/exports/payments?from=${isoDate(new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)))}&to=${isoDate(addDays(date, 1))}`}
+            label={t("exportMonth")}
+          />
+        }
       />
       <FinanceNav ctx={ctx} school={school} active="cash" />
       <form className="mb-4 flex gap-2">

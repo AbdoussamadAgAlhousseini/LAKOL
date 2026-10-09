@@ -11,6 +11,7 @@ import { unreadMessageCount } from "@/server/services/messaging";
 import { unreadNotificationCount } from "@/server/services/notifications";
 import { LiveCounters } from "./live-counters";
 import { LocaleSwitcher } from "./locale-switcher";
+import { InstallButton } from "./pwa";
 import { LogoutButton } from "./logout-button";
 import { NavLinks } from "./nav-links";
 import { ThemeToggle } from "./theme-toggle";
@@ -69,6 +70,7 @@ export async function AppShell({ ctx, locale, children }: { ctx: SchoolContext; 
                 <ArrowLeftRight />
               </Link>
             </Button>
+            <InstallButton />
             <LocaleSwitcher />
             <ThemeToggle />
             <LogoutButton locale={locale} className="hidden sm:block" />

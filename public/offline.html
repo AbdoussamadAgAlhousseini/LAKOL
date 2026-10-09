@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hors ligne · LAKOL</title>
+    <style>
+      body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        font-family: system-ui, sans-serif; background: #f8faf9; color: #1f2937; text-align: center; padding: 24px; }
+      @media (prefers-color-scheme: dark) { body { background: #1b1f2a; color: #e5e7eb; } }
+      .logo { width: 72px; height: 72px; border-radius: 16px; margin: 0 auto 16px; }
+      h1 { font-size: 1.4rem; margin: 0 0 8px; }
+      p { margin: 4px 0; opacity: .8; }
+      button { margin-top: 20px; min-height: 48px; padding: 0 24px; border: 0; border-radius: 8px;
+        background: #0f766e; color: #fff; font-size: 1rem; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img class="logo" src="/icons/icon-192.png" alt="" />
+      <h1>Pas de connexion</h1>
+      <p>Cette page n'a pas encore été consultée sur ce téléphone.</p>
+      <p>Les pages déjà ouvertes (devoirs, emploi du temps…) restent disponibles.</p>
+      <p lang="en"><small>No connection. Pages you already opened remain available.</small></p>
+      <button onclick="location.reload()">Réessayer</button>
+    </main>
+  </body>
+</html>

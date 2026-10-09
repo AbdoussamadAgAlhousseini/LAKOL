@@ -148,6 +148,16 @@ model School {
   cashClosings        CashClosing[]
   meetingSlots        MeetingSlot[]
   platformInvoices    PlatformInvoice[]
+  canteenSubs         CanteenSubscription[]
+  canteenMenus        CanteenMenu[]
+  busRoutes           BusRoute[]
+  busStops            BusStop[]
+  transportAssigns    TransportAssignment[]
+  books               Book[]
+  bookLoans           BookLoan[]
+  infirmaryVisits     InfirmaryVisit[]
+  inventoryItems      InventoryItem[]
+  stockMovements      StockMovement[]
 }
 
 model Subscription {
@@ -640,6 +650,10 @@ model Student {
   discounts        Discount[]
   invoices         Invoice[]
   payments         Payment[]
+  canteenSubs      CanteenSubscription[]
+  transport        TransportAssignment[]
+  bookLoans        BookLoan[]
+  infirmaryVisits  InfirmaryVisit[]
 
   @@unique([schoolId, matricule])
   @@index([schoolId, lastName, firstName])
@@ -768,6 +782,8 @@ model Staff {
   homeworks           Homework[]
   assessments         Assessment[]
   payrolls            Payroll[]
+  busRoutes           BusRoute[]
+  bookLoans           BookLoan[]
 
   @@index([schoolId, lastName])
   @@index([userId])
@@ -1706,4 +1722,185 @@ model MeetingSlot {
 
   @@index([schoolId, staffId, startsAt])
   @@index([schoolId, guardianId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Modules optionnels (activables par école)
+// ─────────────────────────────────────────────────────────────
+
+/// Élève inscrit à la cantine pour l'année (les paiements passent par les frais « Cantine »).
+model CanteenSubscription {
+  id             String    @id @default(cuid())
+  schoolId       String
+  school         School    @relation(fields: [schoolId], references: [id])
+  studentId      String
+  student        Student   @relation(fields: [studentId], references: [id])
+  academicYearId String
+  dietNotes      String? // régime, allergies
+  startDate      DateTime
+  endDate        DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([studentId, academicYearId])
+  @@index([schoolId, academicYearId])
+}
+
+/// Menu du jour de la cantine.
+model CanteenMenu {
+  id        String   @id @default(cuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  date      DateTime @db.Date
+  meal      String
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([schoolId, date])
+}
+
+model BusRoute {
+  id            String                @id @default(cuid())
+  schoolId      String
+  school        School                @relation(fields: [schoolId], references: [id])
+  name          String
+  vehicle       String?
+  capacity      Int?
+  driverStaffId String?
+  driver        Staff?                @relation(fields: [driverStaffId], references: [id])
+  stops         BusStop[]
+  assignments   TransportAssignment[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([schoolId])
+}
+
+model BusStop {
+  id          String                @id @default(cuid())
+  schoolId    String
+  school      School                @relation(fields: [schoolId], references: [id])
+  routeId     String
+  route       BusRoute              @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  name        String
+  order       Int
+  pickupMin   Int? // heure de passage le matin (minutes depuis minuit)
+  dropoffMin  Int? // heure de dépose le soir
+  assignments TransportAssignment[]
+
+  @@index([routeId, order])
+}
+
+/// Élève transporté : circuit et arrêt pour l'année.
+model TransportAssignment {
+  id             String   @id @default(cuid())
+  schoolId       String
+  school         School   @relation(fields: [schoolId], references: [id])
+  studentId      String
+  student        Student  @relation(fields: [studentId], references: [id])
+  academicYearId String
+  routeId        String
+  route          BusRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  stopId         String?
+  stop           BusStop? @relation(fields: [stopId], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now())
+
+  @@unique([studentId, academicYearId])
+  @@index([routeId])
+}
+
+model Book {
+  id        String     @id @default(cuid())
+  schoolId  String
+  school    School     @relation(fields: [schoolId], references: [id])
+  title     String
+  author    String?
+  isbn      String?
+  category  String?
+  copies    Int        @default(1)
+  location  String? // rayon, étagère
+  loans     BookLoan[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
+
+  @@index([schoolId, title])
+}
+
+model BookLoan {
+  id         String    @id @default(cuid())
+  schoolId   String
+  school     School    @relation(fields: [schoolId], references: [id])
+  bookId     String
+  book       Book      @relation(fields: [bookId], references: [id])
+  studentId  String?
+  student    Student?  @relation(fields: [studentId], references: [id])
+  staffId    String?
+  staff      Staff?    @relation(fields: [staffId], references: [id])
+  loanedAt   DateTime  @default(now())
+  dueAt      DateTime
+  returnedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([schoolId, returnedAt])
+  @@index([bookId])
+}
+
+enum InfirmaryOutcome {
+  RETURNED_TO_CLASS
+  RESTED
+  SENT_HOME
+  REFERRED
+}
+
+/// Passage à l'infirmerie (donnée médicale : accès restreint).
+model InfirmaryVisit {
+  id             String           @id @default(cuid())
+  schoolId       String
+  school         School           @relation(fields: [schoolId], references: [id])
+  studentId      String
+  student        Student          @relation(fields: [studentId], references: [id])
+  at             DateTime         @default(now())
+  reason         String
+  care           String?
+  outcome        InfirmaryOutcome @default(RETURNED_TO_CLASS)
+  parentNotified Boolean          @default(false)
+  recordedById   String
+  createdAt      DateTime         @default(now())
+
+  @@index([schoolId, at])
+  @@index([studentId])
+}
+
+model InventoryItem {
+  id          String          @id @default(cuid())
+  schoolId    String
+  school      School          @relation(fields: [schoolId], references: [id])
+  name        String
+  category    String?
+  unit        String          @default("unité")
+  quantity    Int             @default(0)
+  minQuantity Int             @default(0) // seuil d'alerte
+  location    String?
+  movements   StockMovement[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
+
+  @@index([schoolId, name])
+}
+
+model StockMovement {
+  id           String        @id @default(cuid())
+  schoolId     String
+  school       School        @relation(fields: [schoolId], references: [id])
+  itemId       String
+  item         InventoryItem @relation(fields: [itemId], references: [id])
+  delta        Int // + entrée, - sortie
+  reason       String
+  recordedById String
+  createdAt    DateTime      @default(now())
+
+  @@index([itemId, createdAt])
 }

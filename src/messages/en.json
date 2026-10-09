@@ -15,7 +15,8 @@
     "forbiddenBody": "You do not have access to this school or page.",
     "notFoundTitle": "Page not found",
     "goHome": "Back to home",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "exportExcel": "Export (Excel)"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -81,7 +82,12 @@
     "classes": "Classes",
     "meetings": "Meetings",
     "notifications": "Notifications",
-    "subscription": "Subscription"
+    "subscription": "Subscription",
+    "canteen": "Canteen",
+    "transport": "Transport",
+    "library": "Library",
+    "infirmary": "Infirmary",
+    "inventory": "Stock"
   },
   "dashboard": {
     "hello": "Hello {name}",
@@ -107,7 +113,19 @@
     "noChild": "No child is linked to your account.",
     "today": "My lessons today",
     "noCourseToday": "No lessons today.",
-    "takeCall": "Take attendance"
+    "takeCall": "Take attendance",
+    "alerts": "To watch",
+    "alert": {
+      "frequentAbsences": "{count, plural, one {# student} other {# students}} absent 3 times or more in 30 days",
+      "struggling": "{count, plural, one {# student} other {# students}} below average this term",
+      "debtors": "{count, plural, one {# family} other {# families}} with overdue fees",
+      "lowStock": "{count, plural, one {# item} other {# items}} to restock",
+      "lateLoans": "{count, plural, one {# book} other {# books}} overdue at the library"
+    },
+    "attendanceTrend": "Attendance rate, last 8 weeks",
+    "resultsByClass": "Overall average by class — {term}",
+    "toCorrect": "{count, plural, one {# submission} other {# submissions}} to mark",
+    "progress": "Overall average by term"
   },
   "admin": {
     "title": "Platform",
@@ -341,7 +359,14 @@
     "accountExists": "An account already exists with this number. Sign in, or contact LAKOL to add a school.",
     "yearAlreadyActive": "A school year is already active.",
     "cyclesRequired": "Choose at least one cycle.",
-    "passwordMismatch": "The two passwords do not match."
+    "passwordMismatch": "The two passwords do not match.",
+    "fileOrLinkRequired": "Add a file or a link.",
+    "busFull": "This route is full (vehicle capacity reached).",
+    "copiesOnLoan": "Copies are still on loan: the number cannot be lower.",
+    "borrowerRequired": "Choose the borrower.",
+    "noCopyAvailable": "No copy available.",
+    "alreadyReturned": "This book has already been returned.",
+    "insufficientStock": "Not enough stock for this withdrawal."
   },
   "enums": {
     "gender": {
@@ -756,7 +781,8 @@
       "school.create": "school created",
       "school.template": "structure created from template",
       "module.enable": "module enabled",
-      "module.disable": "module disabled"
+      "module.disable": "module disabled",
+      "infirmary.visit": "infirmary visit"
     }
   },
   "account": {
@@ -915,7 +941,8 @@
     "saved": "Attendance saved. {notified, plural, =0 {No parents to notify.} one {# parent notified.} other {# parents notified.}}",
     "savedOffline": "No connection: attendance is kept on this phone and will be sent automatically.",
     "synced": "Pending attendance sent.",
-    "queued": "{count, plural, one {# roll call waiting to be sent} other {# roll calls waiting to be sent}}"
+    "queued": "{count, plural, one {# roll call waiting to be sent} other {# roll calls waiting to be sent}}",
+    "export30": "30-day attendance (Excel)"
   },
   "discipline": {
     "title": "Discipline",
@@ -1247,7 +1274,8 @@
       "update": "Recalculate",
       "payConfirm": "Mark this salary as paid? A “Salaires” expense will be recorded.",
       "pay": "Pay"
-    }
+    },
+    "exportMonth": "Month's payments (Excel)"
   },
   "messages": {
     "title": "Messages",
@@ -1487,5 +1515,160 @@
     "accept": "I run or represent this school and agree that its data is hosted by LAKOL.",
     "submit": "Create my school",
     "haveAccount": "I already have an account: sign in"
+  },
+  "pwa": {
+    "offline": "Offline: you are seeing pages saved on this phone.",
+    "install": "Install the app"
+  },
+  "resources": {
+    "title": "Learning resources",
+    "hint": "Lessons, exercises, answer keys and past exams, by subject and level.",
+    "new": "Publish a resource",
+    "published": "Resource published.",
+    "titleField": "Title",
+    "subject": "Subject",
+    "level": "Level",
+    "allLevels": "All levels",
+    "type": "Type",
+    "types": {
+      "COURSE": "Lesson",
+      "EXERCISE": "Exercises",
+      "CORRECTION": "Answer key",
+      "PAST_EXAM": "Past exam"
+    },
+    "description": "Description",
+    "file": "File (PDF or image)",
+    "fileHint": "5 MB maximum",
+    "link": "or link (video, website…)",
+    "publish": "Publish",
+    "search": "Search a title",
+    "allSubjects": "All subjects",
+    "allTypes": "All types",
+    "filter": "Filter",
+    "empty": "No resources yet.",
+    "open": "Open document",
+    "openLink": "Open link",
+    "confirmDelete": "Delete this resource?",
+    "delete": "Delete",
+    "seeHomework": "See homework too"
+  },
+  "canteen": {
+    "title": "Canteen",
+    "managerHint": "Weekly menus and enrolled students.",
+    "familyHint": "This week's menu and your children's enrolment.",
+    "menus": "Weekly menus",
+    "previousWeek": "← Previous week",
+    "nextWeek": "Next week →",
+    "meal": "Meal",
+    "notes": "Note",
+    "save": "Save",
+    "saved": "Saved.",
+    "noMenu": "Menu not available",
+    "subscribed": "Enrolled in the canteen",
+    "notSubscribed": "Not enrolled",
+    "subscribers": "{count, plural, =0 {No students} one {# student} other {# students}}",
+    "student": "Student",
+    "diet": "Diet / allergies",
+    "dietPlaceholder": "E.g. no peanuts",
+    "subscribe": "Enrol",
+    "noSubscriber": "No students enrolled.",
+    "confirmUnsubscribe": "Remove this student from the canteen?",
+    "unsubscribe": "Remove",
+    "paymentsHint": "Canteen payments are handled in Finance, with fees of the “Canteen” category."
+  },
+  "transport": {
+    "title": "School transport",
+    "managerHint": "Routes, stops and students.",
+    "familyHint": "Your children's bus, stop and times.",
+    "times": "pick-up {pickup}, drop-off {dropoff}",
+    "driver": "Driver",
+    "noTransport": "Does not use school transport.",
+    "newRoute": "New route",
+    "routeName": "Route name",
+    "routeNamePlaceholder": "E.g. Kalaban route",
+    "vehicle": "Vehicle",
+    "capacity": "Seats",
+    "createRoute": "Create route",
+    "load": "{count} / {capacity} students",
+    "confirmDeleteRoute": "Delete this route and its assignments?",
+    "deleteRoute": "Delete route",
+    "stops": "Stops",
+    "stopName": "Stop",
+    "pickup": "Pick-up (morning)",
+    "dropoff": "Drop-off (evening)",
+    "addStop": "Add stop",
+    "deleteStop": "Delete stop",
+    "students": "Students",
+    "student": "Student",
+    "stop": "Stop",
+    "assign": "Assign",
+    "unassign": "Remove"
+  },
+  "library": {
+    "title": "Library",
+    "hint": "Catalogue, loans and returns (default length: {days} days).",
+    "loans": "{count, plural, =0 {No open loans} one {# open loan} other {# open loans}}",
+    "noLoan": "No books on loan.",
+    "lateSince": "overdue since {date}",
+    "dueOn": "due {date}",
+    "return": "Return",
+    "addBook": "Add a book",
+    "bookTitle": "Title",
+    "author": "Author",
+    "category": "Category",
+    "categoryPlaceholder": "Novel, textbook…",
+    "copies": "Copies",
+    "location": "Shelf",
+    "add": "Add",
+    "saved": "Saved.",
+    "search": "Title, author or ISBN",
+    "noBook": "No books.",
+    "available": "{available}/{copies} available",
+    "borrower": "Borrower (student)",
+    "days": "Length (days)",
+    "lend": "Lend",
+    "lent": "Loan recorded."
+  },
+  "infirmary": {
+    "title": "Infirmary",
+    "hint": "Visits and care. Parents are told at once if the student goes home or must see a doctor.",
+    "newVisit": "New visit",
+    "student": "Student",
+    "reason": "Reason",
+    "reasonPlaceholder": "E.g. headache",
+    "care": "Care given",
+    "outcome": "Outcome",
+    "outcomeHint": "“Sent home” and “Referred to a doctor” notify the parents.",
+    "outcomes": {
+      "RETURNED_TO_CLASS": "Back to class",
+      "RESTED": "Rest at the infirmary",
+      "SENT_HOME": "Sent home",
+      "REFERRED": "Referred to a doctor"
+    },
+    "record": "Record",
+    "saved": "Visit recorded.",
+    "empty": "No visits.",
+    "parentNotified": "Parents notified"
+  },
+  "inventory": {
+    "title": "Stock and inventory",
+    "hint": "Supplies, equipment and products: stock in, stock out and alert threshold.",
+    "newItem": "New item",
+    "name": "Item",
+    "namePlaceholder": "E.g. White chalk",
+    "category": "Category",
+    "unit": "Unit",
+    "defaultUnit": "unit",
+    "minQuantity": "Alert threshold",
+    "add": "Add",
+    "saved": "Saved.",
+    "empty": "No items.",
+    "lowStock": "Below alert threshold ({min})",
+    "movement": "Movement",
+    "out": "Out",
+    "in": "In",
+    "quantity": "Quantity",
+    "reason": "Reason",
+    "record": "Record"
   }
 }

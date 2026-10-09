@@ -3,12 +3,13 @@ import { getTranslations } from "next-intl/server";
 import { FileUp, Inbox, Plus, Search } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { loadGuardedPage } from "@/server/page-context";
-import { can } from "@/server/rbac/policies";
+import { can, canAll } from "@/server/rbac/policies";
 import { listStudents } from "@/server/services/students";
 import { classOptions } from "@/server/services/options";
 import { countPendingPreRegistrations } from "@/server/services/preregistrations";
 import { Forbidden } from "@/components/layout/forbidden";
 import { PageHeader } from "@/components/layout/page-header";
+import { ExportLink } from "@/components/layout/export-link";
 import { Pagination } from "@/components/layout/pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,7 @@ export default async function StudentsPage({
         description={t("count", { count: total })}
         actions={
           <>
+            {canAll(ctx.scope, "student.read") && <ExportLink href={`/api/schools/${school}/exports/students`} />}
             {can(ctx.scope, "student.write") && (
               <Button variant="outline" asChild>
                 <Link href={`${base}/pre-registrations`}>

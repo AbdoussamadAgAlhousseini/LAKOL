@@ -1,6 +1,8 @@
 import "server-only";
 import type { SchoolContext } from "@/server/context";
 import { canAll } from "@/server/rbac/policies";
+import { computeClassResults, studentResults } from "./assessments";
+import { lowStockCount } from "./modules/inventory";
 
 function startOfToday(): Date {
   const d = new Date();
@@ -127,4 +129,128 @@ export async function getStudentCards(ctx: SchoolContext) {
       };
     }),
   );
+}
+
+// ── Indicateurs avancés ────────────────────────────────────────────────────
+
+const WEEK = 7 * 86_400_000;
+
+/** Lundi (UTC) de la semaine d'une date. */
+function mondayOf(d: Date) {
+  const r = new Date(d);
+  r.setUTCHours(0, 0, 0, 0);
+  r.setUTCDate(r.getUTCDate() - ((r.getUTCDay() + 6) % 7));
+  return r;
+}
+
+/** Période en cours de l'année active (ou la dernière commencée). */
+async function currentTermOf(ctx: SchoolContext) {
+  const now = new Date();
+  const terms = await ctx.db.term.findMany({
+    where: { academicYear: { isActive: true } },
+    orderBy: { order: "asc" },
+  });
+  return (
+    terms.find((t) => t.startDate <= now && t.endDate >= now) ??
+    terms.filter((t) => t.startDate <= now).at(-1) ??
+    terms[0] ??
+    null
+  );
+}
+
+/**
+ * Direction : taux de présence des 8 dernières semaines, moyenne générale par
+ * classe sur la période en cours, et alertes (élèves en difficulté, absences
+ * répétées, impayés, stocks, livres en retard).
+ */
+export async function getSchoolInsights(ctx: SchoolContext) {
+  const year = await activeYear(ctx);
+  if (!year) return null;
+  const { db } = ctx;
+  const out: {
+    attendance: { weekStart: Date; rate: number | null }[] | null;
+    results: { classId: string; className: string; average: number | null }[] | null;
+    termName: string | null;
+    scale: number;
+    alerts: { key: string; count: number; href: string }[];
+  } = { attendance: null, results: null, termName: null, scale: ctx.school.gradingScale, alerts: [] };
+
+  if (canAll(ctx.scope, "attendance.read")) {
+    const from = new Date(mondayOf(new Date()).getTime() - 7 * WEEK);
+    const rows = await db.attendance.findMany({
+      where: { date: { gte: from } },
+      select: { date: true, status: true, studentId: true },
+    });
+    out.attendance = Array.from({ length: 8 }, (_, i) => {
+      const start = new Date(from.getTime() + i * WEEK);
+      const week = rows.filter((r) => r.date >= start && r.date < new Date(start.getTime() + WEEK));
+      const present = week.filter((r) => r.status === "PRESENT" || r.status === "LATE").length;
+      return { weekStart: start, rate: week.length ? Math.round((present / week.length) * 1000) / 10 : null };
+    });
+    const since = new Date(Date.now() - 30 * 86_400_000);
+    const absences = new Map<string, number>();
+    for (const r of rows)
+      if (r.status === "ABSENT" && r.date >= since) absences.set(r.studentId, (absences.get(r.studentId) ?? 0) + 1);
+    const frequent = [...absences.values()].filter((n) => n >= 3).length;
+    if (frequent) out.alerts.push({ key: "frequentAbsences", count: frequent, href: "attendance" });
+  }
+
+  if (canAll(ctx.scope, "grade.read")) {
+    const term = await currentTermOf(ctx);
+    if (term) {
+      out.termName = term.name;
+      const classes = await db.class.findMany({ where: { academicYearId: year.id }, orderBy: { name: "asc" } });
+      const struggling = new Set<string>();
+      out.results = [];
+      for (const cls of classes) {
+        const r = await computeClassResults(ctx, { classId: cls.id, termId: term.id });
+        out.results.push({ classId: cls.id, className: cls.name, average: r.classStats.average });
+        for (const s of r.students) if (s.average !== null && s.average < r.scale * 50) struggling.add(s.studentId);
+      }
+      if (struggling.size) out.alerts.push({ key: "struggling", count: struggling.size, href: "grades" });
+    }
+  }
+
+  if (canAll(ctx.scope, "finance.read")) {
+    const debtors = await db.invoice.groupBy({
+      by: ["studentId"],
+      where: {
+        academicYearId: year.id,
+        status: { in: ["UNPAID", "PARTIAL"] },
+        deletedAt: null,
+        dueDate: { lte: new Date() },
+      },
+    });
+    if (debtors.length) out.alerts.push({ key: "debtors", count: debtors.length, href: "finance/debtors" });
+  }
+  const lowStock = await lowStockCount(ctx);
+  if (lowStock) out.alerts.push({ key: "lowStock", count: lowStock, href: "inventory" });
+  if (canAll(ctx.scope, "library.manage")) {
+    const late = await db.bookLoan.count({ where: { returnedAt: null, dueAt: { lt: new Date() } } });
+    if (late) out.alerts.push({ key: "lateLoans", count: late, href: "library" });
+  }
+  return out;
+}
+
+/** Professeur : travaux déposés à corriger dans ses devoirs. */
+export async function getTeacherInsights(ctx: SchoolContext) {
+  if (!ctx.staffId) return { toCorrect: 0 };
+  const toCorrect = await ctx.db.homeworkSubmission.count({
+    where: { status: "SUBMITTED", homework: { staffId: ctx.staffId, deletedAt: null } },
+  });
+  return { toCorrect };
+}
+
+/** Famille : moyenne générale de l'enfant à chaque période de l'année (graphique de progression). */
+export async function getStudentProgress(ctx: SchoolContext, studentId: string) {
+  const terms = await ctx.db.term.findMany({
+    where: { academicYear: { isActive: true }, startDate: { lte: new Date() } },
+    orderBy: { order: "asc" },
+  });
+  const points = [];
+  for (const term of terms) {
+    const r = await studentResults(ctx, { studentId, termId: term.id }).catch(() => null);
+    points.push({ term: term.name, average: r?.student?.average ?? null, classAverage: r?.classStats.average ?? null });
+  }
+  return { scale: ctx.school.gradingScale, points };
 }

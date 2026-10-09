@@ -4,12 +4,15 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { PwaSupport } from "@/components/layout/pwa";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 
 export const metadata: Metadata = {
   title: { default: "LAKOL", template: "%s · LAKOL" },
   description: "Gestion scolaire : direction, professeurs, parents et élèves réunis.",
   applicationName: "LAKOL",
+  appleWebApp: { capable: true, title: "LAKOL", statusBarStyle: "default" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {
@@ -41,6 +44,7 @@ export default async function LocaleLayout({
       <body className="min-h-dvh">
         <NextIntlClientProvider>
           <ThemeProvider>{children}</ThemeProvider>
+          <PwaSupport />
         </NextIntlClientProvider>
       </body>
     </html>

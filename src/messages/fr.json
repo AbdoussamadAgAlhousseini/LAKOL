@@ -15,7 +15,8 @@
     "forbiddenBody": "Vous n'avez pas accès à cette école ou à cette page.",
     "notFoundTitle": "Page introuvable",
     "goHome": "Retour à l'accueil",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "exportExcel": "Exporter (Excel)"
   },
   "auth": {
     "loginTitle": "Connexion",
@@ -81,7 +82,12 @@
     "classes": "Classes",
     "meetings": "Rendez-vous",
     "notifications": "Notifications",
-    "subscription": "Abonnement"
+    "subscription": "Abonnement",
+    "canteen": "Cantine",
+    "transport": "Transport",
+    "library": "Bibliothèque",
+    "infirmary": "Infirmerie",
+    "inventory": "Stocks"
   },
   "dashboard": {
     "hello": "Bonjour {name}",
@@ -107,7 +113,19 @@
     "noChild": "Aucun enfant n'est rattaché à votre compte.",
     "today": "Mes cours aujourd'hui",
     "noCourseToday": "Pas de cours aujourd'hui.",
-    "takeCall": "Faire l'appel"
+    "takeCall": "Faire l'appel",
+    "alerts": "À surveiller",
+    "alert": {
+      "frequentAbsences": "{count, plural, one {# élève absent} other {# élèves absents}} 3 fois ou plus en 30 jours",
+      "struggling": "{count, plural, one {# élève} other {# élèves}} sous la moyenne cette période",
+      "debtors": "{count, plural, one {# famille} other {# familles}} avec un impayé échu",
+      "lowStock": "{count, plural, one {# article} other {# articles}} à réapprovisionner",
+      "lateLoans": "{count, plural, one {# livre} other {# livres}} en retard à la bibliothèque"
+    },
+    "attendanceTrend": "Taux de présence, 8 dernières semaines",
+    "resultsByClass": "Moyenne générale par classe — {term}",
+    "toCorrect": "{count, plural, one {# travail rendu} other {# travaux rendus}} à corriger",
+    "progress": "Moyenne générale par période"
   },
   "admin": {
     "title": "Plateforme",
@@ -341,7 +359,14 @@
     "accountExists": "Un compte existe déjà avec ce numéro. Connectez-vous, ou contactez LAKOL pour ajouter une école.",
     "yearAlreadyActive": "Une année scolaire est déjà active.",
     "cyclesRequired": "Choisissez au moins un cycle.",
-    "passwordMismatch": "Les deux mots de passe sont différents."
+    "passwordMismatch": "Les deux mots de passe sont différents.",
+    "fileOrLinkRequired": "Ajoutez un fichier ou un lien.",
+    "busFull": "Ce circuit est complet (capacité du véhicule atteinte).",
+    "copiesOnLoan": "Des exemplaires sont encore prêtés : le nombre ne peut pas être inférieur.",
+    "borrowerRequired": "Choisissez l'emprunteur.",
+    "noCopyAvailable": "Aucun exemplaire disponible.",
+    "alreadyReturned": "Ce livre a déjà été rendu.",
+    "insufficientStock": "Stock insuffisant pour cette sortie."
   },
   "enums": {
     "gender": {
@@ -756,7 +781,8 @@
       "school.create": "création de l'école",
       "school.template": "structure créée depuis le modèle",
       "module.enable": "activation d'un module",
-      "module.disable": "désactivation d'un module"
+      "module.disable": "désactivation d'un module",
+      "infirmary.visit": "passage à l'infirmerie"
     }
   },
   "account": {
@@ -915,7 +941,8 @@
     "saved": "Appel enregistré. {notified, plural, =0 {Aucun parent à prévenir.} one {# parent prévenu.} other {# parents prévenus.}}",
     "savedOffline": "Pas de connexion : l'appel est gardé sur ce téléphone et sera envoyé automatiquement.",
     "synced": "Appels en attente envoyés.",
-    "queued": "{count, plural, one {# appel en attente d'envoi} other {# appels en attente d'envoi}}"
+    "queued": "{count, plural, one {# appel en attente d'envoi} other {# appels en attente d'envoi}}",
+    "export30": "Assiduité 30 jours (Excel)"
   },
   "discipline": {
     "title": "Discipline",
@@ -1247,7 +1274,8 @@
       "update": "Recalculer",
       "payConfirm": "Marquer ce salaire comme payé ? Une dépense « Salaires » sera enregistrée.",
       "pay": "Payer"
-    }
+    },
+    "exportMonth": "Paiements du mois (Excel)"
   },
   "messages": {
     "title": "Messages",
@@ -1487,5 +1515,160 @@
     "accept": "Je dirige ou représente cette école et j'accepte que ses données soient hébergées par LAKOL.",
     "submit": "Créer mon école",
     "haveAccount": "J'ai déjà un compte : me connecter"
+  },
+  "pwa": {
+    "offline": "Hors ligne : vous voyez les pages enregistrées sur ce téléphone.",
+    "install": "Installer l'application"
+  },
+  "resources": {
+    "title": "Ressources pédagogiques",
+    "hint": "Cours, exercices, corrigés et sujets d'examens, par matière et par niveau.",
+    "new": "Publier une ressource",
+    "published": "Ressource publiée.",
+    "titleField": "Titre",
+    "subject": "Matière",
+    "level": "Niveau",
+    "allLevels": "Tous niveaux",
+    "type": "Type",
+    "types": {
+      "COURSE": "Cours",
+      "EXERCISE": "Exercices",
+      "CORRECTION": "Corrigé",
+      "PAST_EXAM": "Sujet d'examen"
+    },
+    "description": "Description",
+    "file": "Fichier (PDF ou image)",
+    "fileHint": "5 Mo maximum",
+    "link": "ou lien (vidéo, site…)",
+    "publish": "Publier",
+    "search": "Rechercher un titre",
+    "allSubjects": "Toutes les matières",
+    "allTypes": "Tous les types",
+    "filter": "Filtrer",
+    "empty": "Aucune ressource pour le moment.",
+    "open": "Ouvrir le document",
+    "openLink": "Ouvrir le lien",
+    "confirmDelete": "Supprimer cette ressource ?",
+    "delete": "Supprimer",
+    "seeHomework": "Voir aussi les devoirs"
+  },
+  "canteen": {
+    "title": "Cantine",
+    "managerHint": "Menus de la semaine et élèves inscrits.",
+    "familyHint": "Le menu de la semaine et l'inscription de vos enfants.",
+    "menus": "Menus de la semaine",
+    "previousWeek": "← Semaine précédente",
+    "nextWeek": "Semaine suivante →",
+    "meal": "Plat",
+    "notes": "Remarque",
+    "save": "Enregistrer",
+    "saved": "Enregistré.",
+    "noMenu": "Menu non communiqué",
+    "subscribed": "Inscrit(e) à la cantine",
+    "notSubscribed": "Non inscrit(e)",
+    "subscribers": "{count, plural, =0 {Aucun inscrit} one {# inscrit} other {# inscrits}}",
+    "student": "Élève",
+    "diet": "Régime / allergies",
+    "dietPlaceholder": "Ex. sans arachide",
+    "subscribe": "Inscrire",
+    "noSubscriber": "Aucun élève inscrit.",
+    "confirmUnsubscribe": "Désinscrire cet élève de la cantine ?",
+    "unsubscribe": "Désinscrire",
+    "paymentsHint": "Les paiements de la cantine se gèrent dans Finances, avec des frais de catégorie « Cantine »."
+  },
+  "transport": {
+    "title": "Transport scolaire",
+    "managerHint": "Circuits, arrêts et élèves transportés.",
+    "familyHint": "Le bus, l'arrêt et les horaires de vos enfants.",
+    "times": "passage {pickup}, retour {dropoff}",
+    "driver": "Chauffeur",
+    "noTransport": "N'utilise pas le transport scolaire.",
+    "newRoute": "Nouveau circuit",
+    "routeName": "Nom du circuit",
+    "routeNamePlaceholder": "Ex. Circuit Kalaban",
+    "vehicle": "Véhicule",
+    "capacity": "Places",
+    "createRoute": "Créer le circuit",
+    "load": "{count} / {capacity} élèves",
+    "confirmDeleteRoute": "Supprimer ce circuit et ses affectations ?",
+    "deleteRoute": "Supprimer le circuit",
+    "stops": "Arrêts",
+    "stopName": "Arrêt",
+    "pickup": "Passage (matin)",
+    "dropoff": "Retour (soir)",
+    "addStop": "Ajouter l'arrêt",
+    "deleteStop": "Supprimer l'arrêt",
+    "students": "Élèves",
+    "student": "Élève",
+    "stop": "Arrêt",
+    "assign": "Affecter",
+    "unassign": "Retirer"
+  },
+  "library": {
+    "title": "Bibliothèque",
+    "hint": "Catalogue, prêts et retours (durée par défaut : {days} jours).",
+    "loans": "{count, plural, =0 {Aucun prêt en cours} one {# prêt en cours} other {# prêts en cours}}",
+    "noLoan": "Aucun livre prêté.",
+    "lateSince": "en retard depuis le {date}",
+    "dueOn": "à rendre le {date}",
+    "return": "Retour",
+    "addBook": "Ajouter un livre",
+    "bookTitle": "Titre",
+    "author": "Auteur",
+    "category": "Catégorie",
+    "categoryPlaceholder": "Roman, manuel…",
+    "copies": "Exemplaires",
+    "location": "Rayon",
+    "add": "Ajouter",
+    "saved": "Enregistré.",
+    "search": "Titre, auteur ou ISBN",
+    "noBook": "Aucun livre.",
+    "available": "{available}/{copies} disponible(s)",
+    "borrower": "Emprunteur (élève)",
+    "days": "Durée (jours)",
+    "lend": "Prêter",
+    "lent": "Prêt enregistré."
+  },
+  "infirmary": {
+    "title": "Infirmerie",
+    "hint": "Passages et soins. Les parents sont prévenus immédiatement si l'élève rentre chez lui ou doit voir un médecin.",
+    "newVisit": "Nouveau passage",
+    "student": "Élève",
+    "reason": "Motif",
+    "reasonPlaceholder": "Ex. maux de tête",
+    "care": "Soins donnés",
+    "outcome": "Suite",
+    "outcomeHint": "« Rentre chez lui » et « Orienté vers un médecin » préviennent les parents.",
+    "outcomes": {
+      "RETURNED_TO_CLASS": "Retour en classe",
+      "RESTED": "Repos à l'infirmerie",
+      "SENT_HOME": "Rentre chez lui",
+      "REFERRED": "Orienté vers un médecin"
+    },
+    "record": "Enregistrer",
+    "saved": "Passage enregistré.",
+    "empty": "Aucun passage.",
+    "parentNotified": "Parents prévenus"
+  },
+  "inventory": {
+    "title": "Stocks et inventaire",
+    "hint": "Fournitures, matériel et produits : entrées, sorties et seuil d'alerte.",
+    "newItem": "Nouvel article",
+    "name": "Article",
+    "namePlaceholder": "Ex. Craies blanches",
+    "category": "Catégorie",
+    "unit": "Unité",
+    "defaultUnit": "unité",
+    "minQuantity": "Seuil d'alerte",
+    "add": "Ajouter",
+    "saved": "Enregistré.",
+    "empty": "Aucun article.",
+    "lowStock": "Sous le seuil d'alerte ({min})",
+    "movement": "Mouvement",
+    "out": "Sortie",
+    "in": "Entrée",
+    "quantity": "Quantité",
+    "reason": "Motif",
+    "record": "Enregistrer"
   }
 }

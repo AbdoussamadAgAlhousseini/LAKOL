@@ -1,4 +1,5 @@
 import "server-only";
+import { compressUpload } from "@/server/images";
 import { assertStudentCapacity } from "@/server/platform/subscriptions";
 import { randomUUID } from "node:crypto";
 import type { Gender, GuardianRelationship, Prisma, StudentStatus } from "@prisma/client";
@@ -497,8 +498,10 @@ export async function storeDocument(
   const ext = DOCUMENT_TYPES[input.file.type];
   if (!ext) throw new DomainError("fileType", "file");
   if (input.file.size > MAX_UPLOAD_BYTES) throw new DomainError("fileTooLarge", "file");
-  const key = `schools/${ctx.school.id}/${input.entityType.toLowerCase()}/${input.entityId}/${randomUUID()}.${ext}`;
-  await getStorage().put(key, Buffer.from(await input.file.arrayBuffer()), input.file.type);
+  const { body, mimeType } = await compressUpload(Buffer.from(await input.file.arrayBuffer()), input.file.type);
+  const finalExt = mimeType === input.file.type ? ext : "webp";
+  const key = `schools/${ctx.school.id}/${input.entityType.toLowerCase()}/${input.entityId}/${randomUUID()}.${finalExt}`;
+  await getStorage().put(key, body, mimeType);
   return ctx.db.document.create({
     data: {
       schoolId: ctx.school.id,
@@ -506,8 +509,8 @@ export async function storeDocument(
       entityId: input.entityId,
       category: input.category,
       name: input.file.name.slice(0, 200),
-      mimeType: input.file.type,
-      size: input.file.size,
+      mimeType,
+      size: body.length,
       storageKey: key,
       uploadedById: ctx.user.id,
     },

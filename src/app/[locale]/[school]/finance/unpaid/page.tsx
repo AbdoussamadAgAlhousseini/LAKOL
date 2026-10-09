@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { ActionButton } from "@/components/forms/action-form";
 import { Forbidden } from "@/components/layout/forbidden";
 import { PageHeader } from "@/components/layout/page-header";
+import { ExportLink } from "@/components/layout/export-link";
 import { Pagination } from "@/components/layout/pagination";
 import { Card } from "@/components/ui/card";
 import { FinanceNav } from "../finance-nav";
@@ -46,16 +47,19 @@ export default async function UnpaidPage({
         description={t("unpaidSummary", { count: debtors.total, amount: money(debtors.sum) })}
         actions={
           debtors.total > 0 && (
-            <ActionButton
-              action={remindAction}
-              school={school}
-              fields={{}}
-              confirm={t("remindAllConfirm")}
-              variant="default"
-              size="default"
-            >
-              {t("remindAll")}
-            </ActionButton>
+            <>
+              <ExportLink href={`/api/schools/${school}/exports/debtors`} />
+              <ActionButton
+                action={remindAction}
+                school={school}
+                fields={{}}
+                confirm={t("remindAllConfirm")}
+                variant="default"
+                size="default"
+              >
+                {t("remindAll")}
+              </ActionButton>
+            </>
           )
         }
       />

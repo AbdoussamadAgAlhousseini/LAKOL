@@ -1076,6 +1076,144 @@ async function seedEtoiles(planId: string) {
     },
   });
 
+  // Modules optionnels (formule Premium) : cantine, transport, bibliothèque, infirmerie, stocks, ressources.
+  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7));
+  const meals = ["Riz sauce arachide", "Tô sauce gombo", "Fonio au poulet", "Macaronis à la viande", "Riz gras"];
+  await prisma.canteenMenu.createMany({
+    data: meals.map((meal, i) => ({
+      schoolId,
+      date: addDays(monday, i),
+      meal,
+      notes: i === 4 ? "Fruit : mangue" : null,
+    })),
+  });
+  await prisma.canteenSubscription.createMany({
+    data: [kid1.id, kid2.id, ...students.slice(0, 8).map((s) => s.id)].map((studentId, i) => ({
+      schoolId,
+      studentId,
+      academicYearId: year.id,
+      startDate: year.startDate,
+      dietNotes: i === 0 ? "Allergie à l'arachide" : null,
+    })),
+  });
+  const driver = await createStaffMember(ctx, {
+    firstName: "Adama",
+    lastName: "Koné",
+    gender: "MALE",
+    position: "Chauffeur",
+    phone: "+22370000030",
+    roles: ["DRIVER"],
+    salary: 90000,
+  });
+  const route = await prisma.busRoute.create({
+    data: {
+      schoolId,
+      name: "Circuit Kalaban",
+      vehicle: "Minibus AB-1234-MD",
+      capacity: 18,
+      driverStaffId: driver.staff.id,
+    },
+  });
+  const busStops: { id: string }[] = [];
+  for (const [i, [name, pickup, dropoff]] of (
+    [
+      ["Kalaban Coura — marché", 410, 1050],
+      ["Baco-Djicoroni ACI", 425, 1035],
+      ["Hamdallaye — station", 440, 1020],
+    ] as const
+  ).entries()) {
+    busStops.push(
+      await prisma.busStop.create({
+        data: { schoolId, routeId: route.id, name, order: i + 1, pickupMin: pickup, dropoffMin: dropoff },
+      }),
+    );
+  }
+  await prisma.transportAssignment.createMany({
+    data: [kid1.id, kid2.id, ...students.slice(10, 14).map((s) => s.id)].map((studentId, i) => ({
+      schoolId,
+      studentId,
+      academicYearId: year.id,
+      routeId: route.id,
+      stopId: busStops[i % busStops.length].id,
+    })),
+  });
+  const books = await Promise.all(
+    [
+      ["L'Aventure ambiguë", "Cheikh Hamidou Kane", "Roman", 3],
+      ["Une si longue lettre", "Mariama Bâ", "Roman", 2],
+      ["Soundjata ou l'épopée mandingue", "Djibril Tamsir Niane", "Épopée", 4],
+      ["Mathématiques 7e année", "IPN Mali", "Manuel", 10],
+      ["Le Pagne noir", "Bernard Dadié", "Contes", 2],
+    ].map(([title, author, category, copies]) =>
+      prisma.book.create({
+        data: {
+          schoolId,
+          title: String(title),
+          author: String(author),
+          category: String(category),
+          copies: Number(copies),
+          location: "Rayon A",
+        },
+      }),
+    ),
+  );
+  await prisma.bookLoan.createMany({
+    data: [
+      { schoolId, bookId: books[2].id, studentId: kid2.id, loanedAt: addDays(now, -5), dueAt: addDays(now, 9) },
+      {
+        schoolId,
+        bookId: books[0].id,
+        studentId: students[3].id,
+        loanedAt: addDays(now, -20),
+        dueAt: addDays(now, -6),
+      },
+    ],
+  });
+  await prisma.infirmaryVisit.create({
+    data: {
+      schoolId,
+      studentId: students[5].id,
+      at: addDays(now, -2),
+      reason: "Maux de tête",
+      care: "Repos, eau",
+      outcome: "RETURNED_TO_CLASS",
+      recordedById: director.user.id,
+    },
+  });
+  for (const [name, category, unit, quantity, minQuantity] of [
+    ["Craies blanches", "Fournitures", "boîte", 4, 10],
+    ["Rames de papier A4", "Fournitures", "rame", 25, 5],
+    ["Ballons de football", "Sport", "unité", 6, 2],
+    ["Riz (sac de 50 kg)", "Cantine", "sac", 8, 3],
+  ] as const) {
+    await prisma.inventoryItem.create({ data: { schoolId, name, category, unit, quantity, minQuantity } });
+  }
+  await prisma.resource.createMany({
+    data: [
+      {
+        schoolId,
+        subjectId: subjects.MATH.id,
+        levelId: lv7.id,
+        type: "COURSE",
+        title: "Les fractions — cours complet",
+        description: "Cours et exemples corrigés, chapitre 3.",
+        url: "https://fr.khanacademy.org/math/arithmetic/fraction-arithmetic",
+        createdById: teacherFor("MATH").user.id,
+      },
+      {
+        schoolId,
+        subjectId: subjects.FR.id,
+        levelId: lv9.id,
+        type: "PAST_EXAM",
+        title: "Sujet DEF 2024 — Français",
+        description: "Sujet de l'examen du DEF, session de juin 2024.",
+        url: "https://www.education.gouv.ml",
+        createdById: director.user.id,
+      },
+    ],
+  });
+
   await prisma.event.createMany({
     data: [
       {

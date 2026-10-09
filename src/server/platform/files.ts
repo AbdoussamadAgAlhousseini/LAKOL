@@ -6,6 +6,7 @@ import { canAll, canOnStudent } from "@/server/rbac/policies";
 import { getStorage } from "@/server/adapters/storage";
 import { canReadMessageAttachment } from "@/server/services/messaging";
 import { canReadReportCard } from "@/server/services/report-cards";
+import { canReadResource } from "@/server/services/resources";
 
 /** Classe actuelle des élèves du périmètre (parent, élève). */
 async function familyClassIds(ctx: SchoolContext) {
@@ -47,6 +48,8 @@ async function canRead(ctx: SchoolContext, doc: Document): Promise<boolean> {
       return canReadReportCard(ctx, doc.entityId);
     case "Message":
       return canReadMessageAttachment(ctx, doc.entityId);
+    case "Resource":
+      return canReadResource(ctx, doc.entityId);
     default:
       return false;
   }

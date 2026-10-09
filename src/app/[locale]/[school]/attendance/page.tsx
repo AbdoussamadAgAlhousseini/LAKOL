@@ -14,6 +14,7 @@ import { formatPercent } from "@/lib/money";
 import { ActionForm, Field, SubmitButton } from "@/components/forms/action-form";
 import { Forbidden } from "@/components/layout/forbidden";
 import { PageHeader } from "@/components/layout/page-header";
+import { ExportLink } from "@/components/layout/export-link";
 import { Pagination } from "@/components/layout/pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,14 @@ export default async function AttendancePage({
 
   return (
     <>
-      <PageHeader title={t("title")} />
+      <PageHeader
+        title={t("title")}
+        actions={
+          canAll(ctx.scope, "attendance.read") && (
+            <ExportLink href={`/api/schools/${school}/exports/attendance`} label={t("export30")} />
+          )
+        }
+      />
       <div className="flex flex-col gap-6">
         {isTeacher && <TeacherSection {...props} />}
         {canAll(ctx.scope, "attendance.write") && <CallAnyClass {...props} />}

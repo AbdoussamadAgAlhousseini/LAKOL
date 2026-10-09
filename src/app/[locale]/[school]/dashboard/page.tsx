@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import {
+  AlertTriangle,
   BookOpen,
   CalendarX,
   ClipboardCheck,
@@ -15,7 +16,15 @@ import { Link } from "@/i18n/navigation";
 import { myTodaySlots } from "@/server/services/attendance";
 import { dayStart, formatTime, isoDate } from "@/lib/time";
 import { loadSchoolPage } from "@/server/page-context";
-import { getSchoolOverview, getStudentCards, getTeacherClasses } from "@/server/services/dashboard";
+import {
+  getSchoolInsights,
+  getSchoolOverview,
+  getStudentCards,
+  getStudentProgress,
+  getTeacherClasses,
+  getTeacherInsights,
+} from "@/server/services/dashboard";
+import { BarChart, LineChart } from "@/components/charts";
 import type { SchoolContext } from "@/server/context";
 import { can, canAll } from "@/server/rbac/policies";
 import { onboardingState } from "@/server/services/onboarding";
@@ -115,16 +124,101 @@ async function SchoolOverview({ ctx, locale }: { ctx: SchoolContext; locale: str
           />
         </div>
       )}
+      <SchoolInsights ctx={ctx} locale={locale} />
+    </>
+  );
+}
+
+async function SchoolInsights({ ctx, locale }: { ctx: SchoolContext; locale: string }) {
+  const t = await getTranslations("dashboard");
+  const data = await getSchoolInsights(ctx);
+  if (!data) return null;
+  const week = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: "UTC" });
+  const pct = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+  return (
+    <>
+      {data.alerts.length > 0 && (
+        <section className="flex flex-col gap-2" data-testid="alerts">
+          <h2 className="text-lg font-semibold">{t("alerts")}</h2>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {data.alerts.map((a) => (
+              <Link
+                key={a.key}
+                href={`/${ctx.school.slug}/${a.href}`}
+                className="border-warning/40 bg-warning/10 hover:bg-warning/20 flex items-center gap-3 rounded-lg border p-3 text-sm"
+              >
+                <AlertTriangle className="text-warning-foreground size-5 shrink-0" aria-hidden />
+                <span>{t(`alert.${a.key}`, { count: a.count })}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {data.attendance && data.attendance.some((w) => w.rate !== null) && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">{t("attendanceTrend")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LineChart
+                caption={t("attendanceTrend")}
+                min={0}
+                max={100}
+                data={data.attendance.map((w) => ({
+                  label: week.format(w.weekStart),
+                  value: w.rate,
+                  display: w.rate === null ? "—" : `${pct.format(w.rate)} %`,
+                }))}
+              />
+            </CardContent>
+          </Card>
+        )}
+        {data.results && data.results.some((r) => r.average !== null) && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">{t("resultsByClass", { term: data.termName ?? "" })}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BarChart
+                caption={t("resultsByClass", { term: data.termName ?? "" })}
+                max={data.scale * 100}
+                reference={{ value: data.scale * 50, label: `${data.scale / 2}/${data.scale}` }}
+                alertBelow={data.scale * 50}
+                data={data.results.map((r) => ({
+                  label: r.className,
+                  value: r.average,
+                  display: r.average === null ? "—" : `${formatScore(r.average, locale)}/${data.scale}`,
+                }))}
+              />
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </>
   );
 }
 
 async function TeacherClasses({ ctx }: { ctx: SchoolContext }) {
   const t = await getTranslations("dashboard");
-  const [classes, slots] = await Promise.all([getTeacherClasses(ctx), myTodaySlots(ctx)]);
+  const [classes, slots, insights] = await Promise.all([
+    getTeacherClasses(ctx),
+    myTodaySlots(ctx),
+    getTeacherInsights(ctx),
+  ]);
   const today = isoDate(dayStart());
   return (
     <section className="flex flex-col gap-3">
+      {insights.toCorrect > 0 && (
+        <Link
+          href={`/${ctx.school.slug}/homework`}
+          className="border-primary bg-primary/5 hover:bg-primary/10 flex items-center gap-3 rounded-lg border p-3"
+          data-testid="to-correct"
+        >
+          <NotebookPen className="text-primary size-6" aria-hidden />
+          <span className="font-medium">{t("toCorrect", { count: insights.toCorrect })}</span>
+        </Link>
+      )}
       <h2 className="text-lg font-semibold">{t("today")}</h2>
       {slots.length === 0 && <p className="text-muted-foreground">{t("noCourseToday")}</p>}
       <div className="grid gap-2 sm:grid-cols-2">
@@ -217,11 +311,35 @@ async function StudentCards({ ctx, locale }: { ctx: SchoolContext; locale: strin
                   </Tile>
                 )}
               </ul>
+              <Progress ctx={ctx} studentId={s.id} locale={locale} />
             </CardContent>
           </Card>
         ))}
       </div>
     </section>
+  );
+}
+
+/** Courbe de la moyenne générale de l'enfant, période après période. */
+async function Progress({ ctx, studentId, locale }: { ctx: SchoolContext; studentId: string; locale: string }) {
+  const { scale, points } = await getStudentProgress(ctx, studentId);
+  if (!points.some((p) => p.average !== null)) return null;
+  const t = await getTranslations("dashboard");
+  return (
+    <div className="mt-4" data-testid="progress">
+      <p className="mb-1 text-sm font-medium">{t("progress")}</p>
+      <LineChart
+        caption={t("progress")}
+        min={0}
+        max={scale * 100}
+        reference={{ value: scale * 50, label: `${scale / 2}/${scale}` }}
+        data={points.map((p) => ({
+          label: p.term.replace(/ (trimestre|semestre)$/, ""),
+          value: p.average,
+          display: p.average === null ? "—" : `${formatScore(p.average, locale)}/${scale}`,
+        }))}
+      />
+    </div>
   );
 }
 

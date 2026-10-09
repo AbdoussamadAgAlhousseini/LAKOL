@@ -72,9 +72,13 @@ export const PERMISSIONS = {
   // Ressources et modules optionnels
   "resource.read": { module: "resources", description: "Consulter les ressources" },
   "resource.write": { module: "resources", description: "Publier des ressources" },
-  "library.manage": { module: "library", description: "Bibliothèque" },
-  "infirmary.manage": { module: "infirmary", description: "Infirmerie" },
-  "transport.manage": { module: "transport", description: "Transport scolaire" },
+  "library.manage": { module: "library", description: "Bibliothèque : livres, prêts et retours" },
+  "infirmary.manage": { module: "infirmary", description: "Infirmerie : passages et soins" },
+  "transport.manage": { module: "transport", description: "Transport scolaire : circuits, arrêts, élèves" },
+  "transport.read:own": { module: "transport", description: "Voir le circuit et l'arrêt de ses enfants" },
+  "canteen.manage": { module: "canteen", description: "Cantine : inscrits et menus" },
+  "canteen.read:own": { module: "canteen", description: "Voir le menu et l'inscription de ses enfants" },
+  "inventory.manage": { module: "inventory", description: "Stocks et inventaire" },
 } as const satisfies Record<string, { module: string; description: string }>;
 
 export type Permission = keyof typeof PERMISSIONS;
@@ -110,7 +114,13 @@ export const ROLE_NAMES: Record<SystemRole, string> = {
 };
 
 const ALL = Object.keys(PERMISSIONS) as Permission[];
-const SELF_ONLY = new Set<Permission>(["homework.submit:own", "attendance.justify:own", "meeting.book:own"]);
+const SELF_ONLY = new Set<Permission>([
+  "homework.submit:own",
+  "attendance.justify:own",
+  "meeting.book:own",
+  "canteen.read:own",
+  "transport.read:own",
+]);
 
 const TEACHER: Permission[] = [
   "student.read:own",
@@ -151,6 +161,10 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     "message.moderate",
     "announcement.publish",
     "resource.read",
+    "canteen.manage",
+    "transport.manage",
+    "library.manage",
+    "inventory.manage",
   ],
   CENSOR: [
     "dashboard.school",
@@ -176,6 +190,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     "expense.write",
     "payroll.manage",
     "message.send",
+    "canteen.manage",
+    "inventory.manage",
   ],
   TEACHER,
   HEAD_TEACHER: [...TEACHER, "reportcard.comment:own", "discipline.read"],
@@ -189,6 +205,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     "finance.read:own",
     "message.send",
     "meeting.book:own",
+    "resource.read",
+    "canteen.read:own",
+    "transport.read:own",
   ],
   STUDENT: [
     "student.read:own",
@@ -198,6 +217,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     "attendance.read:own",
     "grade.read:own",
     "resource.read",
+    "canteen.read:own",
+    "transport.read:own",
   ],
   LIBRARIAN: ["student.read", "library.manage", "resource.read"],
   NURSE: ["student.read", "student.medical.read", "infirmary.manage"],

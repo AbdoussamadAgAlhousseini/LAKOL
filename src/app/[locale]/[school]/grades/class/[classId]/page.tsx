@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { ActionForm, SubmitButton } from "@/components/forms/action-form";
 import { Forbidden } from "@/components/layout/forbidden";
 import { PageHeader } from "@/components/layout/page-header";
+import { ExportLink } from "@/components/layout/export-link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -58,6 +59,9 @@ export default async function ClassResultsPage({
           lowest: f(sheet.classStats.lowest),
           scale: sheet.scale,
         })}
+        actions={
+          <ExportLink href={`/api/schools/${school}/exports/class-results?classId=${classId}&termId=${term.id}`} />
+        }
       />
       <nav className="flex flex-wrap gap-2">
         {terms.map((x) => (
