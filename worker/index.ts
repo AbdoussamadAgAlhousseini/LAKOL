@@ -5,7 +5,9 @@ import { Queue, Worker } from "bullmq";
 import { QUEUE_NAME, redisConnection } from "@/server/jobs/queue";
 import { runJob, type JobName } from "@/server/jobs/handlers";
 import { logger } from "@/server/logger";
+import { assertEnv } from "@/server/env";
 
+assertEnv("worker");
 if (!process.env.REDIS_URL) {
   logger.error({}, "REDIS_URL manquant : le worker ne peut pas démarrer");
   process.exit(1);

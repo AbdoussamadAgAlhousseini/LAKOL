@@ -11,7 +11,10 @@ export function redisConnection() {
   return {
     host: url.hostname,
     port: Number(url.port || 6379),
-    password: url.password || undefined,
+    username: url.username ? decodeURIComponent(url.username) : undefined,
+    password: url.password ? decodeURIComponent(url.password) : undefined,
+    // rediss:// : Redis managé avec TLS (Upstash, Redis Cloud…).
+    tls: url.protocol === "rediss:" ? {} : undefined,
     maxRetriesPerRequest: null,
   };
 }

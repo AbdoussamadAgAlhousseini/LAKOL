@@ -25,7 +25,8 @@
     "db:sync-permissions": "tsx scripts/sync-permissions.ts",
     "jobs:flush": "tsx scripts/run-job.ts deliveries.flush",
     "jobs:subscriptions": "tsx scripts/run-job.ts subscriptions.check",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "platform:init": "tsx scripts/init-platform.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1148.0",

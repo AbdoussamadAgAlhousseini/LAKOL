@@ -25,7 +25,14 @@ export async function sendVerificationCode(
   });
 
   const text = `LAKOL : votre code de vérification est ${code}. Il expire dans 10 minutes. Ne le communiquez à personne.`;
-  if (channel === "WHATSAPP") await getWhatsAppProvider().sendText({ to: user.phone!, body: text });
+  // Via le modèle approuvé : l'utilisateur n'a pas forcément écrit à LAKOL dans les dernières 24 h.
+  if (channel === "WHATSAPP")
+    await getWhatsAppProvider().sendNotification({
+      to: user.phone!,
+      title: "Votre code LAKOL",
+      body: text,
+      locale: user.locale,
+    });
   else await getEmailProvider().send({ to: user.email!, subject: "Votre code LAKOL", text });
   return channel;
 }

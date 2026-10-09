@@ -16,6 +16,7 @@ import {
   SYSTEM_ROLES,
   type SystemRole,
 } from "../src/server/rbac/permissions";
+import { DEFAULT_PLANS } from "../src/server/platform/bootstrap";
 
 const prisma = new PrismaClient();
 
@@ -122,52 +123,11 @@ async function seedPlatform() {
   await prisma.permission.createMany({
     data: Object.entries(PERMISSIONS).map(([key, p]) => ({ key, module: p.module, description: p.description })),
   });
-  const ALL_MODULES = [
-    "HOMEWORK",
-    "ATTENDANCE",
-    "GRADES",
-    "FINANCE",
-    "MESSAGING",
-    "TIMETABLE",
-    "RESOURCES",
-    "CANTEEN",
-    "TRANSPORT",
-    "LIBRARY",
-    "INFIRMARY",
-    "INVENTORY",
-  ] as const;
-  const plans = {
-    FREE: await prisma.plan.create({
-      data: {
-        code: "FREE",
-        name: "Essai",
-        maxStudents: 50,
-        whatsappQuota: 200,
-        pricePerStudent: 0,
-        modules: ["HOMEWORK", "ATTENDANCE", "GRADES"],
-      },
-    }),
-    STANDARD: await prisma.plan.create({
-      data: {
-        code: "STANDARD",
-        name: "Standard",
-        maxStudents: 800,
-        whatsappQuota: 3000,
-        pricePerStudent: 2500,
-        modules: ["HOMEWORK", "ATTENDANCE", "GRADES", "FINANCE", "MESSAGING", "TIMETABLE", "RESOURCES"],
-      },
-    }),
-    PREMIUM: await prisma.plan.create({
-      data: {
-        code: "PREMIUM",
-        name: "Premium",
-        maxStudents: null,
-        whatsappQuota: 20000,
-        pricePerStudent: 4000,
-        modules: [...ALL_MODULES],
-      },
-    }),
-  };
+  const created = await Promise.all(DEFAULT_PLANS.map((data) => prisma.plan.create({ data })));
+  const plans = Object.fromEntries(created.map((p) => [p.code, p])) as Record<
+    "FREE" | "STANDARD" | "PREMIUM",
+    (typeof created)[number]
+  >;
   await prisma.user.create({
     data: {
       email: "admin@lakol.test",

@@ -35,16 +35,28 @@ export async function runJob<N extends JobName>(name: N, data: JobData[N], opts:
 export async function sendDelivery(deliveryId: string, final: boolean) {
   const delivery = await prisma.notificationDelivery.findUnique({
     where: { id: deliveryId },
-    include: { notification: true },
+    include: { notification: { include: { user: { select: { locale: true } } } } },
   });
   if (!delivery || delivery.status === "SENT" || delivery.status === "DELIVERED" || delivery.status === "READ") return;
-  const { title, body } = delivery.notification;
+  const { title, body, link: path } = delivery.notification;
+  // Lien complet vers la page concernée (les notifications stockent un chemin relatif).
+  const link = path && process.env.APP_URL ? `${process.env.APP_URL.replace(/\/$/, "")}${path}` : null;
   try {
     const provider = delivery.channel === "WHATSAPP" ? getWhatsAppProvider() : getEmailProvider();
     const result =
       delivery.channel === "WHATSAPP"
-        ? await getWhatsAppProvider().sendText({ to: delivery.recipient, body: `${title}\n\n${body}` })
-        : await getEmailProvider().send({ to: delivery.recipient, subject: title, text: body });
+        ? await getWhatsAppProvider().sendNotification({
+            to: delivery.recipient,
+            title,
+            body,
+            link,
+            locale: delivery.notification.user.locale,
+          })
+        : await getEmailProvider().send({
+            to: delivery.recipient,
+            subject: title,
+            text: link ? `${body}\n\n${link}` : body,
+          });
     await prisma.notificationDelivery.update({
       where: { id: deliveryId },
       data: {
