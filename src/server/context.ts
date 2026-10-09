@@ -4,7 +4,9 @@ import type { School, User } from "@prisma/client";
 import { prisma } from "@/server/db/client";
 import { forSchool, type TenantDb } from "@/server/db/tenant";
 import { getCurrentSession } from "@/server/auth/session";
-import { ROLE_PRIORITY, type SystemRole } from "@/server/rbac/permissions";
+import type { ModuleKey, SubscriptionStatus } from "@prisma/client";
+import { permissionsForModules, ROLE_PRIORITY, type SystemRole } from "@/server/rbac/permissions";
+import { effectiveModules } from "@/lib/modules";
 import type { AccessScope } from "@/server/rbac/policies";
 import { loadScope } from "@/server/scope";
 
@@ -43,6 +45,18 @@ export interface SchoolContext {
   staffId: string | null;
   /** Abonnement suspendu : lecture seule, aucune perte de données. */
   readOnly: boolean;
+  /** Modules actifs (plan, réglages de l'école, ajouts de la plateforme). */
+  modules: Set<ModuleKey>;
+  subscription: SubscriptionSummary | null;
+}
+
+export interface SubscriptionSummary {
+  status: SubscriptionStatus;
+  planCode: string;
+  planName: string;
+  trialEndsAt: Date | null;
+  currentPeriodEnd: Date | null;
+  graceEndsAt: Date | null;
 }
 
 /** Tous les espaces (école × rôle) d'un utilisateur, pour le sélecteur. */
@@ -80,7 +94,10 @@ export const getSchoolContext = cache(async (slug: string): Promise<SchoolContex
   if (!current) throw new UnauthenticatedError();
   const { session, user } = current;
 
-  const school = await prisma.school.findUnique({ where: { slug }, include: { subscription: true } });
+  const school = await prisma.school.findUnique({
+    where: { slug },
+    include: { subscription: { include: { plan: true } }, modules: true },
+  });
   if (!school || school.deletedAt || !school.isActive) throw new SchoolNotFoundError();
 
   const userRoles = await prisma.userRole.findMany({
@@ -92,12 +109,16 @@ export const getSchoolContext = cache(async (slug: string): Promise<SchoolContex
   const sorted = [...userRoles].sort((a, b) => rolePriority(a.role.key) - rolePriority(b.role.key));
   const active =
     (session.activeSchoolId === school.id && sorted.find((r) => r.role.key === session.activeRoleKey)) || sorted[0];
-  const permissions = new Set(active.role.permissions.map((p) => p.permissionKey));
+  const { subscription, modules: moduleSettings, ...schoolFields } = school;
+  const modules = effectiveModules(subscription?.plan.modules ?? [], moduleSettings);
+  // Un module inactif retire ses permissions : navigation, pages, actions et services suivent.
+  const permissions = permissionsForModules(
+    active.role.permissions.map((p) => p.permissionKey),
+    modules,
+  );
 
   const db = forSchool(school.id);
   const { classIds, studentIds, staffId } = await loadScope(db, user.id, active.role.key);
-
-  const { subscription, ...schoolFields } = school;
 
   return {
     user,
@@ -109,5 +130,16 @@ export const getSchoolContext = cache(async (slug: string): Promise<SchoolContex
     scope: { permissions, classIds, studentIds },
     staffId,
     readOnly: subscription?.status === "SUSPENDED" || subscription?.status === "CANCELLED",
+    modules,
+    subscription: subscription
+      ? {
+          status: subscription.status,
+          planCode: subscription.plan.code,
+          planName: subscription.plan.name,
+          trialEndsAt: subscription.trialEndsAt,
+          currentPeriodEnd: subscription.currentPeriodEnd,
+          graceEndsAt: subscription.graceEndsAt,
+        }
+      : null,
   };
 });

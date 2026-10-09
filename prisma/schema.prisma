@@ -83,6 +83,7 @@ model School {
   quietHoursStart        Int           @default(20)
   quietHoursEnd          Int           @default(7)
   disableYoungStudentAcc Boolean       @default(true) // pas de compte élève en maternelle / début fondamental
+  onboardingDoneAt       DateTime? // assistant de démarrage terminé ou ignoré
   isActive               Boolean       @default(true)
   createdAt              DateTime      @default(now())
   updatedAt              DateTime      @updatedAt
@@ -146,6 +147,7 @@ model School {
   appraisals          Appraisal[]
   cashClosings        CashClosing[]
   meetingSlots        MeetingSlot[]
+  platformInvoices    PlatformInvoice[]
 }
 
 model Subscription {
@@ -160,20 +162,65 @@ model Subscription {
   currentPeriodEnd   DateTime?
   maxStudents        Int? // dérogation au plan
   pricePerStudent    Int? // dérogation au plan
+  whatsappQuota      Int? // dérogation au plan
+  graceEndsAt        DateTime? // impayé : lecture seule après cette date
+  suspendedAt        DateTime?
+  cancelledAt        DateTime?
+  lastNoticeKey      String? // dernier avis envoyé à la direction (évite les doublons)
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
+  invoices           PlatformInvoice[]
 
   @@index([planId])
+  @@index([status])
 }
 
+enum PlatformInvoiceStatus {
+  ISSUED
+  PAID
+  VOID
+}
+
+/// Facture de LAKOL à une école (abonnement annuel, au nombre d'élèves).
+model PlatformInvoice {
+  id              String                @id @default(cuid())
+  number          String                @unique // LAK-2026-00001
+  schoolId        String
+  school          School                @relation(fields: [schoolId], references: [id])
+  subscriptionId  String
+  subscription    Subscription          @relation(fields: [subscriptionId], references: [id])
+  planName        String
+  periodStart     DateTime
+  periodEnd       DateTime
+  studentCount    Int
+  pricePerStudent Int
+  amount          Int
+  currency        String                @default("XOF")
+  status          PlatformInvoiceStatus @default(ISSUED)
+  dueDate         DateTime
+  paidAt          DateTime?
+  paymentMethod   PaymentMethod?
+  paymentRef      String?
+  notes           String?
+  createdById     String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@index([schoolId, status])
+  @@index([status, dueDate])
+}
+
+/// Réglage d'un module pour une école : désactivé par l'école, ou accordé
+/// par la plateforme en plus du plan (`grantedByPlatform`).
 model ModuleActivation {
-  id        String    @id @default(cuid())
-  schoolId  String
-  school    School    @relation(fields: [schoolId], references: [id])
-  module    ModuleKey
-  enabled   Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  schoolId          String
+  school            School    @relation(fields: [schoolId], references: [id])
+  module            ModuleKey
+  enabled           Boolean   @default(true)
+  grantedByPlatform Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   @@unique([schoolId, module])
 }

@@ -1,4 +1,5 @@
 import "server-only";
+import { assertStudentCapacity } from "@/server/platform/subscriptions";
 import ExcelJS from "exceljs";
 import type { Gender, GuardianRelationship } from "@prisma/client";
 import { normalizePhone } from "@/lib/phone";
@@ -190,6 +191,8 @@ export async function validateImport(ctx: ServiceContext, records: Record<string
 /** Importe les lignes valides (toutes ou rien si une ligne est en erreur). */
 export async function importStudents(ctx: ServiceContext, rows: ImportRow[], options: { sendAccess: boolean }) {
   if (rows.some((r) => r.errors.length > 0)) throw new DomainError("importHasErrors");
+  // Tout ou rien : un import ne doit pas s'arrêter au milieu parce que la formule est pleine.
+  await assertStudentCapacity(ctx.school.id, rows.length);
   let created = 0;
   for (const row of rows) {
     const p = row.parsed!;

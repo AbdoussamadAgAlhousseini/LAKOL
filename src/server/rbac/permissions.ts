@@ -2,6 +2,9 @@
 // périmètre de l'utilisateur (classes du professeur, enfants du parent,
 // élève lui-même). Voir policies.ts.
 
+import type { ModuleKey } from "@prisma/client";
+import { moduleOfDomain } from "@/lib/modules";
+
 export const PERMISSIONS = {
   // École et structure
   "school.settings.manage": { module: "school", description: "Paramètres et personnalisation de l'école" },
@@ -90,6 +93,21 @@ export const SYSTEM_ROLES = [
   "DRIVER",
 ] as const;
 export type SystemRole = (typeof SYSTEM_ROLES)[number];
+
+/** Nom affiché des rôles système à la création d'une école. */
+export const ROLE_NAMES: Record<SystemRole, string> = {
+  DIRECTOR: "Directeur",
+  ADMIN: "Secrétariat",
+  CENSOR: "Censeur",
+  ACCOUNTANT: "Comptable",
+  TEACHER: "Professeur",
+  HEAD_TEACHER: "Professeur principal",
+  PARENT: "Parent",
+  STUDENT: "Élève",
+  LIBRARIAN: "Bibliothécaire",
+  NURSE: "Infirmier",
+  DRIVER: "Chauffeur",
+};
 
 const ALL = Object.keys(PERMISSIONS) as Permission[];
 const SELF_ONLY = new Set<Permission>(["homework.submit:own", "attendance.justify:own", "meeting.book:own"]);
@@ -200,3 +218,14 @@ export const ROLE_PRIORITY: SystemRole[] = [
   "PARENT",
   "STUDENT",
 ];
+
+/** Retire les permissions des modules inactifs de l'école (le socle est toujours conservé). */
+export function permissionsForModules(granted: Iterable<string>, modules: ReadonlySet<ModuleKey>): Set<string> {
+  const catalog = PERMISSIONS as Record<string, { module: string } | undefined>;
+  const kept = new Set<string>();
+  for (const key of granted) {
+    const module = catalog[key] ? moduleOfDomain(catalog[key].module) : null;
+    if (!module || modules.has(module)) kept.add(key);
+  }
+  return kept;
+}

@@ -40,6 +40,10 @@ queue
 queue
   .upsertJobScheduler("finance-reminders", { pattern: "0 9 * * *" }, { name: "finance.reminders", data: {} })
   .catch((error) => logger.error({ error: String(error) }, "planification des relances impossible"));
+// Abonnements : rappels d'essai, renouvellements, impayés, suspensions (chaque nuit).
+queue
+  .upsertJobScheduler("subscriptions-check", { pattern: "30 2 * * *" }, { name: "subscriptions.check", data: {} })
+  .catch((error) => logger.error({ error: String(error) }, "planification des abonnements impossible"));
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.on(signal, async () => {

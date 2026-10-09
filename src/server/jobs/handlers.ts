@@ -1,6 +1,7 @@
 import { prisma } from "@/server/db/client";
 import { getEmailProvider } from "@/server/adapters/email";
 import { getWhatsAppProvider } from "@/server/adapters/whatsapp";
+import { runSubscriptionLifecycle } from "@/server/platform/subscriptions";
 import { sendHomeworkReminders, sendAllPaymentReminders } from "./reminders";
 
 export interface JobData {
@@ -8,6 +9,7 @@ export interface JobData {
   "homework.reminders": Record<string, never>;
   "finance.reminders": Record<string, never>;
   "deliveries.flush": Record<string, never>;
+  "subscriptions.check": Record<string, never>;
 }
 export type JobName = keyof JobData;
 
@@ -22,6 +24,8 @@ export async function runJob<N extends JobName>(name: N, data: JobData[N], opts:
       return sendAllPaymentReminders();
     case "deliveries.flush":
       return flushDeliveries();
+    case "subscriptions.check":
+      return runSubscriptionLifecycle();
     default:
       throw new Error(`Tâche inconnue : ${String(name)}`);
   }

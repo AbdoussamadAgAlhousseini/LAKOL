@@ -1,4 +1,5 @@
 import "server-only";
+import { assertStudentCapacity } from "@/server/platform/subscriptions";
 import { randomUUID } from "node:crypto";
 import type { Gender, GuardianRelationship, Prisma, StudentStatus } from "@prisma/client";
 import { audit } from "@/server/audit";
@@ -172,6 +173,7 @@ export async function createStudent(
   if (input.guardians.length === 0) throw new DomainError("guardianRequired");
   const year = await requireActiveYear(ctx);
   await assertClassAvailable(ctx, input.classId, year.id);
+  await assertStudentCapacity(ctx.school.id);
 
   const student = await ctx.db.$transaction(async (tx) => {
     const matricule = await generateMatricule(ctx, tx, year.startDate);
@@ -412,6 +414,7 @@ export async function reenrollStudent(ctx: ServiceContext, input: { studentId: s
     throw new DomainError("alreadyEnrolled");
   }
   await assertClassAvailable(ctx, input.classId, year.id);
+  await assertStudentCapacity(ctx.school.id);
   await ctx.db.enrollment.create({
     data: {
       schoolId: ctx.school.id,

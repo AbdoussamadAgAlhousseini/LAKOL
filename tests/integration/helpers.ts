@@ -2,6 +2,8 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/server/db/client";
 import { forSchool } from "@/server/db/tenant";
 import { loadScope } from "@/server/scope";
+import { permissionsForModules } from "@/server/rbac/permissions";
+import { effectiveModules } from "@/lib/modules";
 import type { ServiceContext } from "@/server/services/context";
 import { getWhatsAppProvider, type MockWhatsAppProvider } from "@/server/adapters/whatsapp";
 
@@ -11,7 +13,15 @@ export async function contextFor(
   where: Prisma.UserWhereUniqueInput,
   roleKey: string,
 ): Promise<ServiceContext> {
-  const school = await prisma.school.findUniqueOrThrow({ where: { slug } });
+  const {
+    subscription,
+    modules: settings,
+    ...school
+  } = await prisma.school.findUniqueOrThrow({
+    where: { slug },
+    include: { subscription: { include: { plan: true } }, modules: true },
+  });
+  const modules = effectiveModules(subscription?.plan.modules ?? [], settings);
   const user = await prisma.user.findUniqueOrThrow({ where });
   const role = await prisma.role.findFirstOrThrow({
     where: { schoolId: school.id, key: roleKey, users: { some: { userId: user.id } } },
@@ -25,7 +35,14 @@ export async function contextFor(
     user,
     ip: null,
     staffId,
-    scope: { permissions: new Set(role.permissions.map((p) => p.permissionKey)), classIds, studentIds },
+    scope: {
+      permissions: permissionsForModules(
+        role.permissions.map((p) => p.permissionKey),
+        modules,
+      ),
+      classIds,
+      studentIds,
+    },
   };
 }
 

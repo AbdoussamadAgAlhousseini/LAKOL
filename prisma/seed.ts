@@ -9,7 +9,13 @@
  */
 import { PrismaClient, type Class, type Gender, type Prisma } from "@prisma/client";
 import { hash } from "@node-rs/argon2";
-import { DEFAULT_ROLE_PERMISSIONS, PERMISSIONS, SYSTEM_ROLES, type SystemRole } from "../src/server/rbac/permissions";
+import {
+  DEFAULT_ROLE_PERMISSIONS,
+  PERMISSIONS,
+  ROLE_NAMES,
+  SYSTEM_ROLES,
+  type SystemRole,
+} from "../src/server/rbac/permissions";
 
 const prisma = new PrismaClient();
 
@@ -50,20 +56,6 @@ function lastSchoolDays(count: number): Date[] {
   }
   return days;
 }
-
-const ROLE_NAMES: Record<SystemRole, string> = {
-  DIRECTOR: "Directeur",
-  ADMIN: "Secrétariat",
-  CENSOR: "Censeur",
-  ACCOUNTANT: "Comptable",
-  TEACHER: "Professeur",
-  HEAD_TEACHER: "Professeur principal",
-  PARENT: "Parent",
-  STUDENT: "Élève",
-  LIBRARIAN: "Bibliothécaire",
-  NURSE: "Infirmier",
-  DRIVER: "Chauffeur",
-};
 
 const MALE = [
   "Moussa",
@@ -197,15 +189,16 @@ type Ctx = {
 };
 
 async function createSchool(data: Prisma.SchoolCreateInput, planId: string, prefix: string): Promise<Ctx> {
-  const school = await prisma.school.create({ data });
+  const school = await prisma.school.create({ data: { onboardingDoneAt: new Date(), ...data } });
   const plan = await prisma.plan.findUniqueOrThrow({ where: { id: planId } });
   await prisma.subscription.create({
     data: {
       schoolId: school.id,
       planId,
       status: "ACTIVE",
-      currentPeriodStart: d("2025-09-01"),
-      currentPeriodEnd: d("2026-08-31"),
+      // Période en cours quelle que soit la date du seed (le cycle de vie ne la passe pas en impayé).
+      currentPeriodStart: addDays(new Date(), -60),
+      currentPeriodEnd: addDays(new Date(), 305),
     },
   });
   await prisma.moduleActivation.createMany({ data: plan.modules.map((module) => ({ schoolId: school.id, module })) });

@@ -43,6 +43,25 @@ export function quietDelayMs(school: Pick<School, "timezone" | "quietHoursStart"
   return hoursToWait * 3_600_000 - at.getUTCMinutes() * 60_000 - at.getUTCSeconds() * 1000;
 }
 
+/** Début du mois en cours (UTC) : période de décompte du quota WhatsApp. */
+export function monthStart(at = new Date()) {
+  return new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth(), 1));
+}
+
+/** Messages WhatsApp de l'école ce mois-ci, et quota du plan (ou de la dérogation). */
+export async function whatsappUsage(ctx: NotifyContext) {
+  const [used, subscription] = await Promise.all([
+    ctx.db.notificationDelivery.count({ where: { channel: "WHATSAPP", createdAt: { gte: monthStart() } } }),
+    ctx.db.subscription.findFirst({ include: { plan: true } }),
+  ]);
+  return { used, quota: subscription ? (subscription.whatsappQuota ?? subscription.plan.whatsappQuota) : null };
+}
+
+async function whatsappQuotaReached(ctx: NotifyContext) {
+  const { used, quota } = await whatsappUsage(ctx);
+  return quota !== null && used >= quota;
+}
+
 /**
  * Notifie un utilisateur : notification in-app immédiate, puis envoi externe
  * (WhatsApp en priorité, email sinon) mis en file, différé pendant les heures
@@ -68,12 +87,14 @@ export async function notifyUser(
       refId: message.ref?.id,
     },
   });
-  const channel: ExternalChannel | null =
-    channels.includes("WHATSAPP") && user.phone
-      ? "WHATSAPP"
-      : channels.includes("EMAIL") && user.email
-        ? "EMAIL"
-        : null;
+  // Quota WhatsApp du plan atteint : email à la place (ou in-app seul). L'urgent passe toujours.
+  const whatsapp =
+    channels.includes("WHATSAPP") && Boolean(user.phone) && (message.urgent || !(await whatsappQuotaReached(ctx)));
+  const channel: ExternalChannel | null = whatsapp
+    ? "WHATSAPP"
+    : channels.includes("EMAIL") && user.email
+      ? "EMAIL"
+      : null;
   if (!channel) return { notificationId: notification.id, channel: null };
 
   const delayMs = message.urgent ? 0 : quietDelayMs(ctx.school);
