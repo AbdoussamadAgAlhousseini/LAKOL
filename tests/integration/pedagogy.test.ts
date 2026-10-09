@@ -62,21 +62,29 @@ describe("emploi du temps", () => {
       }),
     ).rejects.toThrow("conflictClass");
 
-    // Même professeur dans une autre classe (9e A n'a pas encore d'emploi du temps)
-    const other = await admin.db.teachingAssignment.findFirstOrThrow({
-      where: { staffId: existing.staffId, class: { name: "9e A" } },
+    // Même professeur dans deux classes à la même heure (l'après-midi est libre)
+    const teacher = await admin.db.teachingAssignment.findFirstOrThrow({ where: { class: { name: "9e A" } } });
+    const elsewhere = await admin.db.teachingAssignment.findFirstOrThrow({
+      where: { staffId: teacher.staffId, classId: { not: teacher.classId } },
+    });
+    await addSlot(admin, {
+      classId: teacher.classId,
+      subjectId: teacher.subjectId,
+      dayOfWeek: 3,
+      startMin: 900,
+      endMin: 960,
     });
     await expect(
       addSlot(admin, {
-        classId: other.classId,
-        subjectId: other.subjectId,
-        dayOfWeek: existing.dayOfWeek,
-        startMin: existing.startMin + 10,
-        endMin: existing.endMin + 10,
+        classId: elsewhere.classId,
+        subjectId: elsewhere.subjectId,
+        dayOfWeek: 3,
+        startMin: 930,
+        endMin: 990,
       }),
     ).rejects.toThrow("conflictTeacher");
 
-    // Même salle à 16 h : deux classes, deux professeurs différents
+    // Même salle à 17 h : deux classes, deux professeurs différents
     const room = await admin.db.room.findFirstOrThrow({ where: { name: "Laboratoire" } });
     const a9 = await admin.db.teachingAssignment.findFirstOrThrow({
       where: { class: { name: "9e A" }, subject: { code: "PC" } },

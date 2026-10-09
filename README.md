@@ -3,7 +3,7 @@
 Plateforme SaaS de gestion scolaire multi-écoles, pensée pour l'Afrique de l'Ouest francophone (Mali en priorité).
 Direction, secrétariat, professeurs, parents et élèves travaillent dans un seul outil, chacun dans son espace.
 
-> État : **phases 1 (fondations) et 2 (structure et acteurs)** terminées. Voir `TODO.md` pour la suite et `CLAUDE.md` pour le cahier des charges.
+> État : **phases 1 à 3** terminées (fondations, structure et acteurs, pédagogie quotidienne). Voir `TODO.md` pour la suite et `CLAUDE.md` pour le cahier des charges.
 
 ## Prérequis
 
@@ -19,7 +19,10 @@ pnpm install                  # génère aussi le client Prisma
 pnpm db:migrate               # applique les migrations
 pnpm db:seed                  # données de démonstration (réinitialise la base)
 pnpm dev                      # http://localhost:3000
+pnpm worker                   # tâches de fond (avec REDIS_URL) : envois WhatsApp/email, rappels
 ```
+
+Sans `REDIS_URL`, les tâches (envois, notifications) s'exécutent immédiatement dans l'application : pratique en développement. Les rappels de devoirs se lancent alors à la main avec `pnpm jobs:reminders` (ou par une tâche cron système).
 
 ## Comptes de démonstration
 

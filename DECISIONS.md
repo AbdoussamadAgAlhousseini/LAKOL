@@ -88,3 +88,15 @@ Le fichier est d'abord vérifié ligne par ligne (classe inconnue, téléphone i
 ## 018 — Pré-inscription publique
 
 Formulaire sans compte sur `/{langue}/inscription/{école}`, limité à 10 demandes par heure et par IP, avec un champ piège contre les robots. La validation par l'école crée l'élève, le parent et son compte comme une inscription normale.
+
+## 019 — Appel hors ligne simple (localStorage)
+
+En attendant la PWA complète (phase 8), l'écran d'appel garde les appels non envoyés dans `localStorage` et les renvoie au retour du réseau. Les `clientId` uniques évitent tout doublon côté serveur. Limite : l'écran doit avoir été chargé avant la coupure (le cache hors ligne des pages arrive en phase 8).
+
+## 020 — Heures en UTC
+
+Les dates et heures (emploi du temps, date limite des devoirs) sont stockées et affichées en UTC, ce qui correspond à l'heure légale du Mali, du Sénégal, de la Guinée et du Burkina Faso. Pour un pays sur un autre fuseau, il faudra appliquer `School.timezone` (champ déjà prévu) : noté dans TODO.
+
+## 021 — Emploi du temps : le professeur suit l'affectation
+
+Un créneau se crée par classe et matière ; le professeur est celui affecté à cette matière dans la classe. On évite ainsi les incohérences entre emploi du temps et affectations, et les conflits professeur sont détectés automatiquement.

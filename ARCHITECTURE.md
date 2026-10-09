@@ -82,6 +82,20 @@ tests/unit, integration, e2e
 - **Fichiers** : adapter `StorageProvider` (local ou S3), lecture via `/api/files/[id]` avec contrôle d'accès.
 - **Pages publiques** : pré-inscription (`/{langue}/inscription/{école}`), via `src/server/platform/preregistration.ts`.
 
+## Tâches de fond et notifications (phase 3)
+
+- `notifyUser` / `notifyGuardians` (`services/notify.ts`) créent la notification in-app et une `NotificationDelivery` (QUEUED), puis mettent en file `delivery.send`. Le worker envoie et passe le suivi à SENT (ou FAILED après 4 tentatives, avec reprise exponentielle).
+- Sans `REDIS_URL`, `enqueue` exécute la tâche immédiatement (développement, tests).
+- Tâche planifiée `homework.reminders` (toutes les heures) : devoirs dus dans les 24 h, un message regroupé par élève, un seul rappel par devoir.
+- Canaux : WhatsApp pour ce qui est urgent ou important (absence, annulation de cours, sanction, accès) ; in-app seulement pour le quotidien (nouveau devoir, correction) afin de limiter le volume de messages.
+
+## Pédagogie (phase 3)
+
+- **Emploi du temps** : créneaux par classe ; le professeur est celui affecté à la matière ; conflits classe / professeur / salle refusés ; exceptions datées (annulation, remplacement) notifiées aux parents.
+- **Appel** : feuille par classe et par créneau (ou journée). Le composant client garde l'appel dans `localStorage` sans réseau et le renvoie à l'évènement `online` ; chaque ligne porte un `clientId` unique, ce qui rend le renvoi idempotent. Le parent d'un élève nouvellement absent est prévenu une seule fois (`parentNotifiedAt`).
+- **Devoirs** : publication par le professeur affecté, pièces jointes (`Document` « Homework »), rendu en ligne (« HomeworkSubmission »), correction notée en centièmes ; vue famille par enfant ; charge de travail sur 14 jours.
+- **Justificatifs** : le parent dépose un motif et une pièce ; la vie scolaire valide (statut EXCUSED, audité).
+
 ## Services externes
 
 Interfaces dans `src/server/adapters/` :
