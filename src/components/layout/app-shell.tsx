@@ -5,6 +5,9 @@ import { Link } from "@/i18n/navigation";
 import type { SchoolContext } from "@/server/context";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { unreadMessageCount } from "@/server/services/messaging";
+import { unreadNotificationCount } from "@/server/services/notifications";
+import { LiveCounters } from "./live-counters";
 import { LocaleSwitcher } from "./locale-switcher";
 import { LogoutButton } from "./logout-button";
 import { NavLinks } from "./nav-links";
@@ -20,6 +23,11 @@ export async function AppShell({ ctx, locale, children }: { ctx: SchoolContext; 
     label: tn(item.key),
     icon: item.key,
   }));
+  const canMessage = ctx.scope.permissions.has("message.send");
+  const [notifications, messages] = await Promise.all([
+    unreadNotificationCount(ctx),
+    canMessage ? unreadMessageCount(ctx) : 0,
+  ]);
   const roleLabel = tr.has(ctx.activeRole) ? tr(ctx.activeRole) : ctx.activeRole;
   // Couleur de l'établissement appliquée comme couleur principale de l'interface.
   const brand = { "--primary": ctx.school.primaryColor, "--ring": ctx.school.primaryColor } as CSSProperties;
@@ -48,6 +56,12 @@ export async function AppShell({ ctx, locale, children }: { ctx: SchoolContext; 
           </details>
           <span className="truncate font-semibold md:hidden">{ctx.school.shortName ?? ctx.school.name}</span>
           <div className="ml-auto flex items-center gap-1">
+            <LiveCounters
+              school={ctx.school.slug}
+              initial={{ notifications, messages }}
+              showMessages={canMessage}
+              labels={{ notifications: t("notifications"), messages: tn("messages") }}
+            />
             <Button variant="ghost" size="icon" asChild>
               <Link href="/spaces" aria-label={t("switchSpace")} title={t("switchSpace")}>
                 <ArrowLeftRight />

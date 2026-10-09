@@ -30,7 +30,9 @@ export const NAV_ITEMS: NavItem[] = [
   },
   { key: "finance", segment: "finance", anyOf: ["finance.read", "finance.read:own"], phase: 5 },
   { key: "messages", segment: "messages", anyOf: ["message.send"], phase: 6 },
-  { key: "announcements", segment: "announcements", anyOf: ["announcement.publish"], phase: 6 },
+  // Annonces : tout le monde en reçoit ; seule la direction en publie.
+  { key: "announcements", segment: "announcements", anyOf: [], phase: 6 },
+  { key: "meetings", segment: "meetings", anyOf: ["meeting.manage:own", "meeting.book:own"], phase: 6 },
   { key: "resources", segment: "resources", anyOf: ["resource.read"], phase: 8 },
   { key: "audit", segment: "audit", anyOf: ["audit.read"], phase: 2 },
   { key: "settings", segment: "settings", anyOf: ["school.settings.manage"], phase: 2 },

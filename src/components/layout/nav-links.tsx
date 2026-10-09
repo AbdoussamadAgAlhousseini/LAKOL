@@ -2,6 +2,7 @@
 
 import {
   BookOpen,
+  CalendarClock,
   CalendarDays,
   ClipboardCheck,
   FileText,
@@ -39,6 +40,7 @@ const ICONS: Record<string, LucideIcon> = {
   finance: Wallet,
   messages: MessageCircle,
   announcements: Megaphone,
+  meetings: CalendarClock,
   resources: Library,
   audit: History,
   settings: Settings,

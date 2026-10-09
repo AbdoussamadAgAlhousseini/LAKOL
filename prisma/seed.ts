@@ -1000,8 +1000,12 @@ async function seedEtoiles(planId: string) {
     ],
   });
 
-  // Communication
-  await prisma.announcement.create({
+  // Communication : circulaire reçue par tous les parents (avec notification), une lecture confirmée.
+  const parentUsers = await prisma.guardian.findMany({
+    where: { schoolId, userId: { not: null }, deletedAt: null },
+    select: { userId: true },
+  });
+  const announcement = await prisma.announcement.create({
     data: {
       schoolId,
       authorId: director.user.id,
@@ -1012,7 +1016,32 @@ async function seedEtoiles(planId: string) {
       channels: ["IN_APP", "WHATSAPP"],
       body: "Une réunion parents-professeurs aura lieu samedi à 9h dans la cour de l'école. Votre présence est importante.",
       publishedAt: addDays(now, -2),
+      recipientCount: parentUsers.length,
     },
+  });
+  await prisma.notification.createMany({
+    data: parentUsers.map((g) => ({
+      schoolId,
+      userId: g.userId!,
+      type: "announcement",
+      title: announcement.title,
+      body: announcement.body,
+      link: `/les-etoiles/announcements/${announcement.id}`,
+      refType: "Announcement",
+      refId: announcement.id,
+      createdAt: announcement.publishedAt!,
+    })),
+  });
+  // Créneaux de rendez-vous du professeur de maths la semaine prochaine (16 h – 17 h).
+  const meetingDay = addDays(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())), 7);
+  await prisma.meetingSlot.createMany({
+    data: Array.from({ length: 4 }, (_, i) => ({
+      schoolId,
+      staffId: teacherFor("MATH").staff.id,
+      startsAt: new Date(meetingDay.getTime() + (16 * 60 + i * 15) * 60_000),
+      endsAt: new Date(meetingDay.getTime() + (16 * 60 + (i + 1) * 15) * 60_000),
+      location: "Salle 7e A",
+    })),
   });
   const conversation = await prisma.conversation.create({
     data: { schoolId, subject: "Devoir de mathématiques", studentId: kid1.id },
@@ -1050,7 +1079,7 @@ async function seedEtoiles(planId: string) {
       type: "attendance.absent",
       title: "Absence",
       body: `Aminata Traoré a été marquée absente le ${days[0].toLocaleDateString("fr-FR")}.`,
-      link: "/attendance",
+      link: "/les-etoiles/attendance",
     },
   });
 

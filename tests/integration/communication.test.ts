@@ -200,9 +200,9 @@ describe("rendez-vous parents-professeurs", () => {
     const day = new Date();
     day.setUTCHours(0, 0, 0, 0);
     day.setUTCDate(day.getUTCDate() + 7);
-    await createSlots(teacher, { date: day, startMin: 16 * 60, count: 3, durationMin: 15, location: "Salle 7A" });
+    await createSlots(teacher, { date: day, startMin: 14 * 60, count: 3, durationMin: 15, location: "Salle 7A" });
     await expect(
-      createSlots(teacher, { date: day, startMin: 16 * 60 + 20, count: 1, durationMin: 15 }),
+      createSlots(teacher, { date: day, startMin: 14 * 60 + 20, count: 1, durationMin: 15 }),
     ).rejects.toThrow("slotOverlap");
     await expect(
       createSlots(teacher, { date: new Date("2020-01-01"), startMin: 600, count: 1, durationMin: 15 }),
@@ -219,7 +219,7 @@ describe("rendez-vous parents-professeurs", () => {
     await expect(bookSlot(parent, { slotId: slot.id, studentId: aminata })).rejects.toThrow("slotTaken");
 
     // Un parent dont l'enfant n'a pas ce professeur (anglais, pas en 5e A) ne réserve pas.
-    await createSlots(english, { date: day, startMin: 17 * 60, count: 1, durationMin: 15 });
+    await createSlots(english, { date: day, startMin: 15 * 60, count: 1, durationMin: 15 });
     const englishSlot = (await listMySlots(english))[0];
     const otherChild = [...otherParent.scope.studentIds][0];
     await expect(bookSlot(otherParent, { slotId: englishSlot.id, studentId: otherChild })).rejects.toThrow(
