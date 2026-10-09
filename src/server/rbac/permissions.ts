@@ -224,8 +224,8 @@ export function permissionsForModules(granted: Iterable<string>, modules: Readon
   const catalog = PERMISSIONS as Record<string, { module: string } | undefined>;
   const kept = new Set<string>();
   for (const key of granted) {
-    const module = catalog[key] ? moduleOfDomain(catalog[key].module) : null;
-    if (!module || modules.has(module)) kept.add(key);
+    const owner = catalog[key] ? moduleOfDomain(catalog[key].module) : null;
+    if (!owner || modules.has(owner)) kept.add(key);
   }
   return kept;
 }

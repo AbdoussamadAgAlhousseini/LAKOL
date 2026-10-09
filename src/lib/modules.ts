@@ -55,11 +55,10 @@ export function effectiveModules(
 ): Set<ModuleKey> {
   const byModule = new Map(settings.map((s) => [s.module, s]));
   const active = new Set<ModuleKey>();
-  for (const module of MODULE_KEYS) {
-    const setting = byModule.get(module);
-    const inPlan = planModules.includes(module);
-    if (inPlan ? (setting?.enabled ?? true) : Boolean(setting?.enabled && setting.grantedByPlatform))
-      active.add(module);
+  for (const key of MODULE_KEYS) {
+    const setting = byModule.get(key);
+    const inPlan = planModules.includes(key);
+    if (inPlan ? (setting?.enabled ?? true) : Boolean(setting?.enabled && setting.grantedByPlatform)) active.add(key);
   }
   return active;
 }
