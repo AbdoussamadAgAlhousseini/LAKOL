@@ -9,12 +9,19 @@
 - [x] **Phase 5 : Finances** — grilles de frais, échéanciers, réductions, paiements à l'école, reçus PDF, annulation, relances, dépenses, caisse et clôture, paie, tableaux de bord, espace parent
 - [x] **Phase 6 : Communication** — messagerie (texte et vocal, modération), annonces et circulaires avec accusé de lecture, notifications in-app/WhatsApp/email avec heures calmes, suivi des envois (webhook), temps réel (SSE), rendez-vous parents-professeurs
 - [x] **Phase 7 : SaaS** — espace super admin, formules et conditions particulières, modules activables, limites (élèves, WhatsApp), cycle d'abonnement (essai, renouvellement, impayé, lecture seule), factures LAKOL en PDF, inscription en ligne, assistant de démarrage (modèle malien), sous-domaines
-- [ ] **Phase 8 : Finitions** — PWA et hors ligne, tableaux de bord avancés, modules optionnels, performances
+- [x] **Phase 8 : Finitions** — PWA installable et consultation hors ligne, tableaux de bord avancés (alertes, graphiques, progression), ressources pédagogiques, cantine, transport, bibliothèque, infirmerie, stocks, exports Excel, compression des images
 
 ## Améliorations prévues
 
+- [ ] Notifications push du navigateur (Web Push) en complément de WhatsApp.
+- [ ] Quiz en ligne avec correction automatique (ressources pédagogiques).
+- [ ] Exports PDF des listes (aujourd'hui : Excel) et export des dépenses.
+- [ ] Cantine : pointage des repas du jour ; transport : présence dans le bus et alerte aux parents.
+- [ ] Bibliothèque : réservations et rappels de retour par WhatsApp.
+- [ ] Mise en cache côté serveur des indicateurs de la direction (calculés à chaque affichage aujourd'hui).
+- [ ] Synchronisation hors ligne d'autres saisies que l'appel (ex. notes).
+
 - [ ] Paiement en ligne des factures LAKOL (mobile money) et relances automatiques par WhatsApp avant échéance.
-- [ ] Rôles et modules de la cantine, du transport, de la bibliothèque et de l'infirmerie (modules prévus, interfaces en phase 8).
 - [ ] Domaine personnalisé par école (URL sans chemin) et cookies par domaine.
 - [ ] Facturation au prorata en cours d'année (aujourd'hui : facture annuelle, effectif saisi à la main si besoin).
 - [ ] Export comptable des factures de la plateforme et statistiques de revenus par mois.
@@ -23,19 +30,16 @@
 - [ ] Modèles de messages WhatsApp approuvés par Meta (obligatoires hors fenêtre de 24 h) : aujourd'hui, envoi de texte libre.
 - [ ] Conversations de groupe (ex. professeur ↔ deux parents d'un même élève) et pièces jointes autres qu'audio dans la messagerie.
 - [ ] Annonces programmées (date de publication future) et brouillons.
-- [ ] Notifications push du navigateur (Web Push) avec la PWA (phase 8).
 - [ ] SSE via Redis pub/sub au lieu de l'interrogation de la base toutes les 5 s, si la charge l'exige.
 - [ ] Rendez-vous : export calendrier (.ics) et rappel la veille.
 - [ ] Horaires de messagerie côté professeur (ne pas recevoir de WhatsApp le soir) en plus des heures calmes de l'école.
 
-- [ ] Exports Excel (journal des paiements, impayés, dépenses) — phase 8.
 - [ ] Rapprochement bancaire (relevés de virements et de chèques encaissés).
 - [ ] Avoirs et remboursements (aujourd'hui : un trop-perçu est refusé).
 - [ ] Recalcul des factures déjà émises quand une réduction est ajoutée en cours d'année (aujourd'hui : échéances futures uniquement).
 
 - [ ] Bulletin annuel (moyenne annuelle, décision de fin d'année) et bilan des trois périodes.
 - [ ] Impression groupée des bulletins d'une classe (un seul PDF) et des cartes scolaires.
-- [ ] Graphique de progression de l'enfant d'une période à l'autre (espace parent, phase 8).
 - [ ] Page publique de vérification d'un bulletin ou d'une carte via le QR code.
 
 - [ ] Fuseau horaire par école (`School.timezone`) pour les pays hors UTC.
@@ -43,7 +47,6 @@
 - [ ] Statistiques d'assiduité par période (trimestre) et par classe, avec export.
 - [ ] Regroupement quotidien des notifications WhatsApp par parent (limiter le volume).
 
-- [ ] Compression des photos et logos à l'envoi (aujourd'hui : 5 Mo max, formats contrôlés).
 - [ ] Notifier le parent par WhatsApp quand sa pré-inscription est refusée.
 - [ ] Réinscription en masse d'une classe vers l'année suivante (aujourd'hui : élève par élève).
 - [ ] Grille de coefficients pour une nouvelle série de lycée depuis l'interface (aujourd'hui : séries existantes du seed ou via le niveau sans série).

@@ -10,7 +10,12 @@ const OFFLINE_PAGES =
   /^\/(fr|en)\/[a-z0-9-]+\/(dashboard|homework(\/[^/]+)?|timetable|attendance(\/call)?|grades|report-cards|announcements(\/[^/]+)?|notifications|canteen|transport|resources)\/?$/;
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(STATIC_CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches
+      .open(STATIC_CACHE)
+      .then((c) => c.addAll(PRECACHE))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener("activate", (event) => {
@@ -43,6 +48,25 @@ async function networkFirst(request, cacheable) {
     return Response.error();
   }
 }
+
+// La page signale les scripts et styles déjà chargés (avant que le service worker
+// ne la contrôle) : on les garde pour que les pages enregistrées restent interactives hors ligne.
+self.addEventListener("message", (event) => {
+  if (event.data?.type !== "cache-assets" || !Array.isArray(event.data.urls)) return;
+  const urls = event.data.urls.filter((u) => {
+    try {
+      const url = new URL(u);
+      return url.origin === self.location.origin && url.pathname.startsWith("/_next/static/");
+    } catch {
+      return false;
+    }
+  });
+  event.waitUntil(
+    caches.open(STATIC_CACHE).then(async (cache) => {
+      for (const u of urls) if (!(await cache.match(u))) await cache.add(u).catch(() => undefined);
+    }),
+  );
+});
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;

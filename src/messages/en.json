@@ -125,7 +125,8 @@
     "attendanceTrend": "Attendance rate, last 8 weeks",
     "resultsByClass": "Overall average by class — {term}",
     "toCorrect": "{count, plural, one {# submission} other {# submissions}} to mark",
-    "progress": "Overall average by term"
+    "progress": "Overall average by term",
+    "weekOf": "week of {date}"
   },
   "admin": {
     "title": "Platform",

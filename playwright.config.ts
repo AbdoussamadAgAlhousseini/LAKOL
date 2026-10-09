@@ -2,6 +2,8 @@ import "dotenv/config";
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = Number(process.env.PORT ?? 3000);
+// Les requêtes du service worker passent par `context.route` (test hors ligne de la PWA).
+process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS ??= "1";
 
 export default defineConfig({
   testDir: "tests/e2e",

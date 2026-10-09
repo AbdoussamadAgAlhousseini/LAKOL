@@ -143,19 +143,18 @@ function mondayOf(d: Date) {
   return r;
 }
 
-/** Période en cours de l'année active (ou la dernière commencée). */
-async function currentTermOf(ctx: SchoolContext) {
+/**
+ * Période à résumer : la période en cours si elle a déjà des évaluations,
+ * sinon la plus récente qui en a (ex. début de trimestre, ou année terminée).
+ */
+async function resultsTermOf(ctx: SchoolContext) {
   const now = new Date();
   const terms = await ctx.db.term.findMany({
-    where: { academicYear: { isActive: true } },
-    orderBy: { order: "asc" },
+    where: { academicYear: { isActive: true }, startDate: { lte: now } },
+    include: { _count: { select: { assessments: true } } },
+    orderBy: { order: "desc" },
   });
-  return (
-    terms.find((t) => t.startDate <= now && t.endDate >= now) ??
-    terms.filter((t) => t.startDate <= now).at(-1) ??
-    terms[0] ??
-    null
-  );
+  return terms.find((t) => t._count.assessments > 0) ?? null;
 }
 
 /**
@@ -196,7 +195,7 @@ export async function getSchoolInsights(ctx: SchoolContext) {
   }
 
   if (canAll(ctx.scope, "grade.read")) {
-    const term = await currentTermOf(ctx);
+    const term = await resultsTermOf(ctx);
     if (term) {
       out.termName = term.name;
       const classes = await db.class.findMany({ where: { academicYearId: year.id }, orderBy: { name: "asc" } });

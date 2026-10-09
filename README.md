@@ -3,7 +3,7 @@
 Plateforme SaaS de gestion scolaire multi-écoles, pensée pour l'Afrique de l'Ouest francophone (Mali en priorité).
 Direction, secrétariat, professeurs, parents et élèves travaillent dans un seul outil, chacun dans son espace.
 
-> État : **phases 1 à 5** terminées (fondations, structure et acteurs, pédagogie quotidienne, évaluations et bulletins, finances). Voir `TODO.md` pour la suite et `CLAUDE.md` pour le cahier des charges.
+> État : **les 8 phases du cahier des charges sont livrées** (fondations, structure et acteurs, pédagogie quotidienne, évaluations et bulletins, finances, communication, plateforme SaaS, finitions). Les améliorations prévues sont listées dans `TODO.md`, les choix dans `DECISIONS.md`, le cahier des charges dans `CLAUDE.md`.
 
 ## Prérequis
 
@@ -49,6 +49,8 @@ Formulaire public de pré-inscription : http://localhost:3000/fr/inscription/les
 
 Créer une nouvelle école (essai gratuit de 30 jours, assistant de démarrage) : http://localhost:3000/fr/creer-mon-ecole
 
+Application installable : sur Android, ouvrir le site dans Chrome puis « Installer l'application » (bouton de l'en-tête). Les pages déjà consultées (devoirs, emploi du temps, notes…) restent disponibles sans réseau.
+
 Espace super admin (écoles, formules, factures) : http://localhost:3000/fr/admin. `les-etoiles` est en formule Premium, `le-savoir` en Standard.
 
 ## Scripts
@@ -64,6 +66,7 @@ Espace super admin (écoles, formules, factures) : http://localhost:3000/fr/admi
 | `pnpm db:sync-permissions`                               | Après une mise à jour : ajoute les nouvelles permissions aux rôles   |
 | `pnpm worker` / `pnpm jobs:flush`                        | Worker de la file de tâches / envoi des messages différés en attente |
 | `pnpm jobs:subscriptions`                                | Cycle des abonnements (essais, renouvellements, impayés) à la main   |
+| `pnpm icons`                                             | Régénère les icônes de l'application (PWA)                           |
 
 ## Variables d'environnement
 

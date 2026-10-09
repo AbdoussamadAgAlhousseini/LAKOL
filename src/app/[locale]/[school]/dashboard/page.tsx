@@ -135,6 +135,7 @@ async function SchoolInsights({ ctx, locale }: { ctx: SchoolContext; locale: str
   if (!data) return null;
   const week = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: "UTC" });
   const pct = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+  const attendanceWeeks = (data.attendance ?? []).filter((w) => w.rate !== null);
   return (
     <>
       {data.alerts.length > 0 && (
@@ -155,22 +156,32 @@ async function SchoolInsights({ ctx, locale }: { ctx: SchoolContext; locale: str
         </section>
       )}
       <div className="grid gap-4 lg:grid-cols-2">
-        {data.attendance && data.attendance.some((w) => w.rate !== null) && (
+        {attendanceWeeks.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">{t("attendanceTrend")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <LineChart
-                caption={t("attendanceTrend")}
-                min={0}
-                max={100}
-                data={data.attendance.map((w) => ({
-                  label: week.format(w.weekStart),
-                  value: w.rate,
-                  display: w.rate === null ? "—" : `${pct.format(w.rate)} %`,
-                }))}
-              />
+              {attendanceWeeks.length >= 2 ? (
+                <LineChart
+                  caption={t("attendanceTrend")}
+                  min={0}
+                  max={100}
+                  data={data.attendance!.map((w) => ({
+                    label: week.format(w.weekStart),
+                    value: w.rate,
+                    display: w.rate === null ? "—" : `${pct.format(w.rate)} %`,
+                  }))}
+                />
+              ) : (
+                // Une seule semaine renseignée : un chiffre se lit mieux qu'une courbe d'un point.
+                <p className="flex items-baseline gap-2" data-testid="attendance-rate">
+                  <span className="text-4xl font-bold tabular-nums">{pct.format(attendanceWeeks[0].rate!)} %</span>
+                  <span className="text-muted-foreground text-sm">
+                    {t("weekOf", { date: week.format(attendanceWeeks[0].weekStart) })}
+                  </span>
+                </p>
+              )}
             </CardContent>
           </Card>
         )}

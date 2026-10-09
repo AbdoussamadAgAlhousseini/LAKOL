@@ -180,3 +180,23 @@ Une école peut créer son espace seule (essai de 30 jours, formule Standard) : 
 ## 041 — Sous-domaines par redirection
 
 Le sous-domaine `ecole-x.domaine` redirige vers l'espace de l'école, dont les URL gardent le chemin de l'école. Toutes les URL existantes restent valables, sans réécriture complexe ni cookies par domaine ; un vrai domaine par école (URL sans chemin) reste possible plus tard.
+
+## 042 — Service worker écrit à la main
+
+Un service worker de quelques dizaines de lignes (pas de bibliothèque type Workbox) : les règles sont simples (réseau d'abord pour les pages utiles, cache d'abord pour les fichiers versionnés) et faciles à relire. Le cache des pages est vidé au retour sur la connexion, pour qu'un téléphone partagé ne montre pas les données d'un autre compte.
+
+## 043 — Graphiques en SVG rendus côté serveur
+
+Les graphiques (progression, assiduité, moyennes par classe) sont dessinés en SVG par des composants serveur : aucun JavaScript supplémentaire sur des téléphones d'entrée de gamme. Une seule série par graphique, couleur de l'école, repère de la moyenne ; quand une seule valeur existe, un chiffre remplace la courbe.
+
+## 044 — Modules optionnels en version simple
+
+Cantine, transport, bibliothèque, infirmerie et stocks couvrent l'usage courant (listes, mouvements, vue famille) sans fonctions avancées (paiement de la cantine par repas, suivi GPS, réservations de livres). Les paiements de cantine et de transport passent par les frais de l'école (phase 5), sans double saisie.
+
+## 045 — Exports Excel côté serveur
+
+Les exports réutilisent les services des pages (mêmes droits, mêmes calculs) et produisent un vrai classeur (en-têtes figés, filtres, formats monétaires et dates), directement exploitable par la direction ou le comptable.
+
+## 046 — Compression des images à l'envoi
+
+Les photos prises au téléphone pèsent souvent plusieurs mégaoctets. Elles sont converties en WebP (1600 px au plus) avant stockage : moins de stockage, et des pages qui s'affichent vite en 3G. Les PDF et les fichiers audio ne sont pas modifiés.

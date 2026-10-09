@@ -125,7 +125,8 @@
     "attendanceTrend": "Taux de présence, 8 dernières semaines",
     "resultsByClass": "Moyenne générale par classe — {term}",
     "toCorrect": "{count, plural, one {# travail rendu} other {# travaux rendus}} à corriger",
-    "progress": "Moyenne générale par période"
+    "progress": "Moyenne générale par période",
+    "weekOf": "semaine du {date}"
   },
   "admin": {
     "title": "Plateforme",

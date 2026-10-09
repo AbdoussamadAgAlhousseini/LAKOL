@@ -136,6 +136,15 @@ tests/unit, integration, e2e
 - **Assistant de démarrage** (`/[école]/onboarding`) : coordonnées, année scolaire, structure du système malien en un clic (`lib/school-templates.ts` : cycles, niveaux, séries, matières, coefficients, une classe par niveau), import des élèves, professeurs. L'état est déduit des données ; la direction peut l'ignorer.
 - **Sous-domaines** : avec `ROOT_DOMAIN`, `ecole-x.domaine` redirige vers `/fr/ecole-x/dashboard` (middleware) ; les URL avec le chemin de l'école restent valables partout.
 
+## Finitions (phase 8)
+
+- **PWA** : manifeste (`src/app/manifest.ts`, icônes générées par `pnpm icons`), service worker `public/sw.js`. Pages consultables (accueil, devoirs, emploi du temps, appel, notes, annonces, cantine, transport…) en « réseau d'abord » avec copie locale ; fichiers de Next.js en « cache d'abord » ; pièces jointes déjà ouvertes disponibles hors ligne ; page `offline.html` pour une page jamais ouverte. Le cache des pages est vidé au retour sur la page de connexion (déconnexion, autre utilisateur). L'appel hors ligne reste géré par l'écran d'appel (phase 3).
+- **Tableaux de bord avancés** (`services/dashboard.ts`) : direction (alertes : absences répétées, élèves sous la moyenne, impayés, stocks, livres en retard ; taux de présence sur 8 semaines ; moyenne par classe), professeur (travaux à corriger), famille (moyenne générale par période). Graphiques SVG rendus côté serveur (`components/charts.tsx`) : une série, couleur de l'école, info-bulle native et tableau pour lecteurs d'écran.
+- **Modules optionnels** (`services/modules/*`) : cantine (inscrits, menus, vue famille), transport (circuits, arrêts, capacité, vue famille), bibliothèque (catalogue, prêts, retours, retards), infirmerie (passages ; parents prévenus si l'élève rentre ou doit consulter), stocks (entrées/sorties sans stock négatif, seuil d'alerte). Chacun dépend de son module et de sa permission.
+- **Ressources pédagogiques** : par matière et niveau (fichier ou lien) ; le professeur publie dans ses matières ; familles et élèves voient les ressources de leurs niveaux.
+- **Exports Excel** (`services/exports.ts`, `/api/schools/{école}/exports/{type}`) : élèves, impayés, paiements d'une période, assiduité, résultats d'une classe. Mêmes droits que les pages.
+- **Performances** : images compressées à l'envoi (WebP, 1600 px max) ; pages légères (composants serveur, graphiques sans bibliothèque) ; pagination des listes ; BullMQ et ioredis hors du bundle.
+
 ## Services externes
 
 Interfaces dans `src/server/adapters/` :
