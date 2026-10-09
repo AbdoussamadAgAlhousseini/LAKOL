@@ -103,6 +103,17 @@ tests/unit, integration, e2e
 - **Accès aux bulletins** : personnel de la classe ; famille seulement si publié, si le tuteur peut voir les notes (`StudentGuardian.canViewGrades`) et si l'école ne bloque pas pour impayé échu (`School.blockReportIfUnpaid`).
 - **Carte scolaire** : PDF format carte bancaire avec photo et QR code (`/api/schools/{école}/students/{id}/card`).
 
+## Finances (phase 5)
+
+- **Grilles** (`FeeSchedule`) par niveau (ou tous niveaux), avec échéances calculées selon la fréquence (unique, mensuelle, par trimestre, annuelle). Frais facultatifs (cantine, transport…) facturés à la demande.
+- **Échéanciers** : `generateInvoices` crée une facture par échéance et par élève, réductions comprises (lignes négatives). La clé `Invoice.sourceKey` (« grille:échéance ») rend la génération idempotente.
+- **Paiements** faits à l'école (espèces, chèque, virement) : répartis sur les factures les plus anciennes (`PaymentAllocation`), trop-perçu refusé, reçu numéroté sans trou (`Counter` dans la même transaction). Annulation par un profil autorisé : factures rouvertes, reçu marqué « ANNULÉ », audit.
+- **Reçus PDF** générés à la demande (`/api/schools/{école}/receipts/{paiement}`), montant en toutes lettres.
+- **Relances** : tâche quotidienne `finance.reminders`, au plus une relance par semaine et par élève, envoyée seulement aux tuteurs autorisés à voir les frais (`StudentGuardian.canViewFinance`).
+- **Caisse** : mouvements du jour par mode, espèces attendues, clôture (`CashClosing`) avec écart justifié.
+- **Paie** : fiches mensuelles (salaire de base, heures de vacation × taux, primes, retenues) ; le paiement crée une dépense « Salaires ».
+- **Paiement mobile** : interface `PaymentProvider` (`adapters/payment`) prête ; seul le fournisseur « manual » est actif.
+
 ## Services externes
 
 Interfaces dans `src/server/adapters/` :

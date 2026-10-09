@@ -6,12 +6,17 @@
 - [x] **Phase 2 : Structure et acteurs** — années, périodes, classes, matières ; élèves, parents (comptes automatiques + accès WhatsApp), personnel, affectations ; import Excel/CSV ; pré-inscription en ligne ; paramètres ; journal d'audit
 - [x] **Phase 3 : Pédagogie quotidienne** — emploi du temps (conflits, annulations, remplacements), cahier de textes, devoirs (rendu, correction, rappels), appel hors ligne avec notification parent, justificatifs, discipline, file de tâches BullMQ
 - [ ] **Phase 4 : Évaluations** — saisie des notes, moyennes et rangs, verrouillage, conseil de classe, bulletins PDF
-- [ ] **Phase 5 : Finances** — frais, échéanciers, réductions, paiements à l'école, reçus PDF, relances, dépenses
+- [x] **Phase 5 : Finances** — grilles de frais, échéanciers, réductions, paiements à l'école, reçus PDF, annulation, relances, dépenses, caisse et clôture, paie, tableaux de bord, espace parent
 - [ ] **Phase 6 : Communication** — messagerie, annonces, notifications multicanal, accusés de lecture, rendez-vous
 - [ ] **Phase 7 : SaaS** — super admin complet, abonnements, modules activables, onboarding, sous-domaines
 - [ ] **Phase 8 : Finitions** — PWA et hors ligne, tableaux de bord avancés, modules optionnels, performances
 
 ## Améliorations prévues
+
+- [ ] Exports Excel (journal des paiements, impayés, dépenses) — phase 8.
+- [ ] Rapprochement bancaire (relevés de virements et de chèques encaissés).
+- [ ] Avoirs et remboursements (aujourd'hui : un trop-perçu est refusé).
+- [ ] Recalcul des factures déjà émises quand une réduction est ajoutée en cours d'année (aujourd'hui : échéances futures uniquement).
 
 - [ ] Bulletin annuel (moyenne annuelle, décision de fin d'année) et bilan des trois périodes.
 - [ ] Impression groupée des bulletins d'une classe (un seul PDF) et des cartes scolaires.

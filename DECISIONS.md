@@ -116,3 +116,19 @@ Les moyennes et rangs ne sont pas stockés pendant la saisie (pas de désynchron
 ## 025 — Appréciation générale : `subjectId` vide
 
 Une seule table `Appraisal` ; la valeur « » (chaîne vide) désigne l'appréciation générale, ce qui permet une contrainte d'unicité simple (les NULL ne sont pas uniques en PostgreSQL).
+
+## 026 — Paiements uniquement à l'école, mobile money prévu
+
+Conformément au cahier des charges, aucun paiement en ligne : le caissier enregistre chaque paiement. Le modèle (`Payment.provider`, `providerRef`, méthode `MOBILE_MONEY`) et l'interface `PaymentProvider` permettront d'ajouter Orange Money, Moov Money ou Wave sans refonte.
+
+## 027 — Factures par échéance et répartition automatique
+
+Une facture par échéance (plutôt qu'une facture annuelle) donne un suivi clair des retards et des relances ciblées. Un paiement est réparti automatiquement sur les échéances les plus anciennes (ou sur celle choisie), ce qui correspond à la pratique des caisses d'école.
+
+## 028 — Reçus générés à la demande
+
+Le reçu PDF est reconstruit à partir des données à chaque téléchargement (numéro, montant et répartition sont figés en base) : pas de fichier à stocker, et la mention « ANNULÉ » apparaît automatiquement après une annulation.
+
+## 029 — Relances limitées et ciblées
+
+Au plus une relance WhatsApp par semaine et par élève, uniquement aux tuteurs autorisés à voir les frais : on limite le coût des messages et on respecte les familles (ex. parent séparé sans accès aux frais).

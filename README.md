@@ -3,7 +3,7 @@
 Plateforme SaaS de gestion scolaire multi-écoles, pensée pour l'Afrique de l'Ouest francophone (Mali en priorité).
 Direction, secrétariat, professeurs, parents et élèves travaillent dans un seul outil, chacun dans son espace.
 
-> État : **phases 1 à 4** terminées (fondations, structure et acteurs, pédagogie quotidienne, évaluations et bulletins). Voir `TODO.md` pour la suite et `CLAUDE.md` pour le cahier des charges.
+> État : **phases 1 à 5** terminées (fondations, structure et acteurs, pédagogie quotidienne, évaluations et bulletins, finances). Voir `TODO.md` pour la suite et `CLAUDE.md` pour le cahier des charges.
 
 ## Prérequis
 
