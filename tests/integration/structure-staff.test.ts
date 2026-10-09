@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "@/server/db/client";
+import { ForbiddenError } from "@/server/rbac/policies";
 import { submitPreRegistration } from "@/server/platform/preregistration";
 import type { ServiceContext } from "@/server/services/context";
 import { importStudents, readSpreadsheet, validateImport } from "@/server/services/import";
@@ -72,6 +73,24 @@ describe("personnel", () => {
     await setStaffRoles(director, { staffId: staff.id, roles: ["CENSOR", "TEACHER"] });
     const roles = await director.db.userRole.findMany({ where: { userId: staff.userId! }, include: { role: true } });
     expect(roles.map((r) => r.role.key).sort()).toEqual(["CENSOR", "TEACHER"]);
+  });
+
+  it("le secrétariat ne peut pas attribuer le rôle de direction", async () => {
+    const secretary = await contextFor("les-etoiles", { email: "secretariat@les-etoiles.lakol.test" }, "ADMIN");
+    const self = await secretary.db.staff.findFirstOrThrow({ where: { userId: secretary.user.id } });
+    await expect(setStaffRoles(secretary, { staffId: self.id, roles: ["ADMIN", "DIRECTOR"] })).rejects.toThrow(
+      ForbiddenError,
+    );
+    await expect(
+      createStaff(secretary, {
+        firstName: "A",
+        lastName: "B",
+        phone: uniquePhone(),
+        position: "Intrus",
+        contractType: "PERMANENT",
+        roles: ["DIRECTOR"],
+      }),
+    ).rejects.toThrow(ForbiddenError);
   });
 
   it("le directeur ne peut pas se retirer son propre rôle", async () => {
