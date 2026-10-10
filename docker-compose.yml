@@ -1,6 +1,8 @@
 # Environnement local : base de données, Redis, stockage S3 et boîte mail de test.
-#   docker compose up -d                # services seuls (app lancée avec pnpm dev)
-#   docker compose --profile app up -d  # + application conteneurisée
+#   docker compose up -d                          # services seuls (app lancée avec pnpm dev)
+#   docker compose --profile app up -d --build    # + application conteneurisée (http://localhost:3000)
+#   docker compose --profile demo run --rm demo   # charge les écoles de démonstration (efface la base !)
+# Guide pas à pas : TESTER-EN-LOCAL.md
 services:
   postgres:
     image: postgres:16-alpine
@@ -32,35 +34,61 @@ services:
     image: axllent/mailpit:v1.24
     ports: ["8025:8025", "1025:1025"]
 
+  # Migrations et initialisation (formules, permissions) avant chaque démarrage.
+  migrate:
+    profiles: ["app", "demo"]
+    build:
+      context: .
+      target: tools
+    image: lakol-tools:local
+    environment: &appenv
+      DATABASE_URL: postgresql://lakol:lakol@postgres:5432/lakol?schema=public
+      REDIS_URL: redis://redis:6379
+      APP_URL: http://localhost:3000
+      STORAGE_DIR: /data/storage
+    command: ["sh", "-c", "node_modules/.bin/prisma migrate deploy && node_modules/.bin/tsx scripts/init-platform.ts"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   app:
     profiles: ["app"]
     build:
       context: .
       target: runner
-    environment:
-      DATABASE_URL: postgresql://lakol:lakol@postgres:5432/lakol?schema=public
-      REDIS_URL: redis://redis:6379
-      APP_URL: http://localhost:3000
+    image: lakol-app:local
+    environment: *appenv
     ports: ["3000:3000"]
+    volumes: [storage:/data/storage]
     depends_on:
-      postgres:
-        condition: service_healthy
-
-  worker:
-    profiles: ["app"]
-    build:
-      context: .
-      target: tools
-    environment:
-      DATABASE_URL: postgresql://lakol:lakol@postgres:5432/lakol?schema=public
-      REDIS_URL: redis://redis:6379
-      APP_URL: http://localhost:3000
-    depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_started
+
+  # Tâches de fond : les WhatsApp et emails simulés s'affichent dans ses logs.
+  worker:
+    profiles: ["app"]
+    image: lakol-tools:local
+    environment: *appenv
+    volumes: [storage:/data/storage]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+
+  # Données de démonstration (écoles, élèves, notes, paiements…). Remet la base à zéro.
+  demo:
+    profiles: ["demo"]
+    image: lakol-tools:local
+    environment: *appenv
+    command: ["node_modules/.bin/tsx", "prisma/seed.ts"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   pgdata:
   miniodata:
+  storage:

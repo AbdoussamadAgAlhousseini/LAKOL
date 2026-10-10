@@ -5,6 +5,8 @@ Direction, secrétariat, professeurs, parents et élèves travaillent dans un se
 
 > État : **les 8 phases du cahier des charges sont livrées** (fondations, structure et acteurs, pédagogie quotidienne, évaluations et bulletins, finances, communication, plateforme SaaS, finitions). Les améliorations prévues sont listées dans `TODO.md`, les choix dans `DECISIONS.md`, le cahier des charges dans `CLAUDE.md`.
 
+> Pour simplement **essayer LAKOL sur un ordinateur** (sans rien installer d'autre que Docker Desktop), suivre `TESTER-EN-LOCAL.md`.
+
 ## Prérequis
 
 - Node.js 22 et pnpm 10 (`corepack enable`)
@@ -104,6 +106,7 @@ La pile comprend Caddy (HTTPS automatique, sous-domaines des écoles), l'applica
 
 ## Documentation
 
+- `TESTER-EN-LOCAL.md` : essayer LAKOL sur son ordinateur avec Docker Desktop
 - `ARCHITECTURE.md` : organisation du code, multi-tenant, RBAC, authentification
 - `DECISIONS.md` : choix techniques et leurs raisons
 - `TODO.md` : phases restantes et améliorations prévues
