@@ -216,3 +216,7 @@ En production (`DEPLOY_ENV=production`), l'application et le worker refusent de 
 ## 050 — Migrations et initialisation dans un service dédié
 
 Le service `migrate` applique les migrations puis `platform:init` (permissions, formules, super admin) avant que l'application ne démarre ; l'image de l'application n'embarque ni la CLI Prisma ni de téléchargement au démarrage. `platform:init` est idempotent et ne crée jamais de données de démonstration.
+
+## 051 — Aperçu en ligne sur Vercel, sans Redis
+
+Pour montrer LAKOL avant d'avoir un serveur, l'application se déploie telle quelle sur Vercel (offre gratuite) avec une base Neon. Sans Redis, les tâches s'exécutent dans la requête (décision existante pour le développement) : les envois immédiats fonctionnent, mais pas les rappels programmés ni les envois différés. Les fichiers déposés vont dans `/tmp` et sont temporaires. Les données de démonstration sont chargées par une action GitHub lancée à la main (`Base de démonstration`) avec une confirmation explicite, pour ne jamais effacer une base par erreur. La production reste sur le VPS (décision 047).

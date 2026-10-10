@@ -20,7 +20,7 @@ FROM deps AS build
 COPY . .
 RUN --mount=type=secret,id=extra_ca \
     if [ -s /run/secrets/extra_ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/extra_ca; fi; \
-    pnpm prisma generate && pnpm build
+    pnpm build
 
 # Worker et scripts d'exploitation (migrations, platform:init) : dépendances de
 # production seulement (prisma et tsx en font partie), sans la construction Next.js.
