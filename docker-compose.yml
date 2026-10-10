@@ -50,7 +50,7 @@ services:
     profiles: ["app"]
     build:
       context: .
-      target: worker
+      target: tools
     environment:
       DATABASE_URL: postgresql://lakol:lakol@postgres:5432/lakol?schema=public
       REDIS_URL: redis://redis:6379

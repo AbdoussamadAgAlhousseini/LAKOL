@@ -1,6 +1,14 @@
 node_modules
 .next
 .git
+.github
 .env
+.env.*
+!.env.example
+storage
+backups
 test-results
 playwright-report
+tsconfig.tsbuildinfo
+*.md
+!README.md

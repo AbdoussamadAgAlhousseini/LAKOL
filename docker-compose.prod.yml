@@ -1,0 +1,101 @@
+# Production LAKOL sur un serveur (VPS) : voir DEPLOIEMENT.md.
+#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+#
+# caddy   : HTTPS automatique (domaine principal + sous-domaines des écoles)
+# app     : application Next.js            worker : tâches de fond (WhatsApp, email, rappels)
+# migrate : migrations + initialisation de la plateforme, à chaque déploiement
+# backup  : sauvegarde quotidienne de la base et des fichiers
+
+x-env: &env
+  env_file: .env.production
+  environment:
+    DEPLOY_ENV: production
+    DATABASE_URL: postgresql://lakol:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD requis}@postgres:5432/lakol?schema=public
+    REDIS_URL: redis://redis:6379
+    STORAGE_DIR: /data/storage
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lakol
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: lakol
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lakol"]
+      interval: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # File des tâches persistante : un redémarrage ne perd pas les envois en attente.
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 20
+
+  migrate:
+    <<: *env
+    build: { context: ., target: tools }
+    image: lakol-tools:${LAKOL_VERSION:-latest}
+    command: ["sh", "-c", "pnpm db:deploy && pnpm platform:init"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  app:
+    <<: *env
+    build: { context: ., target: runner }
+    image: lakol-app:${LAKOL_VERSION:-latest}
+    restart: unless-stopped
+    volumes: [storage:/data/storage]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+  worker:
+    <<: *env
+    image: lakol-tools:${LAKOL_VERSION:-latest}
+    restart: unless-stopped
+    volumes: [storage:/data/storage]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      ROOT_DOMAIN: ${ROOT_DOMAIN:?ROOT_DOMAIN requis}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL requis}
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [app]
+
+  backup:
+    build: ./docker/backup
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      DATABASE_URL: postgresql://lakol:${POSTGRES_PASSWORD}@postgres:5432/lakol
+      STORAGE_DIR: /data/storage
+    volumes:
+      - storage:/data/storage:ro
+      - ./backups:/backups
+    depends_on:
+      postgres: { condition: service_healthy }
+
+volumes:
+  pgdata:
+  redisdata:
+  storage:
+  caddy_data:
+  caddy_config:

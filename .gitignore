@@ -47,3 +47,7 @@ next-env.d.ts
 
 # fichiers téléversés (stockage local de développement)
 /storage/
+
+# production
+.env.production
+/backups
