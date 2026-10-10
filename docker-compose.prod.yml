@@ -1,5 +1,7 @@
 # Production LAKOL sur un serveur (VPS) : voir DEPLOIEMENT.md.
-#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+#   Construire sur le serveur : docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+#   Images publiées (GHCR)    : LAKOL_REGISTRY=ghcr.io/<propriétaire>/ LAKOL_VERSION=v1.0.0 dans .env.production, puis
+#                               docker compose -f docker-compose.prod.yml --env-file .env.production pull && … up -d --no-build
 #
 # caddy   : HTTPS automatique (domaine principal + sous-domaines des écoles)
 # app     : application Next.js            worker : tâches de fond (WhatsApp, email, rappels)
@@ -42,8 +44,8 @@ services:
   migrate:
     <<: *env
     build: { context: ., target: tools }
-    image: lakol-tools:${LAKOL_VERSION:-latest}
-    command: ["sh", "-c", "pnpm db:deploy && pnpm platform:init"]
+    image: ${LAKOL_REGISTRY:-}lakol-tools:${LAKOL_VERSION:-latest}
+    command: ["sh", "-c", "node_modules/.bin/prisma migrate deploy && node_modules/.bin/tsx scripts/init-platform.ts"]
     depends_on:
       postgres: { condition: service_healthy }
     restart: "no"
@@ -51,7 +53,7 @@ services:
   app:
     <<: *env
     build: { context: ., target: runner }
-    image: lakol-app:${LAKOL_VERSION:-latest}
+    image: ${LAKOL_REGISTRY:-}lakol-app:${LAKOL_VERSION:-latest}
     restart: unless-stopped
     volumes: [storage:/data/storage]
     depends_on:
@@ -60,7 +62,7 @@ services:
 
   worker:
     <<: *env
-    image: lakol-tools:${LAKOL_VERSION:-latest}
+    image: ${LAKOL_REGISTRY:-}lakol-tools:${LAKOL_VERSION:-latest}
     restart: unless-stopped
     volumes: [storage:/data/storage]
     depends_on:

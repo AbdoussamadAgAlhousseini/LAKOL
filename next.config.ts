@@ -44,6 +44,11 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@node-rs/argon2", "@react-pdf/renderer", "bullmq", "ioredis"],
   // Pièces jointes (5 Mo) et messages vocaux (3 Mo) passent par les server actions (1 Mo par défaut).
   experimental: { serverActions: { bodySizeLimit: "6mb" } },
+  // Les polices standard de pdfkit (bulletins, reçus, factures) sont chargées
+  // dynamiquement : le traçage de la sortie « standalone » ne les voit pas.
+  outputFileTracingIncludes: {
+    "/**": ["./node_modules/.pnpm/pdfkit@*/node_modules/pdfkit/js/**/*"],
+  },
 };
 
 export default withNextIntl(nextConfig);

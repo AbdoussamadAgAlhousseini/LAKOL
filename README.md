@@ -67,32 +67,40 @@ Espace super admin (écoles, formules, factures) : http://localhost:3000/fr/admi
 | `pnpm worker` / `pnpm jobs:flush`                        | Worker de la file de tâches / envoi des messages différés en attente |
 | `pnpm jobs:subscriptions`                                | Cycle des abonnements (essais, renouvellements, impayés) à la main   |
 | `pnpm icons`                                             | Régénère les icônes de l'application (PWA)                           |
+| `pnpm platform:init`                                     | Production : permissions, formules et super admin (idempotent)       |
 
 ## Variables d'environnement
 
 Voir `.env.example`. En développement, WhatsApp et email sont simulés : les messages (dont les codes de vérification) s'affichent dans les logs du serveur.
 
-| Variable                                        | Description                                                                              |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                                  | Connexion PostgreSQL                                                                     |
-| `REDIS_URL`                                     | File de tâches (à partir de la phase 3)                                                  |
-| `APP_URL`                                       | URL publique, pour les liens envoyés                                                     |
-| `WHATSAPP_PROVIDER`                             | `mock` (défaut) ou `meta` (avec `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`)     |
-| `ROOT_DOMAIN`                                   | Domaine principal (ex. `lakol.ml`) : `ecole-x.lakol.ml` mène à l'espace de l'école       |
-| `WHATSAPP_VERIFY_TOKEN` / `WHATSAPP_APP_SECRET` | Webhook des statuts (`/api/webhooks/whatsapp`) : jeton de vérification et signature Meta |
-| `EMAIL_PROVIDER`                                | `mock` (défaut) ou `resend` (avec `RESEND_API_KEY`, `EMAIL_FROM`)                        |
-| `S3_*`                                          | Stockage de fichiers compatible S3 (MinIO en local, Cloudflare R2 en production)         |
+| Variable                                                 | Description                                                                              |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                           | Connexion PostgreSQL                                                                     |
+| `REDIS_URL`                                              | File de tâches (à partir de la phase 3)                                                  |
+| `APP_URL`                                                | URL publique, pour les liens envoyés                                                     |
+| `WHATSAPP_PROVIDER`                                      | `mock` (défaut) ou `meta` (avec `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`)     |
+| `ROOT_DOMAIN`                                            | Domaine principal (ex. `lakol.ml`) : `ecole-x.lakol.ml` mène à l'espace de l'école       |
+| `WHATSAPP_TEMPLATE_NAME` / `WHATSAPP_TEMPLATE_LANGUAGES` | Modèle de message approuvé par Meta et ses langues (obligatoire avec `meta`)             |
+| `DEPLOY_ENV`                                             | `production` : configuration vérifiée au démarrage, arrêt si elle est incomplète         |
+| `WHATSAPP_VERIFY_TOKEN` / `WHATSAPP_APP_SECRET`          | Webhook des statuts (`/api/webhooks/whatsapp`) : jeton de vérification et signature Meta |
+| `EMAIL_PROVIDER`                                         | `mock` (défaut) ou `resend` (avec `RESEND_API_KEY`, `EMAIL_FROM`)                        |
+| `S3_*`                                                   | Stockage de fichiers compatible S3 (MinIO en local, Cloudflare R2 en production)         |
 
 ## Déploiement
 
-- **Docker** : `docker compose --profile app up -d --build` construit l'image (sortie _standalone_ de Next.js). Les migrations s'appliquent au démarrage.
-- **Vercel / Railway** : base PostgreSQL managée, `pnpm db:deploy` au déploiement, variables de `.env.example`.
+**Production** : voir **[DEPLOIEMENT.md](DEPLOIEMENT.md)** (serveur, DNS, WhatsApp Business, emails, sauvegardes, mises à jour). En résumé :
+
+```bash
+cp .env.production.example .env.production   # puis compléter
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+```
+
+La pile comprend Caddy (HTTPS automatique, sous-domaines des écoles), l'application, le worker, PostgreSQL, Redis, les migrations et l'initialisation (`pnpm platform:init`, sans données de démonstration) à chaque déploiement, et une sauvegarde quotidienne. Sonde de santé : `/api/health`.
 
 ## Sauvegardes
 
-- **Base** : `pg_dump` quotidien compressé, copié hors du serveur (bucket S3 avec versionnement), conservé 30 jours, plus un mensuel conservé 12 mois. Les bases managées (Railway, Neon, Supabase) ajoutent la restauration à un instant donné.
-- **Fichiers** : versionnement activé sur le bucket S3.
-- **Restauration testée** chaque trimestre sur une base vierge (`pg_restore`, puis `pnpm test:integration`).
+- **Base et fichiers** : service `backup` de la pile de production (`docker/backup`) : `pg_dump` et archive des fichiers chaque nuit, 30 quotidiennes et 12 mensuelles, copie hors serveur sur un bucket S3/R2 (`BACKUP_S3_URI`), fichiers lisibles par root seulement.
+- **Restauration** : `restore.sh` (voir DEPLOIEMENT.md), à tester chaque trimestre sur une base vierge.
 
 ## Documentation
 

@@ -13,6 +13,10 @@
 
 ## Améliorations prévues
 
+- [ ] WhatsApp : modèle de catégorie « Authentification » dédié aux codes de vérification (aujourd'hui : modèle utilitaire).
+- [ ] Suivi des erreurs applicatives (Sentry ou équivalent) en plus des logs JSON.
+- [ ] Déploiement continu (CI → serveur) après validation des premières versions.
+
 - [ ] Notifications push du navigateur (Web Push) en complément de WhatsApp.
 - [ ] Quiz en ligne avec correction automatique (ressources pédagogiques).
 - [ ] Exports PDF des listes (aujourd'hui : Excel) et export des dépenses.

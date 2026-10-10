@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
 
 jobs:
@@ -37,3 +38,41 @@ jobs:
       - run: pnpm build
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
+
+  # Images de production : construites à chaque commit, publiées sur GHCR pour
+  # une version taguée (git tag v1.0.0 && git push --tags).
+  docker:
+    runs-on: ubuntu-latest
+    needs: check
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        target: [runner, tools]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      # Les noms d'images Docker sont en minuscules (le propriétaire du dépôt a des majuscules).
+      - name: Nom de l'image
+        run: |
+          name=lakol-${{ matrix.target == 'runner' && 'app' || 'tools' }}
+          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${name}" >> "$GITHUB_ENV"
+      - name: Connexion à GHCR
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Construction (et publication pour une version)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: ${{ matrix.target }}
+          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          tags: |
+            ${{ env.IMAGE }}:${{ github.ref_name }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=gha,scope=${{ matrix.target }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.target }}

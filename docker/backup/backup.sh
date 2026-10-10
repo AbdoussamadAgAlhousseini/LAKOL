@@ -6,6 +6,8 @@
 # Copie hors serveur si BACKUP_S3_URI est défini (ex. s3://lakol-backups), avec
 # AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (+ AWS_ENDPOINT_URL pour R2).
 set -eu
+# Les sauvegardes contiennent des données d'élèves : lisibles par root seulement.
+umask 077
 
 DIR="${BACKUP_DIR:-/backups}"
 STORAGE="${STORAGE_DIR:-/data/storage}"

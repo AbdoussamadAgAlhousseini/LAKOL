@@ -200,3 +200,19 @@ Les exports réutilisent les services des pages (mêmes droits, mêmes calculs) 
 ## 046 — Compression des images à l'envoi
 
 Les photos prises au téléphone pèsent souvent plusieurs mégaoctets. Elles sont converties en WebP (1600 px au plus) avant stockage : moins de stockage, et des pages qui s'affichent vite en 3G. Les PDF et les fichiers audio ne sont pas modifiés.
+
+## 047 — Un serveur, Docker Compose et Caddy
+
+Pour les premières écoles, un VPS avec Docker Compose est le plus simple à exploiter et le moins cher : tout tient dans un fichier, sans dépendre d'un fournisseur. Caddy apporte le HTTPS automatique, y compris pour chaque sous-domaine d'école (certificat obtenu à la première visite, seulement si `/api/tls-check` confirme que l'école existe). La même image tourne ailleurs (Railway, Kubernetes) si la charge l'exige.
+
+## 048 — WhatsApp : toujours le modèle approuvé
+
+Meta n'autorise le texte libre que dans les 24 h qui suivent un message du destinataire ; or LAKOL écrit presque toujours en premier (absence, facture, accès). Toutes les notifications passent donc par un seul modèle « utilitaire » à trois variables (titre, message, lien), approuvé une fois pour toutes, dans la langue du destinataire.
+
+## 049 — Configuration vérifiée au démarrage
+
+En production (`DEPLOY_ENV=production`), l'application et le worker refusent de démarrer si une variable indispensable manque (HTTPS, Redis, secrets WhatsApp, modèle, Resend, S3). Une erreur de configuration se voit au déploiement, pas des semaines plus tard quand un parent ne reçoit pas un message. Hors production, les mêmes contrôles ne font qu'avertir.
+
+## 050 — Migrations et initialisation dans un service dédié
+
+Le service `migrate` applique les migrations puis `platform:init` (permissions, formules, super admin) avant que l'application ne démarre ; l'image de l'application n'embarque ni la CLI Prisma ni de téléchargement au démarrage. `platform:init` est idempotent et ne crée jamais de données de démonstration.

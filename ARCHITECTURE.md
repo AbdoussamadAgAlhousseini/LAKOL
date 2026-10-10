@@ -145,6 +145,15 @@ tests/unit, integration, e2e
 - **Exports Excel** (`services/exports.ts`, `/api/schools/{école}/exports/{type}`) : élèves, impayés, paiements d'une période, assiduité, résultats d'une classe. Mêmes droits que les pages.
 - **Performances** : images compressées à l'envoi (WebP, 1600 px max) ; pages légères (composants serveur, graphiques sans bibliothèque) ; pagination des listes ; BullMQ et ioredis hors du bundle.
 
+## Exploitation (production)
+
+- **Images** (`Dockerfile`) : `runner` (sortie standalone de Next.js, utilisateur non root, sonde de santé) et `tools` (worker, migrations, scripts ; dépendances de production seulement). Les polices de pdfkit sont ajoutées explicitement au traçage de la sortie standalone (`outputFileTracingIncludes`).
+- **Pile** (`docker-compose.prod.yml`) : Caddy (HTTPS automatique ; certificats des sous-domaines à la demande, accordés par `/api/tls-check` aux seules écoles existantes), app, worker, `migrate` (migrations + `platform:init` avant chaque démarrage), PostgreSQL, Redis persistant (`appendonly`), `backup`.
+- **Démarrage** : `instrumentation.ts` et le worker vérifient la configuration (`server/env.ts`) ; en `DEPLOY_ENV=production`, une configuration incomplète arrête le processus.
+- **WhatsApp** : toutes les notifications et les codes passent par le modèle approuvé par Meta (`{{1}}` titre, `{{2}}` message, `{{3}}` lien), dans la langue du destinataire.
+- **Sécurité HTTP** : CSP, HSTS, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` (micro pour les messages vocaux uniquement).
+- **CI** : vérifications, tests, construction des images à chaque commit, publication sur GHCR pour les versions taguées.
+
 ## Services externes
 
 Interfaces dans `src/server/adapters/` :

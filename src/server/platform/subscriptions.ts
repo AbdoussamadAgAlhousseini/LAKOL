@@ -132,7 +132,7 @@ export async function issueInvoice(
   await notifyDirectors(schoolId, {
     type: "subscription.invoice",
     title: `Facture LAKOL ${invoice.number}`,
-    body: `Votre facture d'abonnement (${sub.plan.name}, ${studentCount} élèves) de ${formatMoney(amount, invoice.currency)} est disponible. À régler avant le ${fmtDate(invoice.dueDate)}.`,
+    body: `Votre facture d'abonnement (${sub.plan.name}, ${studentCount} élève${studentCount > 1 ? "s" : ""}) de ${formatMoney(amount, invoice.currency)} est disponible. À régler avant le ${fmtDate(invoice.dueDate)}.`,
   });
   return invoice;
 }
