@@ -58,8 +58,10 @@ fi
 # ── Système ──────────────────────────────────────────────────────────────────
 info "Mise à jour du système et outils de base"
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -q
-apt-get install -yq git curl openssl ufw unattended-upgrades ca-certificates
+# Au premier démarrage, Ubuntu fait ses propres mises à jour : attendre la fin plutôt qu'échouer.
+APT=(apt-get -o DPkg::Lock::Timeout=600)
+"${APT[@]}" update -q
+"${APT[@]}" install -yq git curl openssl ufw unattended-upgrades ca-certificates
 dpkg-reconfigure -f noninteractive unattended-upgrades
 
 if ! command -v docker >/dev/null 2>&1; then
