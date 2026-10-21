@@ -62,6 +62,8 @@ services:
 
   worker:
     <<: *env
+    # Même image que migrate : construite ici aussi, sinon Compose tente de la télécharger.
+    build: { context: ., target: tools }
     image: ${LAKOL_REGISTRY:-}lakol-tools:${LAKOL_VERSION:-latest}
     restart: unless-stopped
     volumes: [storage:/data/storage]

@@ -69,6 +69,7 @@ services:
   # Tâches de fond : les WhatsApp et emails simulés s'affichent dans ses logs.
   worker:
     profiles: ["app"]
+    build: { context: ., target: tools }
     image: lakol-tools:local
     environment: *appenv
     volumes: [storage:/data/storage]
@@ -81,6 +82,7 @@ services:
   # Données de démonstration (écoles, élèves, notes, paiements…). Remet la base à zéro.
   demo:
     profiles: ["demo"]
+    build: { context: ., target: tools }
     image: lakol-tools:local
     environment: *appenv
     command: ["node_modules/.bin/tsx", "prisma/seed.ts"]
