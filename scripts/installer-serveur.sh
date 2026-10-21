@@ -27,7 +27,7 @@ fail() {
 grep -q '^ID=ubuntu' /etc/os-release || warn "Ce script est prévu pour Ubuntu 24.04 ; il peut échouer sur un autre système."
 
 # ── Questions (seulement à la première installation) ──────────────────────────
-if [ ! -f "$ENV_FILE" ]; then
+if [ ! -s "$ENV_FILE" ]; then
   echo
   echo "Installation de LAKOL. Trois questions, puis tout est automatique (10 à 20 minutes)."
   echo
@@ -95,8 +95,9 @@ fi
 cd "$DIR"
 
 # ── Configuration ────────────────────────────────────────────────────────────
-if [ ! -f "$ENV_FILE" ]; then
+if [ ! -s "$ENV_FILE" ]; then
   info "Création de la configuration $ENV_FILE"
+  umask 077
   # Remplace la valeur des clés données, en gardant le reste du modèle (et ses commentaires).
   DOMAIN="$DOMAIN" EMAIL="$EMAIL" ADMIN_PASSWORD="$ADMIN_PASSWORD" \
     POSTGRES_PASSWORD="$(openssl rand -hex 24)" VERIFY_TOKEN="$(openssl rand -hex 16)" \
@@ -119,8 +120,8 @@ if [ ! -f "$ENV_FILE" ]; then
         if ($0 ~ /^[A-Z_]+=/ && (kv[1] in values)) print kv[1] "=\"" values[kv[1]] "\""
         else print
       }
-    ' .env.production.example >"$ENV_FILE"
-  chmod 600 "$ENV_FILE"
+    ' .env.production.example >"$ENV_FILE.tmp"
+  chmod 600 "$ENV_FILE.tmp" && mv "$ENV_FILE.tmp" "$ENV_FILE"
 fi
 
 DOMAIN="$(grep '^ROOT_DOMAIN=' "$ENV_FILE" | cut -d'"' -f2)"
