@@ -113,12 +113,22 @@ export function ImportForm({ school }: { school: string }) {
                     <Td>
                       {r.values.nom} {r.values.prenom}
                     </Td>
-                    <Td className="text-destructive">{r.errors.map(label).join(" · ")}</Td>
+                    <Td className="text-destructive">
+                      {r.errors
+                        .map((e) =>
+                          e === "unknownClass"
+                            ? t("errorLabels.unknownClass", { name: r.values.classe ?? "" })
+                            : label(e),
+                        )
+                        .join(" · ")}
+                    </Td>
                   </tr>
                 ))}
               </tbody>
             </Table>
-          ) : (
+          ) : null}
+          {errors.some((r) => r.errors.includes("unknownClass")) && <Alert>{t("unknownClassHelp")}</Alert>}
+          {errors.length === 0 && (
             <Button onClick={run} disabled={pending} size="lg" className="self-start">
               {t("confirm", { count: preview.length })}
             </Button>

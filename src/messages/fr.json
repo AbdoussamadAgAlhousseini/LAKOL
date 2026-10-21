@@ -16,7 +16,11 @@
     "notFoundTitle": "Page introuvable",
     "goHome": "Retour à l'accueil",
     "notifications": "Notifications",
-    "exportExcel": "Exporter (Excel)"
+    "exportExcel": "Exporter (Excel)",
+    "errorTitle": "Une erreur est survenue",
+    "errorHelp": "Vos données déjà enregistrées ne sont pas perdues. Réessayez ; si l'erreur revient, envoyez une capture de cet écran au support.",
+    "retry": "Réessayer",
+    "reload": "Recharger la page"
   },
   "auth": {
     "loginTitle": "Connexion",
@@ -514,9 +518,10 @@
     "errorLabels": {
       "missing": "{column} manquant",
       "invalid": "{column} invalide",
-      "unknownClass": "Classe inconnue",
+      "unknownClass": "Classe « {name} » introuvable",
       "duplicate": "Élève déjà présent"
-    }
+    },
+    "unknownClassHelp": "Les classes doivent exister avant l'import, pour l'année scolaire active. Créez-les dans « Classes et matières », ou écrivez dans la colonne « classe » le nom affiché dans LAKOL (ex. « 7e année A » ; « 7e A » est aussi accepté)."
   },
   "preRegistration": {
     "title": "Pré-inscriptions",

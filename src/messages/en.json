@@ -16,7 +16,11 @@
     "notFoundTitle": "Page not found",
     "goHome": "Back to home",
     "notifications": "Notifications",
-    "exportExcel": "Export (Excel)"
+    "exportExcel": "Export (Excel)",
+    "errorTitle": "Something went wrong",
+    "errorHelp": "Data already saved is not lost. Try again; if the error comes back, send a screenshot of this screen to support.",
+    "retry": "Try again",
+    "reload": "Reload the page"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -514,9 +518,10 @@
     "errorLabels": {
       "missing": "{column} missing",
       "invalid": "{column} invalid",
-      "unknownClass": "Unknown class",
+      "unknownClass": "Class “{name}” not found",
       "duplicate": "Student already exists"
-    }
+    },
+    "unknownClassHelp": "Classes must exist before importing, in the active school year. Create them in “Classes and subjects”, or use in the “classe” column the name shown in LAKOL (e.g. “7e année A”; “7e A” is accepted too)."
   },
   "preRegistration": {
     "title": "Pre-registrations",

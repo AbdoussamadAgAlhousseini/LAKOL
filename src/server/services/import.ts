@@ -123,12 +123,31 @@ function validDate(y: number, mo: number, d: number): Date | "invalid" {
   return date.getUTCMonth() === mo - 1 && date.getUTCDate() === d && y > 1950 ? date : "invalid";
 }
 
+/** Forme courte d'un nom de classe : « 7e année A », « 7ème A » et « 7e A » donnent « 7a ». */
+export function classKey(name: string) {
+  return normalizeHeader(name)
+    .replace(/annee/g, "")
+    .replace(/(\d+)(?:eme|ere|re|er|e)(?=_|$)/g, "$1")
+    .replace(/_/g, "");
+}
+
+/** Retrouve une classe par son nom exact, sinon par sa forme courte si elle est sans ambiguïté. */
+function classMatcher(classes: { id: string; name: string }[]) {
+  const exact = new Map(classes.map((c) => [normalizeHeader(c.name), c.id]));
+  const loose = new Map<string, string | null>();
+  for (const c of classes) {
+    const k = classKey(c.name);
+    loose.set(k, loose.has(k) ? null : c.id);
+  }
+  return (name: string) => exact.get(normalizeHeader(name)) ?? loose.get(classKey(name)) ?? undefined;
+}
+
 /** Vérifie chaque ligne sans rien écrire : erreurs listées par ligne. */
 export async function validateImport(ctx: ServiceContext, records: Record<string, string>[]): Promise<ImportRow[]> {
   if (records.length > MAX_IMPORT_ROWS) throw new DomainError("tooManyRows");
   const year = await requireActiveYear(ctx);
   const classes = await ctx.db.class.findMany({ where: { academicYearId: year.id } });
-  const classByName = new Map(classes.map((c) => [normalizeHeader(c.name), c.id]));
+  const findClass = classMatcher(classes);
   const existing = await ctx.db.student.findMany({
     where: { deletedAt: null },
     select: { firstName: true, lastName: true, birthDate: true },
@@ -152,7 +171,7 @@ export async function validateImport(ctx: ServiceContext, records: Record<string
     if (values.sexe && !gender) errors.push("invalid:sexe");
     const birthDate = parseDate(values.date_naissance);
     if (birthDate === "invalid") errors.push("invalid:date_naissance");
-    const classId = values.classe ? classByName.get(normalizeHeader(values.classe)) : undefined;
+    const classId = values.classe ? findClass(values.classe) : undefined;
     if (values.classe && !classId) errors.push("unknownClass");
     const phone = values.parent_telephone ? normalizePhone(values.parent_telephone, ctx.school.country) : null;
     if (values.parent_telephone && !phone) errors.push("invalid:parent_telephone");
