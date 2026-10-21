@@ -112,7 +112,12 @@ describe("import Excel / CSV", () => {
     const rows = await validateImport(director, records);
     expect(rows[0].errors).toEqual([]);
     expect(rows[1].errors).toEqual(
-      expect.arrayContaining(["missing:prenom", "invalid:date_naissance", "unknownClass", "invalid:parent_telephone"]),
+      expect.arrayContaining([
+        "missing:prenom",
+        "invalid:date_naissance",
+        "unknownClass:8e Z",
+        "invalid:parent_telephone",
+      ]),
     );
     await expect(importStudents(director, rows, { sendAccess: false })).rejects.toThrow("importHasErrors");
 

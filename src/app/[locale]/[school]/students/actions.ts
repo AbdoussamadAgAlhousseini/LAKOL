@@ -4,7 +4,8 @@ import { z } from "zod";
 import { schoolAction } from "@/server/action";
 import { DomainError } from "@/server/errors";
 import { optionalPhone, phoneOrFail } from "@/server/phone-field";
-import { importStudents, readSpreadsheet, validateImport, type ImportRow } from "@/server/services/import";
+import { importStudents, readSpreadsheet, validateImport } from "@/server/services/import";
+import type { ImportPreview } from "@/components/forms/spreadsheet-import-form";
 import { acceptPreRegistration, rejectPreRegistration } from "@/server/services/preregistrations";
 import {
   changeClass,
@@ -231,8 +232,6 @@ async function readRows(ctx: Parameters<Parameters<typeof schoolAction>[1]>[0], 
   if (records.length === 0) throw new DomainError("emptyFile", "file");
   return validateImport(ctx, records);
 }
-
-export type ImportPreview = Pick<ImportRow, "line" | "values" | "errors">[];
 
 export const checkImportAction = schoolAction(
   { permission: "student.import", schema: importSchema },

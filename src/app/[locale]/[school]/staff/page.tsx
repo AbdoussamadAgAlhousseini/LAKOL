@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { Plus, Search } from "lucide-react";
+import { FileUp, Plus, Search } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { loadGuardedPage } from "@/server/page-context";
 import { can } from "@/server/rbac/policies";
@@ -45,11 +45,18 @@ export default async function StaffPage({
         description={t("count", { count: total })}
         actions={
           can(ctx.scope, "staff.write") && (
-            <Button asChild>
-              <Link href={`${base}/new`}>
-                <Plus /> {t("new")}
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" asChild>
+                <Link href={`${base}/import`}>
+                  <FileUp /> {t("import")}
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href={`${base}/new`}>
+                  <Plus /> {t("new")}
+                </Link>
+              </Button>
+            </div>
           )
         }
       />

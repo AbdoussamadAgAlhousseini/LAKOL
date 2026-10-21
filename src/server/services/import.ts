@@ -45,7 +45,7 @@ export interface ImportRow {
   };
 }
 
-function normalizeHeader(h: string) {
+export function normalizeHeader(h: string) {
   return h
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
@@ -93,7 +93,7 @@ export async function readSpreadsheet(buffer: Buffer, filename: string): Promise
     .map((r) => Object.fromEntries(keys.map((k, i) => [k, r[i] ?? ""])));
 }
 
-function parseGender(v: string): Gender | null {
+export function parseGender(v: string): Gender | null {
   const s = normalizeHeader(v);
   if (["m", "g", "masculin", "garcon", "male", "homme"].includes(s)) return "MALE";
   if (["f", "feminin", "fille", "female", "femme"].includes(s)) return "FEMALE";
@@ -132,7 +132,7 @@ export function classKey(name: string) {
 }
 
 /** Retrouve une classe par son nom exact, sinon par sa forme courte si elle est sans ambiguïté. */
-function classMatcher(classes: { id: string; name: string }[]) {
+export function classMatcher(classes: { id: string; name: string }[]) {
   const exact = new Map(classes.map((c) => [normalizeHeader(c.name), c.id]));
   const loose = new Map<string, string | null>();
   for (const c of classes) {
@@ -172,7 +172,7 @@ export async function validateImport(ctx: ServiceContext, records: Record<string
     const birthDate = parseDate(values.date_naissance);
     if (birthDate === "invalid") errors.push("invalid:date_naissance");
     const classId = values.classe ? findClass(values.classe) : undefined;
-    if (values.classe && !classId) errors.push("unknownClass");
+    if (values.classe && !classId) errors.push(`unknownClass:${values.classe}`);
     const phone = values.parent_telephone ? normalizePhone(values.parent_telephone, ctx.school.country) : null;
     if (values.parent_telephone && !phone) errors.push("invalid:parent_telephone");
     const email = values.parent_email.toLowerCase() || null;

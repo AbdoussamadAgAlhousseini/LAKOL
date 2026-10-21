@@ -511,7 +511,6 @@
     "rowsOk": "{count, plural, =0 {Aucune ligne valide} one {# ligne valide} other {# lignes valides}}",
     "rowsKo": "{count, plural, one {# ligne en erreur} other {# lignes en erreur}}",
     "line": "Ligne",
-    "student": "Élève",
     "errors": "Erreurs",
     "confirm": "Importer {count, plural, one {# élève} other {# élèves}}",
     "done": "{count, plural, one {# élève importé} other {# élèves importés}}.",
@@ -519,9 +518,17 @@
       "missing": "{column} manquant",
       "invalid": "{column} invalide",
       "unknownClass": "Classe « {name} » introuvable",
-      "duplicate": "Élève déjà présent"
+      "duplicate": "Élève déjà présent",
+      "unknownSubject": "Matière « {name} » introuvable",
+      "invalidRole": "Rôle « {name} » inconnu",
+      "alreadyAssigned": "{name} : déjà attribué à un autre professeur",
+      "assignmentNeedsBoth": "Indiquez à la fois les matières et les classes",
+      "duplicateStaff": "Téléphone ou email déjà utilisé par un membre du personnel",
+      "contactRequired": "Téléphone ou email nécessaire pour créer le compte",
+      "rolesForbidden": "Vous ne pouvez pas attribuer ces rôles"
     },
-    "unknownClassHelp": "Les classes doivent exister avant l'import, pour l'année scolaire active. Créez-les dans « Classes et matières », ou écrivez dans la colonne « classe » le nom affiché dans LAKOL (ex. « 7e année A » ; « 7e A » est aussi accepté)."
+    "person": "Élève",
+    "unknownHelp": "Les classes doivent exister avant l'import, pour l'année scolaire active. Créez-les dans « Classes et matières », ou écrivez dans la colonne « classe » le nom affiché dans LAKOL (ex. « 7e année A » ; « 7e A » est aussi accepté)."
   },
   "preRegistration": {
     "title": "Pré-inscriptions",
@@ -593,7 +600,8 @@
     "resendAccess": "Renvoyer les accès",
     "assignments": "Classes et matières",
     "headOf": "Professeur principal de",
-    "noAssignment": "Aucune affectation."
+    "noAssignment": "Aucune affectation.",
+    "import": "Importer"
   },
   "structure": {
     "title": "Classes et matières",
@@ -1676,5 +1684,15 @@
     "quantity": "Quantité",
     "reason": "Motif",
     "record": "Enregistrer"
+  },
+  "staffImport": {
+    "title": "Importer le personnel",
+    "intro": "Ajoutez les professeurs et le personnel en une fois depuis Excel ou un fichier CSV.",
+    "help": "« roles » : Professeur, Comptable, Censeur, Administration… séparés par des virgules (vide : pas de compte). « matieres » (code ou nom) et « classes » : chaque matière est attribuée dans chaque classe, ce qui donne le rôle de professeur. « contrat » : Permanent ou Vacataire.",
+    "sendAccess": "Envoyer leurs accès par WhatsApp",
+    "person": "Membre",
+    "confirm": "Importer {count, plural, one {# membre} other {# membres}}",
+    "done": "{count, plural, one {# membre importé} other {# membres importés}}.",
+    "unknownHelp": "Les classes et matières doivent exister avant l'import. Utilisez les noms ou codes affichés dans « Classes et matières » (le modèle Excel en donne la liste)."
   }
 }

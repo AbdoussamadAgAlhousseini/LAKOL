@@ -12,7 +12,11 @@ import {
   STAFF_ROLES,
   updateStaff,
 } from "@/server/services/staff";
-import { checkbox, email, id, optionalDate, optionalInt, optionalText, text } from "@/lib/zod";
+import { checkbox, email, file, id, optionalDate, optionalInt, optionalText, text } from "@/lib/zod";
+import { DomainError } from "@/server/errors";
+import { readSpreadsheet } from "@/server/services/import";
+import { importStaff, validateStaffImport } from "@/server/services/staff-import";
+import type { ImportPreview } from "@/components/forms/spreadsheet-import-form";
 
 const fields = {
   firstName: text(80),
@@ -63,4 +67,28 @@ export const reactivateStaffAction = schoolAction(
 export const resendStaffAccessAction = schoolAction(
   { permission: "user.manage", schema: z.object({ staffId: id }) },
   async (ctx, { staffId }) => resendStaffAccess(ctx, staffId),
+);
+
+// ── Import Excel ───────────────────────────────────────────────────────────
+
+const importSchema = z.object({ file, sendAccess: checkbox });
+
+async function readRows(ctx: Parameters<Parameters<typeof schoolAction>[1]>[0], upload: File) {
+  if (upload.size > 5 * 1024 * 1024) throw new DomainError("fileTooLarge", "file");
+  const records = await readSpreadsheet(Buffer.from(await upload.arrayBuffer()), upload.name);
+  if (records.length === 0) throw new DomainError("emptyFile", "file");
+  return validateStaffImport(ctx, records);
+}
+
+export const checkStaffImportAction = schoolAction(
+  { permission: "staff.write", schema: importSchema },
+  async (ctx, input) => {
+    const rows = await readRows(ctx, input.file);
+    return rows.map(({ line, values, errors }) => ({ line, values, errors })) satisfies ImportPreview;
+  },
+);
+
+export const runStaffImportAction = schoolAction(
+  { permission: "staff.write", schema: importSchema },
+  async (ctx, input) => importStaff(ctx, await readRows(ctx, input.file), { sendAccess: input.sendAccess }),
 );

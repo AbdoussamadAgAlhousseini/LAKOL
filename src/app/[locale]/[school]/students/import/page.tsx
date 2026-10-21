@@ -8,7 +8,8 @@ import { Forbidden } from "@/components/layout/forbidden";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ImportForm } from "./import-form";
+import { SpreadsheetImportForm } from "@/components/forms/spreadsheet-import-form";
+import { checkImportAction, runImportAction } from "../actions";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations("import"))("title") };
@@ -37,7 +38,7 @@ export default async function ImportPage({ params }: { params: Promise<{ locale:
           <p className="text-muted-foreground text-sm">
             {t("columns")} : <code className="text-xs">{IMPORT_COLUMNS.join(", ")}</code>
           </p>
-          <ImportForm school={school} />
+          <SpreadsheetImportForm school={school} check={checkImportAction} run={runImportAction} texts="import" />
         </CardContent>
       </Card>
     </div>

@@ -511,7 +511,6 @@
     "rowsOk": "{count, plural, =0 {No valid rows} one {# valid row} other {# valid rows}}",
     "rowsKo": "{count, plural, one {# row with errors} other {# rows with errors}}",
     "line": "Row",
-    "student": "Student",
     "errors": "Errors",
     "confirm": "Import {count, plural, one {# student} other {# students}}",
     "done": "{count, plural, one {# student imported} other {# students imported}}.",
@@ -519,9 +518,17 @@
       "missing": "{column} missing",
       "invalid": "{column} invalid",
       "unknownClass": "Class “{name}” not found",
-      "duplicate": "Student already exists"
+      "duplicate": "Student already exists",
+      "unknownSubject": "Subject “{name}” not found",
+      "invalidRole": "Unknown role “{name}”",
+      "alreadyAssigned": "{name}: already assigned to another teacher",
+      "assignmentNeedsBoth": "Give both subjects and classes",
+      "duplicateStaff": "Phone or email already used by a staff member",
+      "contactRequired": "Phone or email needed to create the account",
+      "rolesForbidden": "You cannot assign these roles"
     },
-    "unknownClassHelp": "Classes must exist before importing, in the active school year. Create them in “Classes and subjects”, or use in the “classe” column the name shown in LAKOL (e.g. “7e année A”; “7e A” is accepted too)."
+    "person": "Student",
+    "unknownHelp": "Classes must exist before importing, in the active school year. Create them in “Classes and subjects”, or use in the “classe” column the name shown in LAKOL (e.g. “7e année A”; “7e A” is accepted too)."
   },
   "preRegistration": {
     "title": "Pre-registrations",
@@ -593,7 +600,8 @@
     "resendAccess": "Resend login",
     "assignments": "Classes and subjects",
     "headOf": "Form teacher of",
-    "noAssignment": "No assignment."
+    "noAssignment": "No assignment.",
+    "import": "Import"
   },
   "structure": {
     "title": "Classes & subjects",
@@ -1676,5 +1684,15 @@
     "quantity": "Quantity",
     "reason": "Reason",
     "record": "Record"
+  },
+  "staffImport": {
+    "title": "Import staff",
+    "intro": "Add teachers and staff at once from Excel or a CSV file.",
+    "help": "“roles”: Professeur, Comptable, Censeur, Administration… comma-separated (empty: no account). “matieres” (code or name) and “classes”: each subject is assigned in each class, which grants the teacher role. “contrat”: Permanent or Vacataire.",
+    "sendAccess": "Send their access by WhatsApp",
+    "person": "Member",
+    "confirm": "Import {count, plural, one {# member} other {# members}}",
+    "done": "{count, plural, one {# member imported} other {# members imported}}.",
+    "unknownHelp": "Classes and subjects must exist before importing. Use the names or codes shown in “Classes and subjects” (the Excel template lists them)."
   }
 }

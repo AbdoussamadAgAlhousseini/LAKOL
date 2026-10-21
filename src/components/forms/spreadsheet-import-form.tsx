@@ -10,11 +10,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, Td, Th } from "@/components/ui/table";
 import type { ActionResult } from "@/server/action";
-import { checkImportAction, runImportAction, type ImportPreview } from "../actions";
 
-/** Import en deux temps : vérification ligne par ligne, puis import. */
-export function ImportForm({ school }: { school: string }) {
+export type ImportPreview = { line: number; values: Record<string, string | undefined>; errors: string[] }[];
+type FileAction<T> = (school: string, data: FormData) => Promise<ActionResult<T>>;
+
+/**
+ * Import Excel en deux temps (vérification ligne par ligne, puis import), commun
+ * aux élèves et au personnel. `texts` désigne les libellés propres à chaque import.
+ */
+export function SpreadsheetImportForm({
+  school,
+  check: checkAction,
+  run: runAction,
+  texts,
+}: {
+  school: string;
+  check: FileAction<ImportPreview>;
+  run: FileAction<{ created: number }>;
+  texts: "import" | "staffImport";
+}) {
   const t = useTranslations("import");
+  const tx = useTranslations(texts);
   const te = useTranslations("errors");
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -32,7 +48,7 @@ export function ImportForm({ school }: { school: string }) {
     const data = new FormData(formRef.current!);
     setDone(null);
     start(async () => {
-      const res = await checkImportAction(school, data);
+      const res = await checkAction(school, data);
       setError(describe(res));
       setPreview(res.ok ? res.data : null);
     });
@@ -41,7 +57,7 @@ export function ImportForm({ school }: { school: string }) {
   function run() {
     const data = new FormData(formRef.current!);
     start(async () => {
-      const res = await runImportAction(school, data);
+      const res = await runAction(school, data);
       setError(describe(res));
       if (res.ok) {
         setDone(res.data.created);
@@ -54,8 +70,9 @@ export function ImportForm({ school }: { school: string }) {
 
   const errors = preview?.filter((r) => r.errors.length > 0) ?? [];
   const label = (code: string) => {
-    const [kind, column] = code.split(":");
-    return column ? t(`errorLabels.${kind}`, { column }) : t(`errorLabels.${kind}`);
+    const [kind, ...rest] = code.split(":");
+    const arg = rest.join(":");
+    return t(`errorLabels.${kind}`, { column: arg, name: arg });
   };
 
   return (
@@ -75,7 +92,7 @@ export function ImportForm({ school }: { school: string }) {
         </div>
         <label className="flex items-center gap-3 text-sm">
           <input type="checkbox" name="sendAccess" defaultChecked className="accent-primary size-5" />
-          {t("sendAccess")}
+          {tx("sendAccess")}
         </label>
         <Button type="submit" variant="outline" disabled={pending} className="self-start">
           {t("check")}
@@ -83,7 +100,7 @@ export function ImportForm({ school }: { school: string }) {
       </form>
 
       {error && <Alert variant="destructive">{error}</Alert>}
-      {done !== null && <Alert variant="success">{t("done", { count: done })}</Alert>}
+      {done !== null && <Alert variant="success">{tx("done", { count: done })}</Alert>}
 
       {preview && (
         <div className="flex flex-col gap-4" aria-live="polite">
@@ -102,7 +119,7 @@ export function ImportForm({ school }: { school: string }) {
               <thead>
                 <tr>
                   <Th>{t("line")}</Th>
-                  <Th>{t("student")}</Th>
+                  <Th>{tx("person")}</Th>
                   <Th>{t("errors")}</Th>
                 </tr>
               </thead>
@@ -113,24 +130,18 @@ export function ImportForm({ school }: { school: string }) {
                     <Td>
                       {r.values.nom} {r.values.prenom}
                     </Td>
-                    <Td className="text-destructive">
-                      {r.errors
-                        .map((e) =>
-                          e === "unknownClass"
-                            ? t("errorLabels.unknownClass", { name: r.values.classe ?? "" })
-                            : label(e),
-                        )
-                        .join(" · ")}
-                    </Td>
+                    <Td className="text-destructive">{r.errors.map(label).join(" · ")}</Td>
                   </tr>
                 ))}
               </tbody>
             </Table>
           ) : null}
-          {errors.some((r) => r.errors.includes("unknownClass")) && <Alert>{t("unknownClassHelp")}</Alert>}
+          {errors.some((r) => r.errors.some((e) => /^unknown(Class|Subject)/.test(e))) && (
+            <Alert>{tx("unknownHelp")}</Alert>
+          )}
           {errors.length === 0 && (
             <Button onClick={run} disabled={pending} size="lg" className="self-start">
-              {t("confirm", { count: preview.length })}
+              {tx("confirm", { count: preview.length })}
             </Button>
           )}
         </div>
