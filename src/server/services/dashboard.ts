@@ -220,7 +220,7 @@ export async function getSchoolInsights(ctx: SchoolContext) {
         dueDate: { lte: new Date() },
       },
     });
-    if (debtors.length) out.alerts.push({ key: "debtors", count: debtors.length, href: "finance/debtors" });
+    if (debtors.length) out.alerts.push({ key: "debtors", count: debtors.length, href: "finance/unpaid" });
   }
   const lowStock = await lowStockCount(ctx);
   if (lowStock) out.alerts.push({ key: "lowStock", count: lowStock, href: "inventory" });
