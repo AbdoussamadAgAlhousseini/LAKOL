@@ -26,6 +26,12 @@ describe("configuration de production", () => {
     expect(checkEnv(PROD)).toEqual({ errors: [], warnings: [] });
   });
 
+  it("démarrage d'essai (installer-serveur.sh) : WhatsApp et email simulés n'empêchent pas de démarrer", () => {
+    const { errors, warnings } = checkEnv({ ...PROD, WHATSAPP_PROVIDER: "mock", EMAIL_PROVIDER: "mock" });
+    expect(errors).toEqual([]);
+    expect(warnings.join("\n")).toMatch(/aucun WhatsApp/);
+  });
+
   it("signale les oublis bloquants", () => {
     const { errors } = checkEnv({
       ...PROD,

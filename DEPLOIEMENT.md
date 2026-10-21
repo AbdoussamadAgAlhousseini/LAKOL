@@ -14,6 +14,22 @@ Internet ──► Caddy (HTTPS, certificats automatiques, sous-domaines des éc
              Redis ◄──── worker (WhatsApp, emails, rappels, abonnements)
 ```
 
+## Installation express (essai)
+
+Sur un VPS Ubuntu 24.04 neuf, une fois le DNS configuré (section 2), connecté en root :
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AbdoussamadAgAlhousseini/LAKOL/main/scripts/installer-serveur.sh -o installer.sh
+bash installer.sh
+```
+
+Le script demande le domaine, une adresse email et le mot de passe du super admin. Il fait ensuite les sections 3
+et 7 : Docker, pare-feu, mises à jour automatiques, code dans `/opt/lakol`, `.env.production` avec des secrets
+aléatoires, démarrage et vérification. WhatsApp et email démarrent **simulés** (messages dans
+`logs worker`) : les brancher ensuite avec les sections 4 et 5, puis relancer
+`docker compose -f docker-compose.prod.yml --env-file .env.production up -d`. Relancer le script met à jour le code
+sans toucher à la configuration.
+
 ## 1. Ce qu'il faut avant de commencer
 
 | Élément            | Recommandation                                                                                                                                           |
